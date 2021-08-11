@@ -19,6 +19,7 @@ bool debug = false;
 
 // Arduino Pins
 
+
 // A4988 stepper(MOTOR_STEPS, DIR, STEP, MS1, MS2, MS3)
 // focus ring is infront compared to zoom ring
 A4988 focus_motor(MOTOR_STEPS, 3, 4);
@@ -28,6 +29,7 @@ A4988 zoom_motor(MOTOR_STEPS, 5,6);
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 // EEPROM declaration (0-255 int)
+
 
 // variable declaration
 int value = 0;
