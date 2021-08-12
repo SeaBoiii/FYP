@@ -2,6 +2,7 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <avr/pgmspace.h>
+#include <EEPROM.h>
 
 // for debugging
 bool debug = false;
@@ -18,40 +19,57 @@ bool debug = false;
 #define MOTOR_STEPS 200
 
 // Arduino Pins
+/* Motor Pins */
+#define focus_DIR 3
+#define focus_STEP 4
+#define zoom_DIR 5
+#define zoom_STEP 6
 
+/* Joystick Pins */
+#define VRX A0
+#define VRY A1
+#define SW 13
 
 // A4988 stepper(MOTOR_STEPS, DIR, STEP, MS1, MS2, MS3)
 // focus ring is infront compared to zoom ring
+// motor objects
 A4988 focus_motor(MOTOR_STEPS, 3, 4);
 A4988 zoom_motor(MOTOR_STEPS, 5,6);
+
+// Joystick joy(VRX, VRY, SW)
+// creating Joystick object
 
 // display object
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 // EEPROM declaration (0-255 int)
-
+/* Things that are saved
+ *  - diff_focus    (Max range of focus)
+ *  - diff_zoom     (Max range of zoom)
+ *  - focus_min     (Last focus call)
+ *  - zoom_min      (Last zoom call)
+ */
+int focus_min;
+int zoom_min;
+int diff_focus;
+int diff_zoom;
 
 // variable declaration
-int value = 0;
+int value = 0;    // debug value
 
 int option = 0;
 int focus_max = 0;
-int focus_min = 0;
 int zoom_max = 0;
-int zoom_min = 0;
 
 int button = 1; // 0 for click
 int x_value = 0;
 int y_value = 0;
 
-int diff_focus = 0;
-int diff_zoom = 0;
-
 void setup() {
   // setting up the joystick
-  pinMode(A0, INPUT);
-  pinMode(A1, INPUT);
-  pinMode(12, INPUT_PULLUP);
+  pinMode(VRX, INPUT);
+  pinMode(VRY, INPUT);
+  pinMode(SW, INPUT_PULLUP);
 
   // setting up motor (RPM to 1 and Microstepping to 1)
   focus_motor.begin(1, 1);
