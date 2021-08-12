@@ -1,4 +1,4 @@
-#include "A4988.h"
+#include <A4988.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <avr/pgmspace.h>
@@ -38,6 +38,7 @@ A4988 zoom_motor(MOTOR_STEPS, 5,6);
 
 // Joystick joy(VRX, VRY, SW)
 // creating Joystick object
+/* will be done when cleaning up code */
 
 // display object
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
@@ -49,10 +50,10 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
  *  - focus_min     (Last focus call)
  *  - zoom_min      (Last zoom call)
  */
-int focus_min;
-int zoom_min;
-int diff_focus;
-int diff_zoom;
+int focus_min;      // address 0
+int zoom_min;       // address 1
+int diff_focus;     // address 2
+int diff_zoom;      // address 3
 
 // variable declaration
 int value = 0;    // debug value
@@ -65,6 +66,10 @@ int button = 1; // 0 for click
 int x_value = 0;
 int y_value = 0;
 
+
+/* Setting up the Arduino
+ * [When first powering up]
+ */
 void setup() {
   // setting up the joystick
   pinMode(VRX, INPUT);
@@ -91,6 +96,26 @@ void setup() {
   //display.display();
   //delay(2000);
 
+
+  // trys to reads the stored values in memory
+  // if empty (==255), setting the default values to 0
+  focus_min = EEPROM.read(0);
+  zoom_min = EEPROM.read(1);
+  diff_focus = EEPROM.read(2);
+  diff_zoom = EEPROM.read(3);
+  if (focus_min == 255) {
+    focus_min = 0;
+  }
+  if (zoom_min == 255) {
+    zoom_min = 0;
+  }
+  if (diff_focus == 255) {
+    diff_focus = 0;
+  }
+  if (diff_zoom == 255) {
+    diff_zoom =0;
+  }
+ 
   // setting up
   display.clearDisplay();
   display.setTextSize(2);
@@ -307,7 +332,61 @@ void setup() {
 
 void(* resetFunc) (void) = 0;
 
+/* Main Loop */
 void loop() {
+  /* Main Menu
+   * - Recalibration (Initialisation)
+   * - Start
+   * - Quit
+   */
+
+  while (button != 0) {
+    // moving joystick down
+    if (y_value>600 && 450<x_value<850) {
+      if (option == 2) {
+        option = 0;
+      }
+      else {
+        option++;
+      }
+      delay(200);
+    }
+
+    // moving joystick up
+    if (y_value<440 && 450<x_value<850) {
+      if (option == 0) {
+        option == 2;
+      }
+      else {
+        option--;
+      }
+      delay(200);
+    }
+
+    // Recalibration or Initialisation
+    if (option ==0) {
+      display.clearDisplay();
+      display.setCursor(0,0);
+      display.print(F("|---- Main Menu ----|\n"));
+      display.drawRect(0,9,SCREEN_WIDTH,12,WHITE);
+      display.setCursor(2,11);
+      display.setTextColor(BLACK,WHITE);
+      if (diff_zoom==0 && diff_focus==0) {
+        display.print(F("Initialisation"));
+      } else {
+        display.print(F("Recalibration"));
+      }
+      display.drawRect(0,20,SCREEN_WIDTH,12,WHITE);
+      display.setTextColor(WHITE);
+      display.setCursor(2,22);
+      display.print(F("Start.exe"));
+      display.drawRect(0,31,SCREEN_WIDTH,12,WHITE);
+      display.setCursor(2,33);
+      display.print(F("Quit()"));
+      display.display();
+      display.setTextColor(WHITE);
+    }
+  }
   while (button != 0) {
     // down
     if (y_value>600 && 450<x_value<850) {
