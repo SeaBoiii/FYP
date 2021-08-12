@@ -28,7 +28,7 @@ bool debug = false;
 /* Joystick Pins */
 #define VRX A0
 #define VRY A1
-#define SW 13
+#define SW 12
 
 // A4988 stepper(MOTOR_STEPS, DIR, STEP, MS1, MS2, MS3)
 // focus ring is infront compared to zoom ring
@@ -92,9 +92,9 @@ void setup() {
   }
 
   // initial display buffer (Adafruit splash screen)
-  //display.clearDisplay();
-  //display.display();
-  //delay(2000);
+  display.clearDisplay();
+  display.display();
+  delay(3000);
 
 
   // trys to reads the stored values in memory
@@ -387,7 +387,7 @@ void loop() {
       display.setTextColor(WHITE);
     }
     // start
-    else if (option == 1) {
+    if (option == 1) {
       display.clearDisplay();
       display.setCursor(0,0);
       display.print(F("|---- Main Menu ----|\n"));
@@ -410,7 +410,7 @@ void loop() {
       display.setTextColor(WHITE);
     }
     // quit
-    else if (option == 2) {
+    if (option == 2) {
       display.clearDisplay();
       display.setCursor(0,0);
       display.print(F("|---- Main Menu ----|\n"));
@@ -445,9 +445,17 @@ void loop() {
   
   // Recalibration/Initialisation
   if (main_option == 0) {
-
+      if (diff_zoom==0 && diff_focus==0) {
+        
+      }
   }
   // Start.exe 
+  /* Start Menu
+   * - Zoom
+   * - Focus
+   * - Presets
+   * - Back
+   */
   if (main_option == 1) {
     while (button != 0) {
       // down
