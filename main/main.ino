@@ -117,6 +117,7 @@ void setup() {
   }
  
   // setting up
+  /*
   display.clearDisplay();
   display.setTextSize(2);
   display.setTextColor(WHITE);
@@ -129,204 +130,7 @@ void setup() {
   display.setCursor(1, 45);
   display.println(F("Please follow instructions"));
   display.display();
-  delay(3000);
-
-  // set the focus_max
-  while (button != 0) {
-    display.clearDisplay();
-    display.setTextSize(1);
-    display.setCursor(0,5);
-    display.println(F("Max range(focus ring)\n"));
-    display.println(F("Press joystick to \nconfirm."));
-    display.drawFastHLine(0,40, display.width(), WHITE);
-    display.setTextSize(2);
-    display.setCursor(28, 49);
-    display.print(F("Max:"));
-    display.print(focus_max);
-    display.display();
-    if (x_value>600 && 450<y_value<850) {
-      if (focus_max == 360) {
-        focus_max = focus_max;
-      }
-      else {
-        focus_max++;
-        focus_motor.rotate(1);
-      }
-      delay(100);
-    }
-    if (x_value<440 && 450<y_value<850) {
-      if (focus_max == 0) {
-        focus_max = focus_max;
-      }
-      else {
-        focus_max--;
-        focus_motor.rotate(-1);
-      }
-      delay(100);
-    }
-
-    x_value = analogRead(VRX);
-    y_value = analogRead(VRY);
-    button = digitalRead(SW);
-  }
-
-  delay(500);
-  
-  // set the focus_min
-  display.clearDisplay();
-  focus_min = focus_max;
-
-  button = 1; // 0 for click
-  x_value = analogRead(VRX);
-  y_value = analogRead(VRY);
-
-  while (button != 0) {
-    display.clearDisplay();
-    display.setTextSize(1);
-    display.setCursor(0,5);
-    display.println(F("Min range(focus ring)\n"));
-    display.println(F("Press joystick to \nconfirm."));
-    display.drawFastHLine(0,40, display.width(), WHITE);
-    display.setTextSize(2);
-    display.setCursor(28, 49);
-    display.print(F("Min:"));
-    display.print(focus_min);
-    display.display();
-    if (x_value>600 && 450<y_value<850) {
-      if (focus_min == focus_max) {
-        focus_min = focus_min;
-      }
-      else {
-        focus_min++;
-        focus_motor.rotate(1);
-      }
-      delay(100);
-    }
-    if (x_value<440 && 450<y_value<850) {
-      if (focus_min == 0) {
-        focus_min = focus_min;
-      }
-      else {
-        focus_min--;
-        focus_motor.rotate(-1);
-      }
-      delay(100);
-    }
-
-    x_value = analogRead(VRX);
-    y_value = analogRead(VRY);
-    button = digitalRead(SW);
-  }
-
-  delay(500);
-
-  // set the zoom_max
-  button = 1;
-  x_value = analogRead(VRX);
-  y_value = analogRead(VRY);
-  
-  while (button != 0) {
-    display.clearDisplay();
-    display.setTextSize(1);
-    display.setCursor(0,5);
-    display.println(F("Max range (zoom ring)\n"));
-    display.println(F("Press joystick to \nconfirm."));
-    display.drawFastHLine(0,40, display.width(), WHITE);
-    display.setTextSize(2);
-    display.setCursor(28, 49);
-    display.print(F("Max:"));
-    display.print(zoom_max);
-    display.display();
-    if (x_value>600 && 450<y_value<850) {
-      if (zoom_max == 360) {
-        zoom_max = zoom_max;
-      }
-      else {
-        zoom_max++;
-        zoom_motor.rotate(-1);
-      }
-      delay(100);
-    }
-    if (x_value<440 && 450<y_value<850) {
-      if (zoom_max == -zoom_max) {
-        zoom_max = zoom_max;
-      }
-      else {
-        zoom_max--;
-        zoom_motor.rotate(1);
-      }
-      delay(100);
-    }
-
-    x_value = analogRead(VRX);
-    y_value = analogRead(VRY);
-    button = digitalRead(SW);
-  }
-
-  delay(500);
-  
-  // set the zoom_min
-  display.clearDisplay();
-  zoom_min = zoom_max;
-
-  button = 1; // 0 for click
-  x_value = analogRead(VRX);
-  y_value = analogRead(VRY);
-
-  while (button != 0) {
-    display.clearDisplay();
-    display.setTextSize(1);
-    display.setCursor(0,5);
-    display.println(F("Min range (zoom ring)\n"));
-    display.println(F("Press joystick to \nconfirm."));
-    display.drawFastHLine(0,40, display.width(), WHITE);
-    display.setTextSize(2);
-    display.setCursor(28, 49);
-    display.print(F("Min:"));
-    display.print(zoom_min);
-    display.display();
-    if (x_value>600 && 450<y_value<850) {
-      if (zoom_min == zoom_max) {
-        zoom_min = zoom_min;
-      }
-      else {
-        zoom_min++;
-        zoom_motor.rotate(-1);
-      }
-      delay(100);
-    }
-    if (x_value<440 && 450<y_value<850) {
-      if (zoom_min == 0) {
-        zoom_min = zoom_min;
-      }
-      else {
-        zoom_min--;
-        zoom_motor.rotate(1);
-      }
-      delay(100);
-    }
-
-    x_value = analogRead(VRX);
-    y_value = analogRead(VRY);
-    button = digitalRead(SW);
-  }
-  
-  diff_focus = focus_max - focus_min;
-  diff_zoom = zoom_max - zoom_min;
-  focus_max = diff_focus;
-  focus_min = 0;
-  zoom_max = diff_zoom;
-  zoom_min = 0;
-
-  // note that now both focus and zoom motor is at ideal 0 (min)
-  // drawing of main menu
-  // 0=zoom, 1=focus, 2=presets, 3=recalibration, 4=quit
-  delay(500);
-  x_value = analogRead(VRX);
-  y_value = analogRead(VRY);
-  button = 1;
-  display.clearDisplay();
-  display.setTextSize(1);
+  delay(3000); */
 
 }
 
@@ -355,7 +159,7 @@ void loop() {
     // moving joystick up
     if (y_value<440 && 450<x_value<850) {
       if (option == 0) {
-        option == 2;
+        option = 2;
       }
       else {
         option--;
@@ -442,12 +246,219 @@ void loop() {
   x_value = analogRead(VRX);
   y_value = analogRead(VRY);
   button = 1;
+  delay(500);
   
   // Recalibration/Initialisation
   if (main_option == 0) {
+      // initialisation (no memory was stored)
       if (diff_zoom==0 && diff_focus==0) {
+        // set the focus_max
+        while (button != 0) {
+          display.clearDisplay();
+          display.setTextSize(1);
+          display.setCursor(0,5);
+          display.println(F("Max range(focus ring)\n"));
+          display.println(F("Press to confirm."));
+          display.drawFastHLine(0,40, display.width(), WHITE);
+          display.setTextSize(2);
+          display.setCursor(28, 49);
+          display.print(F("Max:"));
+          display.print(focus_max);
+          display.display();
+          if (x_value>600 && 450<y_value<850) {
+            if (focus_max == 250) {
+              focus_max = focus_max;
+            }
+            else {
+              focus_max++;
+              focus_motor.move(1);
+            }
+            delay(100);
+          }
+          if (x_value<440 && 450<y_value<850) {
+            if (focus_max == 0) {
+              focus_max = focus_max;
+            }
+            else {
+              focus_max--;
+              focus_motor.move(-1);
+            }
+            delay(100);
+          }
+
+          x_value = analogRead(VRX);
+          y_value = analogRead(VRY);
+          button = digitalRead(SW);
+        }
         
+        display.clearDisplay();
+        focus_min = focus_max;
+
+        button = 1; // 0 for click
+        x_value = analogRead(VRX);
+        y_value = analogRead(VRY);
+        delay(500);
+
+        // focus_min
+        while (button != 0) {
+          display.clearDisplay();
+          display.setTextSize(1);
+          display.setCursor(0,5);
+          display.println(F("Min range(focus ring)\n"));
+          display.println(F("Press to confirm."));
+          display.drawFastHLine(0,40, display.width(), WHITE);
+          display.setTextSize(2);
+          display.setCursor(28, 49);
+          display.print(F("Min:"));
+          display.print(focus_min);
+          display.display();
+          if (x_value>600 && 450<y_value<850) {
+            if (focus_min == focus_max) {
+              focus_min = focus_min;
+            }
+            else {
+              focus_min++;
+              focus_motor.move(1);
+            }
+            delay(100);
+          }
+          if (x_value<440 && 450<y_value<850) {
+            if (focus_min == -focus_max) {
+              focus_min = focus_min;
+            }
+            else {
+              focus_min--;
+              focus_motor.move(-1);
+            }
+            delay(100);
+          }
+
+          x_value = analogRead(VRX);
+          y_value = analogRead(VRY);
+          button = digitalRead(SW);
+        }
+
+        button = 1;
+        x_value = analogRead(VRX);
+        y_value = analogRead(VRY);
+        delay(500);
+
+        // set the zoom_max
+        while (button != 0) {
+          display.clearDisplay();
+          display.setTextSize(1);
+          display.setCursor(0,5);
+          display.println(F("Max range (zoom ring)\n"));
+          display.println(F("Press to confirm."));
+          display.drawFastHLine(0,40, display.width(), WHITE);
+          display.setTextSize(2);
+          display.setCursor(28, 49);
+          display.print(F("Max:"));
+          display.print(zoom_max);
+          display.display();
+          if (x_value>600 && 450<y_value<850) {
+            if (zoom_max == 250) {
+              zoom_max = zoom_max;
+            }
+            else {
+              zoom_max++;
+              zoom_motor.move(-1);
+            }
+            delay(100);
+          }
+          if (x_value<440 && 450<y_value<850) {
+            if (zoom_max == 0) {
+              zoom_max = zoom_max;
+            }
+            else {
+              zoom_max--;
+              zoom_motor.move(1);
+            }
+            delay(100);
+          }
+
+          x_value = analogRead(VRX);
+          y_value = analogRead(VRY);
+          button = digitalRead(SW);
+        }
+        
+        display.clearDisplay();
+        zoom_min = zoom_max;
+
+        button = 1; // 0 for click
+        x_value = analogRead(VRX);
+        y_value = analogRead(VRY);
+        delay(500);
+
+        // set the zoom_min
+        while (button != 0) {
+          display.clearDisplay();
+          display.setTextSize(1);
+          display.setCursor(0,5);
+          display.println(F("Min range (zoom ring)\n"));
+          display.println(F("Press to confirm."));
+          display.drawFastHLine(0,40, display.width(), WHITE);
+          display.setTextSize(2);
+          display.setCursor(28, 49);
+          display.print(F("Min:"));
+          display.print(zoom_min);
+          display.display();
+          if (x_value>600 && 450<y_value<850) {
+            if (zoom_min == zoom_max) {
+              zoom_min = zoom_min;
+            }
+            else {
+              zoom_min++;
+              zoom_motor.move(-1);
+            }
+            delay(100);
+          }
+          if (x_value<440 && 450<y_value<850) {
+            if (zoom_min == -zoom_max) {
+              zoom_min = zoom_min;
+            }
+            else {
+              zoom_min--;
+              zoom_motor.move(1);
+            }
+            delay(100);
+          }
+
+          x_value = analogRead(VRX);
+          y_value = analogRead(VRY);
+          button = digitalRead(SW);
+        }
+
+        // calculating range
+        diff_focus = focus_max - focus_min;
+        diff_zoom = zoom_max - zoom_min;
+
+        // saving of variables
+        /*
+        int focus_min;      // address 0
+        int zoom_min;       // address 1
+        int diff_focus;     // address 2
+        int diff_zoom;      // address 3
+        */
+        EEPROM.write(2,diff_focus);
+        EEPROM.write(3,diff_zoom);
+
+        focus_max = diff_focus;
+        focus_min = 0;
+        zoom_max = diff_zoom;
+        zoom_min = 0;
+
+        // note that now both focus and zoom motor is at ideal 0 (min)
+        // drawing of main menu
+        // 0=zoom, 1=focus, 2=presets, 3=recalibration, 4=quit
+        x_value = analogRead(VRX);
+        y_value = analogRead(VRY);
+        button = 1;
+        display.clearDisplay();
+        display.setTextSize(1);
+        delay(500);
       }
+      
   }
   // Start.exe 
   /* Start Menu
@@ -577,6 +588,7 @@ void loop() {
     x_value = analogRead(VRX);
     y_value = analogRead(VRY);
     button = 1;
+    delay(500);
 
     // zoom ring
     if (start_option == 0) {
