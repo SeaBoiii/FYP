@@ -651,6 +651,7 @@ void loop() {
           delay(500);
           
           if (sure) {
+            zoom_max = 0;
             setZoomRange();
             
             diff_zoom = zoom_max - zoom_min;
@@ -717,6 +718,7 @@ void loop() {
           delay(500);
 
           if (sure) {
+            focus_max = 0;
             setFocusRange();
 
             diff_focus = focus_max - focus_min;
@@ -820,6 +822,7 @@ void loop() {
    * - Presets
    * - Back
    */
+   STARTMENU:
   if (main_option == 1) {
     // if calibration not done
     if (diff_zoom==0 && diff_focus==0) {
@@ -1067,7 +1070,7 @@ void loop() {
             }
             else {
               zoom_min++;
-              zoom_motor.rotate(ZOOM_MOVE);
+              zoom_motor.move(ZOOM_MOVE);
             }
             delay(200);
           }
@@ -1077,7 +1080,7 @@ void loop() {
             }
             else {
               zoom_min--;
-              zoom_motor.rotate(-ZOOM_MOVE);
+              zoom_motor.move(-ZOOM_MOVE);
             }
             delay(200);
           }
@@ -1100,7 +1103,7 @@ void loop() {
           button = 1;
           delay(500);
           EEPROM.write(1,zoom_min);
-          break;
+          goto STARTMENU;
         }
       }
       
@@ -1112,7 +1115,7 @@ void loop() {
       display.clearDisplay();
       display.setCursor(0,0);
       display.setTextColor(BLACK,WHITE);
-      display.print(F("|---- Focus Ring ----|\n"));
+      display.print(F("|---- Focus Ring----|\n"));
       display.setTextColor(WHITE);
       display.print(F("\nRange:  "));
       display.print(diff_focus);
@@ -1153,7 +1156,7 @@ void loop() {
           focus_divs = focus_min*divs;
           display.setCursor(0,0);
           display.setTextColor(BLACK,WHITE);
-          display.print(F("|---- Focus Ring ----|\n"));
+          display.print(F("|---- Focus Ring----|\n"));
           display.setTextColor(WHITE,BLACK);
           display.setCursor(2,55);
           display.print(F("Back"));
@@ -1169,7 +1172,7 @@ void loop() {
             }
             else {
               focus_min++;
-              focus_motor.rotate(FOCUS_MOVE);
+              focus_motor.move(FOCUS_MOVE);
             }
             delay(200);
           }
@@ -1179,7 +1182,7 @@ void loop() {
             }
             else {
               focus_min--;
-              focus_motor.rotate(-FOCUS_MOVE);
+              focus_motor.move(-FOCUS_MOVE);
             }
             delay(200);
           }
@@ -1188,7 +1191,7 @@ void loop() {
         if (sub_option == 1) {
           display.setCursor(0,0);
           display.setTextColor(WHITE,BLACK);
-          display.print(F("|---- Focus Ring ----|\n"));
+          display.print(F("|---- Focus Ring----|\n"));
           display.setTextColor(BLACK,WHITE);
           display.setCursor(2,55);
           display.print(F("Back"));
@@ -1202,7 +1205,7 @@ void loop() {
           button = 1;
           delay(500);
           EEPROM.write(0,focus_min);
-          break;
+          goto STARTMENU;
         }
       }
       
