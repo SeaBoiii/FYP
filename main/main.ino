@@ -1,3 +1,4 @@
+#include <splash.h>
 #include <A4988.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
