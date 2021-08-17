@@ -355,74 +355,39 @@ void loop() {
       delay(200);
     }
 
-    // selected -> Recalibration or Initialisation 
+    display.clearDisplay();
+    display.setCursor(0,0);
+    display.print(F("|---- Main Menu ----|\n"));
+    display.drawRect(0,9,SCREEN_WIDTH,12,WHITE);
+    display.setCursor(2,11);
     if (option == 0) {
-      display.clearDisplay();
-      display.setCursor(0,0);
-      display.print(F("|---- Main Menu ----|\n"));
-      display.drawRect(0,9,SCREEN_WIDTH,12,WHITE);
-      display.setCursor(2,11);
       display.setTextColor(BLACK,WHITE);
-      if (diff_zoom==0 && diff_focus==0) {
-        display.print(F("Initialisation"));
-      } else {
-        display.print(F("Recalibration"));
-      }
-      display.drawRect(0,20,SCREEN_WIDTH,12,WHITE);
-      display.setTextColor(WHITE);
-      display.setCursor(2,22);
-      display.print(F("Start.exe"));
-      display.drawRect(0,31,SCREEN_WIDTH,12,WHITE);
-      display.setCursor(2,33);
-      display.print(F("Quit()"));
-      display.display();
+    } else {
       display.setTextColor(WHITE);
     }
-    // selected -> start
+    if (diff_zoom==0 && diff_focus==0) {
+      display.print(F("Initialisation"));
+    } else {
+      display.print(F("Recalibration"));
+    }
+    display.drawRect(0,20,SCREEN_WIDTH,12,WHITE);
+    display.setCursor(2,22);
     if (option == 1) {
-      display.clearDisplay();
-      display.setCursor(0,0);
-      display.print(F("|---- Main Menu ----|\n"));
-      display.drawRect(0,9,SCREEN_WIDTH,12,WHITE);
-      display.setCursor(2,11);
-      if (diff_zoom==0 && diff_focus==0) {
-        display.print(F("Initialisation"));
-      } else {
-        display.print(F("Recalibration"));
-      }
-      display.drawRect(0,20,SCREEN_WIDTH,12,WHITE);
       display.setTextColor(BLACK,WHITE);
-      display.setCursor(2,22);
-      display.print(F("Start.exe"));
-      display.drawRect(0,31,SCREEN_WIDTH,12,WHITE);
-      display.setTextColor(WHITE);
-      display.setCursor(2,33);
-      display.print(F("Quit()"));
-      display.display();
+    } else {
       display.setTextColor(WHITE);
     }
-    // selected -> quit
+    display.print(F("Start.exe"));
+    display.drawRect(0,31,SCREEN_WIDTH,12,WHITE);
+    display.setCursor(2,33);
     if (option == 2) {
-      display.clearDisplay();
-      display.setCursor(0,0);
-      display.print(F("|---- Main Menu ----|\n"));
-      display.drawRect(0,9,SCREEN_WIDTH,12,WHITE);
-      display.setCursor(2,11);
-      if (diff_zoom==0 && diff_focus==0) {
-        display.print(F("Initialisation"));
-      } else {
-        display.print(F("Recalibration"));
-      }
-      display.drawRect(0,20,SCREEN_WIDTH,12,WHITE);
-      display.setCursor(2,22);
-      display.print(F("Start.exe"));
-      display.drawRect(0,31,SCREEN_WIDTH,12,WHITE);
       display.setTextColor(BLACK,WHITE);
-      display.setCursor(2,33);
-      display.print(F("Quit()"));
-      display.display();
+    } else {
       display.setTextColor(WHITE);
     }
+    display.print(F("Quit()"));
+    display.display();
+    display.setTextColor(WHITE);
 
     x_value = analogRead(VRX);
     y_value = analogRead(VRY);
@@ -496,93 +461,44 @@ void loop() {
             }
             delay(200);
           }
-          // Zoom Recalibration
+
+          display.clearDisplay();
+          display.setCursor(0,0);
+          display.print(F("|---Recalibration---|\n"));
+          display.drawRect(0,9,SCREEN_WIDTH,12,WHITE);
+          display.setCursor(2,11);
           if (re_option == 0) {
-            display.clearDisplay();
-            display.setCursor(0,0);
-            display.print(F("|---Recalibration---|\n"));
-            display.drawRect(0,9,SCREEN_WIDTH,12,WHITE);
-            display.setCursor(2,11);
             display.setTextColor(BLACK,WHITE);
-            display.print(F("Zoom Recalibration"));
-            display.drawRect(0,20,SCREEN_WIDTH,12,WHITE);
+          } else {
             display.setTextColor(WHITE);
-            display.setCursor(2,22);
-            display.print(F("Focus Recalibration"));
-            display.drawRect(0,31,SCREEN_WIDTH,12,WHITE);
-            display.setCursor(2,33);
-            display.print(F("RESET all values"));
-            display.drawRect(0,42,SCREEN_WIDTH,12,WHITE);
-            display.setCursor(2,44);
-            display.print(F("Back"));
-            display.display();
-            display.setTextColor(WHITE);
-          }
-          // Foccus Recalibration
+          }  
+          display.print(F("Zoom Recalibration"));
+          display.drawRect(0,20,SCREEN_WIDTH,12,WHITE);
+          display.setCursor(2,22);
           if (re_option == 1) {
-            display.clearDisplay();
-            display.setCursor(0,0);
-            display.print(F("|---Recalibration---|\n"));
-            display.drawRect(0,9,SCREEN_WIDTH,12,WHITE);
-            display.setCursor(2,11);
-            display.print(F("Zoom Recalibration"));
-            display.drawRect(0,20,SCREEN_WIDTH,12,WHITE);
             display.setTextColor(BLACK,WHITE);
-            display.setCursor(2,22);
-            display.print(F("Focus Recalibration"));
-            display.drawRect(0,31,SCREEN_WIDTH,12,WHITE);
-            display.setCursor(2,33);
-            display.setTextColor(WHITE);
-            display.print(F("RESET all values"));
-            display.drawRect(0,42,SCREEN_WIDTH,12,WHITE);
-            display.setCursor(2,44);
-            display.print(F("Back"));
-            display.display();
+          } else {
             display.setTextColor(WHITE);
           }
-          // Reset all
+          display.print(F("Focus Recalibration"));
+          display.drawRect(0,31,SCREEN_WIDTH,12,WHITE);
+          display.setCursor(2,33);
           if (re_option == 2) {
-            display.clearDisplay();
-            display.setCursor(0,0);
-            display.print(F("|---Recalibration---|\n"));
-            display.drawRect(0,9,SCREEN_WIDTH,12,WHITE);
-            display.setCursor(2,11);       
-            display.print(F("Zoom Recalibration"));
-            display.drawRect(0,20,SCREEN_WIDTH,12,WHITE);
-            display.setCursor(2,22);
-            display.print(F("Focus Recalibration"));
-            display.drawRect(0,31,SCREEN_WIDTH,12,WHITE);
-            display.setCursor(2,33);
             display.setTextColor(BLACK,WHITE);
-            display.print(F("RESET all values"));
-            display.drawRect(0,42,SCREEN_WIDTH,12,WHITE);
-            display.setCursor(2,44);
-            display.setTextColor(WHITE);
-            display.print(F("Back"));
-            display.display();
+          } else {
             display.setTextColor(WHITE);
           }
-          // Back
+          display.print(F("RESET all values"));
+          display.drawRect(0,42,SCREEN_WIDTH,12,WHITE);
+          display.setCursor(2,44);
           if (re_option == 3) {
-            display.clearDisplay();
-            display.setCursor(0,0);
-            display.print(F("|---Recalibration---|\n"));
-            display.drawRect(0,9,SCREEN_WIDTH,12,WHITE);
-            display.setCursor(2,11);
-            display.print(F("Zoom Recalibration"));
-            display.drawRect(0,20,SCREEN_WIDTH,12,WHITE);
-            display.setCursor(2,22);
-            display.print(F("Focus Recalibration"));
-            display.drawRect(0,31,SCREEN_WIDTH,12,WHITE);
-            display.setCursor(2,33);
-            display.print(F("RESET all values"));
-            display.drawRect(0,42,SCREEN_WIDTH,12,WHITE);
-            display.setCursor(2,44);
             display.setTextColor(BLACK,WHITE);
-            display.print(F("Back"));
-            display.display();
+          } else {
             display.setTextColor(WHITE);
           }
+          display.print(F("Back"));
+          display.display();
+          display.setTextColor(WHITE);
 
           x_value = analogRead(VRX);
           y_value = analogRead(VRY);
@@ -615,32 +531,27 @@ void loop() {
               delay(200);
             }
 
+            display.clearDisplay();
+            display.setCursor(27,22);
+            display.println(F("Are you sure?"));
+            display.drawRect(43,30,36,12,WHITE);
+            display.setCursor(45,32);
             if (sure) {
-              display.clearDisplay();
-              display.setCursor(27,22);
-              display.println(F("Are you sure?"));
-              display.drawRect(43,30,36,12,WHITE);
-              display.setCursor(45,32);
               display.setTextColor(BLACK,WHITE);
-              display.print(F("Yes"));
-              display.setCursor(64,32);
-              display.setTextColor(WHITE);
-              display.print(F("No"));
-              display.display();
-              display.setTextColor(WHITE);
             } else {
-              display.clearDisplay();
-              display.setCursor(27,22);
-              display.println(F("Are you sure?"));
-              display.drawRect(43,30,36,12,WHITE);
-              display.setCursor(45,32);
-              display.print(F("Yes"));
-              display.setCursor(64,32);
-              display.setTextColor(BLACK,WHITE);
-              display.print(F("No"));
-              display.display();
               display.setTextColor(WHITE);
             }
+            display.print(F("Yes"));
+            display.setCursor(64,32);
+            if (sure) {
+              display.setTextColor(WHITE);
+            } else {
+              display.setTextColor(BLACK,WHITE);
+            }
+            display.print(F("No"));
+            display.display();
+            display.setTextColor(WHITE);
+            
             x_value = analogRead(VRX);
             y_value = analogRead(VRY);
             button = digitalRead(SW);
@@ -682,32 +593,27 @@ void loop() {
               delay(200);
             }
 
+            display.clearDisplay();
+            display.setCursor(27,22);
+            display.println(F("Are you sure?"));
+            display.drawRect(43,30,36,12,WHITE);
+            display.setCursor(45,32);
             if (sure) {
-              display.clearDisplay();
-              display.setCursor(27,22);
-              display.println(F("Are you sure?"));
-              display.drawRect(43,30,36,12,WHITE);
-              display.setCursor(45,32);
               display.setTextColor(BLACK,WHITE);
-              display.print(F("Yes"));
-              display.setCursor(64,32);
-              display.setTextColor(WHITE);
-              display.print(F("No"));
-              display.display();
-              display.setTextColor(WHITE);
             } else {
-              display.clearDisplay();
-              display.setCursor(27,22);
-              display.println(F("Are you sure?"));
-              display.drawRect(43,30,36,12,WHITE);
-              display.setCursor(45,32);
-              display.print(F("Yes"));
-              display.setCursor(64,32);
-              display.setTextColor(BLACK,WHITE);
-              display.print(F("No"));
-              display.display();
               display.setTextColor(WHITE);
             }
+            display.print(F("Yes"));
+            display.setCursor(64,32);
+            if (sure) {
+              display.setTextColor(WHITE);   
+            } else {
+              display.setTextColor(BLACK,WHITE);
+            }
+            display.print(F("No"));
+            display.display();
+            display.setTextColor(WHITE);
+            
             x_value = analogRead(VRX);
             y_value = analogRead(VRY);
             button = digitalRead(SW);
@@ -749,32 +655,27 @@ void loop() {
               delay(200);
             }
 
+            display.clearDisplay();
+            display.setCursor(27,22);
+            display.println(F("Are you sure?"));
+            display.drawRect(43,30,36,12,WHITE);
+            display.setCursor(45,32);
             if (sure) {
-              display.clearDisplay();
-              display.setCursor(27,22);
-              display.println(F("Are you sure?"));
-              display.drawRect(43,30,36,12,WHITE);
-              display.setCursor(45,32);
               display.setTextColor(BLACK,WHITE);
-              display.print(F("Yes"));
-              display.setCursor(64,32);
-              display.setTextColor(WHITE);
-              display.print(F("No"));
-              display.display();
-              display.setTextColor(WHITE);
             } else {
-              display.clearDisplay();
-              display.setCursor(27,22);
-              display.println(F("Are you sure?"));
-              display.drawRect(43,30,36,12,WHITE);
-              display.setCursor(45,32);
-              display.print(F("Yes"));
-              display.setCursor(64,32);
-              display.setTextColor(BLACK,WHITE);
-              display.print(F("No"));
-              display.display();
               display.setTextColor(WHITE);
             }
+            display.print(F("Yes"));
+            display.setCursor(64,32);
+            if (sure) {
+              display.setTextColor(WHITE);
+            } else {
+              display.setTextColor(BLACK,WHITE);
+            }
+            display.print(F("No"));
+            display.display();
+            display.setTextColor(WHITE);
+            
             x_value = analogRead(VRX);
             y_value = analogRead(VRY);
             button = digitalRead(SW);
@@ -786,6 +687,7 @@ void loop() {
 
           if (sure) {
             // reset of variables
+            // setting to 255 will reset the memory
             /*
             int focus_min;      // address 0
             int zoom_min;       // address 1
@@ -841,36 +743,29 @@ void loop() {
           delay(200);
         }
 
+        display.clearDisplay();
+        display.setCursor(0,13);
+        display.println(F("Calibration not done."));
+        display.setCursor(27,22);
+        display.println(F("Are you sure?"));
+        display.drawRect(43,30,36,12,WHITE);
+        display.setCursor(45,32);
         if (sure) {
-          display.clearDisplay();
-          display.setCursor(0,13);
-          display.println(F("Calibration not done."));
-          display.setCursor(27,22);
-          display.println(F("Are you sure?"));
-          display.drawRect(43,30,36,12,WHITE);
-          display.setCursor(45,32);
           display.setTextColor(BLACK,WHITE);
-          display.print(F("Yes"));
-          display.setCursor(64,32);
-          display.setTextColor(WHITE);
-          display.print(F("No"));
-          display.display();
-          display.setTextColor(WHITE);
         } else {
-          display.clearDisplay();
-          display.setCursor(0,13);
-          display.println(F("Calibration not done."));
-          display.setCursor(27,22);
-          display.println(F("Are you sure?"));
-          display.drawRect(43,30,36,12,WHITE);
-          display.setCursor(45,32);
-          display.print(F("Yes"));
-          display.setCursor(64,32);
-          display.setTextColor(BLACK,WHITE);
-          display.print(F("No"));
-          display.display();
           display.setTextColor(WHITE);
         }
+        display.print(F("Yes"));
+        display.setCursor(64,32);
+        if (sure) {
+          display.setTextColor(WHITE);
+        } else {
+          display.setTextColor(BLACK,WHITE);
+        }
+        display.print(F("No"));
+        display.display();
+        display.setTextColor(WHITE);
+
         x_value = analogRead(VRX);
         y_value = analogRead(VRY);
         button = digitalRead(SW);
@@ -905,93 +800,44 @@ void loop() {
         }
         delay(200);
       }
-      // zoom
+      
+      display.clearDisplay();
+      display.setCursor(0,0);
+      display.print(F("|---- Start Menu----|\n"));
+      display.drawRect(0,9,SCREEN_WIDTH,12,WHITE);
+      display.setCursor(2,11); 
       if (option == 0) {
-        display.clearDisplay();
-        display.setCursor(0,0);
-        display.print(F("|---- Start Menu----|\n"));
-        display.drawRect(0,9,SCREEN_WIDTH,12,WHITE);
-        display.setCursor(2,11); 
         display.setTextColor(BLACK,WHITE);
-        display.print(F("Adjust Zoom"));
-        display.drawRect(0,20,SCREEN_WIDTH,12,WHITE);
-        display.setTextColor(WHITE);
-        display.setCursor(2,22);
-        display.print(F("Adjust Focus"));
-        display.drawRect(0,31,SCREEN_WIDTH,12,WHITE);
-        display.setCursor(2,33);
-        display.print(F("Presets (WIP)"));
-        display.drawRect(0,42,SCREEN_WIDTH,12,WHITE);
-        display.setCursor(2,44);
-        display.print(F("Back"));
-        display.display();
+      } else {
         display.setTextColor(WHITE);
       }
-      // focus
-      else if (option == 1) {
-        display.clearDisplay();
-        display.setCursor(0,0);
-        display.print(F("|---- Start Menu----|\n"));
-        display.drawRect(0,9,SCREEN_WIDTH,12,WHITE);
-        display.setCursor(2,11); 
-        display.print(F("Adjust Zoom"));
-        display.drawRect(0,20,SCREEN_WIDTH,12,WHITE);
+      display.print(F("Adjust Zoom"));
+      display.drawRect(0,20,SCREEN_WIDTH,12,WHITE);
+      display.setCursor(2,22);
+      if (option == 1) {
         display.setTextColor(BLACK,WHITE);
-        display.setCursor(2,22);
-        display.print(F("Adjust Focus"));
-        display.drawRect(0,31,SCREEN_WIDTH,12,WHITE);
-        display.setCursor(2,33);
-        display.setTextColor(WHITE);
-        display.print(F("Presets (WIP)"));
-        display.drawRect(0,42,SCREEN_WIDTH,12,WHITE);
-        display.setCursor(2,44);
-        display.print(F("Back"));
-        display.display();
+      } else {
         display.setTextColor(WHITE);
       }
-      // presets
-      else if (option == 2) {
-        display.clearDisplay();
-        display.setCursor(0,0);
-        display.print(F("|---- Start Menu----|\n"));
-        display.drawRect(0,9,SCREEN_WIDTH,12,WHITE);
-        display.setCursor(2,11); 
-        display.print(F("Adjust Zoom"));
-        display.drawRect(0,20,SCREEN_WIDTH,12,WHITE);
-        display.setCursor(2,22);
-        display.print(F("Adjust Focus"));
-        display.drawRect(0,31,SCREEN_WIDTH,12,WHITE);
-        display.setCursor(2,33);
+      display.print(F("Adjust Focus"));
+      display.drawRect(0,31,SCREEN_WIDTH,12,WHITE);
+      display.setCursor(2,33);
+      if (option == 2) {
         display.setTextColor(BLACK,WHITE);
-        display.print(F("Presets (WIP)"));
-        display.drawRect(0,42,SCREEN_WIDTH,12,WHITE);
-        display.setCursor(2,44);
-        display.setTextColor(WHITE);
-        display.print(F("Back"));
-        display.display();
+      } else {
         display.setTextColor(WHITE);
       }
-      // back
-      else if (option == 3) {
-        display.clearDisplay();
-        display.setCursor(0,0);
-        display.print(F("|---- Start Menu----|\n"));
-        display.drawRect(0,9,SCREEN_WIDTH,12,WHITE);
-        display.setCursor(2,11); 
-        display.print(F("Adjust Zoom"));
-        display.drawRect(0,20,SCREEN_WIDTH,12,WHITE);
-        display.setCursor(2,22);
-        display.print(F("Adjust Focus"));
-        display.drawRect(0,31,SCREEN_WIDTH,12,WHITE);
-        display.setCursor(2,33);
-        display.print(F("Presets (WIP)"));
-        display.drawRect(0,42,SCREEN_WIDTH,12,WHITE);
-        display.setCursor(2,44);
+      display.print(F("Presets (WIP)"));
+      display.drawRect(0,42,SCREEN_WIDTH,12,WHITE);
+      display.setCursor(2,44);
+      if (option == 3) {
         display.setTextColor(BLACK,WHITE);
-        display.print(F("Back"));
-        display.display();
+      } else {
         display.setTextColor(WHITE);
       }
+      display.print(F("Back"));
+      display.display();
+      display.setTextColor(WHITE);
 
       x_value = analogRead(VRX);
       y_value = analogRead(VRY);
@@ -1008,27 +854,10 @@ void loop() {
 
     // zoom ring
     if (start_option == 0) {
-      int divs = (SCREEN_WIDTH-30)/diff_zoom;
-      int zoom_divs = zoom_min; //temp variable
+      float divs = (SCREEN_WIDTH-30)/(float)diff_zoom;
+      float zoom_divs = zoom_min; //temp variable
       display.clearDisplay();
-      display.setCursor(0,0);
-      display.setTextColor(BLACK,WHITE);
-      display.print(F("|---- Zoom Ring ----|\n"));
-      display.setTextColor(WHITE);
-      display.print(F("\nRange:  "));
-      display.print(diff_zoom);
-      display.drawRect(0,33,SCREEN_WIDTH-26,14,WHITE);
-      display.fillRect(2,35,SCREEN_WIDTH-30,10,BLACK);  /* Reset inner rectangle */
-      display.fillRect(2,35,zoom_divs,10,WHITE);
-      display.setCursor(108,36);
-      display.print(zoom_min);
-
-      display.drawRect(0,53,30,12,WHITE);
-      display.setCursor(2,55);
-      display.setTextColor(WHITE);
-      display.print(F("Back"));
-      display.display();
-      while (true) {
+      do {
         // down
         if (y_value>600 && 450<x_value<850) {
           if (sub_option == 1) {
@@ -1049,20 +878,11 @@ void loop() {
           }
           delay(200);
         }
-
+        
+        zoom_divs = zoom_min*divs;
+        display.setCursor(0,0);
         if (sub_option == 0) {
-          zoom_divs = zoom_min*divs;
-          display.setCursor(0,0);
           display.setTextColor(BLACK,WHITE);
-          display.print(F("|---- Zoom Ring ----|\n"));
-          display.setTextColor(WHITE,BLACK);
-          display.setCursor(2,55);
-          display.print(F("Back"));
-          display.fillRect(2,35,SCREEN_WIDTH-30,10,BLACK);  /* Reset inner rectangle */
-          display.fillRect(2,35,zoom_divs,10,WHITE);
-          display.setCursor(108,36);
-          display.print(zoom_min);
-          display.display();
 
           if (x_value>600 && 450<y_value<850) {
             if (zoom_min == diff_zoom) {
@@ -1072,7 +892,7 @@ void loop() {
               zoom_min++;
               zoom_motor.move(ZOOM_MOVE);
             }
-            delay(200);
+            delay(100);
           }
           if (x_value<440 && 450<y_value<850) {
             if (zoom_min == 0) {
@@ -1082,19 +902,32 @@ void loop() {
               zoom_min--;
               zoom_motor.move(-ZOOM_MOVE);
             }
-            delay(200);
+            delay(100);
           }
-        }
-
-        if (sub_option == 1) {
-          display.setCursor(0,0);
+          
+        } else {
           display.setTextColor(WHITE,BLACK);
-          display.print(F("|---- Zoom Ring ----|\n"));
-          display.setTextColor(BLACK,WHITE);
-          display.setCursor(2,55);
-          display.print(F("Back"));
-          display.display();
         }
+        display.print(F("|---- Zoom Ring ----|\n"));
+        display.setTextColor(WHITE);
+        display.print(F("\nRange:  "));
+        display.print(diff_zoom);
+        display.setCursor(2,55);
+        if (sub_option == 1) {
+          display.setTextColor(BLACK,WHITE);
+        } else {
+          display.setTextColor(WHITE,BLACK);
+        }
+        display.print(F("Back"));
+        display.drawRect(0,33,SCREEN_WIDTH-26,14,WHITE);
+        display.fillRect(2,35,SCREEN_WIDTH-30,10,BLACK);  /* Reset inner rectangle */
+        display.fillRect(2,35,(int)zoom_divs,10,WHITE);
+        display.setCursor(105,36);
+        display.setTextColor(WHITE,BLACK);
+        display.print(zoom_min);
+        display.print(F(" "));
+        display.display();
+
         x_value = analogRead(VRX);
         y_value = analogRead(VRY);
         button = digitalRead(SW);
@@ -1104,33 +937,15 @@ void loop() {
           delay(500);
           EEPROM.write(1,zoom_min);
           goto STARTMENU;
-        }
-      }
-      
+        } 
+      } while (true); 
     }
     // focus ring
     if (start_option == 1) {
-      int divs = (SCREEN_WIDTH-30)/diff_focus;
-      int focus_divs = focus_min; //temp variable
+      float divs = (SCREEN_WIDTH-30)/(float)diff_focus;
+      float focus_divs = focus_min; //temp variable
       display.clearDisplay();
-      display.setCursor(0,0);
-      display.setTextColor(BLACK,WHITE);
-      display.print(F("|---- Focus Ring----|\n"));
-      display.setTextColor(WHITE);
-      display.print(F("\nRange:  "));
-      display.print(diff_focus);
-      display.drawRect(0,33,SCREEN_WIDTH-26,14,WHITE);
-      display.fillRect(2,35,SCREEN_WIDTH-30,10,BLACK);  /* Reset inner rectangle */
-      display.fillRect(2,35,focus_divs,10,WHITE);
-      display.setCursor(108,36);
-      display.print(focus_min);
-
-      display.drawRect(0,53,30,12,WHITE);
-      display.setCursor(2,55);
-      display.setTextColor(WHITE);
-      display.print(F("Back"));
-      display.display();
-      while (true) {
+      do {
         // down
         if (y_value>600 && 450<x_value<850) {
           if (sub_option == 1) {
@@ -1151,20 +966,11 @@ void loop() {
           }
           delay(200);
         }
-
+        
+        focus_divs = focus_min*divs;
+        display.setCursor(0,0);
         if (sub_option == 0) {
-          focus_divs = focus_min*divs;
-          display.setCursor(0,0);
           display.setTextColor(BLACK,WHITE);
-          display.print(F("|---- Focus Ring----|\n"));
-          display.setTextColor(WHITE,BLACK);
-          display.setCursor(2,55);
-          display.print(F("Back"));
-          display.fillRect(2,35,SCREEN_WIDTH-30,10,BLACK);  /* Reset inner rectangle */
-          display.fillRect(2,35,focus_divs,10,WHITE);
-          display.setCursor(108,36);
-          display.print(focus_min);
-          display.display();
 
           if (x_value>600 && 450<y_value<850) {
             if (focus_min == diff_focus) {
@@ -1174,7 +980,7 @@ void loop() {
               focus_min++;
               focus_motor.move(FOCUS_MOVE);
             }
-            delay(200);
+            delay(100);
           }
           if (x_value<440 && 450<y_value<850) {
             if (focus_min == 0) {
@@ -1184,19 +990,32 @@ void loop() {
               focus_min--;
               focus_motor.move(-FOCUS_MOVE);
             }
-            delay(200);
+            delay(100);
           }
-        }
-
-        if (sub_option == 1) {
-          display.setCursor(0,0);
+          
+        } else {
           display.setTextColor(WHITE,BLACK);
-          display.print(F("|---- Focus Ring----|\n"));
-          display.setTextColor(BLACK,WHITE);
-          display.setCursor(2,55);
-          display.print(F("Back"));
-          display.display();
         }
+        display.print(F("|---- Focus Ring----|\n"));
+        display.setTextColor(WHITE);
+        display.print(F("\nRange:  "));
+        display.print(diff_focus);
+        display.setCursor(2,55);
+        if (sub_option == 1) {
+          display.setTextColor(BLACK,WHITE);
+        } else {
+          display.setTextColor(WHITE,BLACK);
+        }
+        display.print(F("Back"));
+        display.drawRect(0,33,SCREEN_WIDTH-26,14,WHITE);
+        display.fillRect(2,35,SCREEN_WIDTH-30,10,BLACK);  /* Reset inner rectangle */
+        display.fillRect(2,35,(int)focus_divs,10,WHITE);
+        display.setCursor(105,36);
+        display.setTextColor(WHITE,BLACK);
+        display.print(focus_min);
+        display.print(F(" "));
+        display.display();
+
         x_value = analogRead(VRX);
         y_value = analogRead(VRY);
         button = digitalRead(SW);
@@ -1204,11 +1023,10 @@ void loop() {
         if (sub_option == 1 && button == 0) {
           button = 1;
           delay(500);
-          EEPROM.write(0,focus_min);
+          EEPROM.write(1,focus_min);
           goto STARTMENU;
-        }
-      }
-      
+        } 
+      } while (true); 
     }
     if (start_option == 2) {
       // execute 
