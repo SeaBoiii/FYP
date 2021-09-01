@@ -168,7 +168,7 @@ void setFocusRange() {
         focus_max++;
         focus_motor.move(FOCUS_MOVE);
       }
-      delay(100);
+      //delay(100);
     }
     if (x_value<440 && 450<y_value<850) {
       if (focus_max == 0) {
@@ -178,7 +178,7 @@ void setFocusRange() {
         focus_max--;
         focus_motor.move(-FOCUS_MOVE);
       }
-      delay(100);
+      //delay(100);
     }
 
     x_value = analogRead(VRX);
@@ -261,7 +261,7 @@ void setZoomRange() {
         zoom_max++;
         zoom_motor.move(ZOOM_MOVE);
       }
-      delay(100);
+      //delay(100);
     }
     if (x_value<440 && 450<y_value<850) {
       if (zoom_max == 0) {
@@ -271,7 +271,7 @@ void setZoomRange() {
         zoom_max--;
         zoom_motor.move(-ZOOM_MOVE);
       }
-      delay(100);
+      //delay(100);
     }
 
     x_value = analogRead(VRX);
@@ -308,7 +308,7 @@ void setZoomRange() {
         zoom_min++;
         zoom_motor.move(ZOOM_MOVE);
       }
-      delay(100);
+      //delay(100);
     }
     if (x_value<440 && 450<y_value<850) {
       if (zoom_min == -zoom_max) {
@@ -318,7 +318,7 @@ void setZoomRange() {
         zoom_min--;
         zoom_motor.move(-ZOOM_MOVE);
       }
-      delay(100);
+      //delay(100);
     }
 
     x_value = analogRead(VRX);
@@ -899,7 +899,7 @@ void loop() {
               zoom_min++;
               zoom_motor.move(ZOOM_MOVE);
             }
-            delay(100);
+            //delay(100);
           }
           if (x_value<440 && 450<y_value<850) {
             if (zoom_min == 0) {
@@ -909,7 +909,7 @@ void loop() {
               zoom_min--;
               zoom_motor.move(-ZOOM_MOVE);
             }
-            delay(100);
+            //delay(100);
           }
           
         } else {
@@ -987,7 +987,7 @@ void loop() {
               focus_min++;
               focus_motor.move(FOCUS_MOVE);
             }
-            delay(100);
+            //delay(100);
           }
           if (x_value<440 && 450<y_value<850) {
             if (focus_min == 0) {
@@ -997,7 +997,7 @@ void loop() {
               focus_min--;
               focus_motor.move(-FOCUS_MOVE);
             }
-            delay(100);
+            //delay(100);
           }
           
         } else {
@@ -1195,7 +1195,7 @@ void loop() {
           else {
             sub_option++;
           }
-          delay(200);
+          delay(100);
         }
         // up
         if (y_value<440 && 450<x_value<850) {
@@ -1205,7 +1205,7 @@ void loop() {
           else {
             sub_option--;
           }
-          delay(200);
+          delay(100);
         }
         
         zoom_divs = zoom_min*divs;
@@ -1221,7 +1221,7 @@ void loop() {
               zoom_min++;
               zoom_motor.move(ZOOM_MOVE);
             }
-            delay(100);
+            //delay(100);
           }
           if (x_value<440 && 450<y_value<850) {
             if (zoom_min == 0) {
@@ -1231,7 +1231,7 @@ void loop() {
               zoom_min--;
               zoom_motor.move(-ZOOM_MOVE);
             }
-            delay(100);
+            //delay(100);
           }
           
         } else {
