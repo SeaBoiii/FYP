@@ -82,6 +82,7 @@ void setup() {
   pinMode(SW, INPUT_PULLUP);
 
   // setting up motor (RPM to 1 and Microstepping to 1)
+  // -> Lower RPM = Higher torque
   focus_motor.begin(1, 1);
   zoom_motor.begin(1, 1);
   
@@ -118,7 +119,7 @@ void setup() {
     diff_focus = 0;
   }
   if (diff_zoom == 255) {
-    diff_zoom =0;
+    diff_zoom = 0;
   }
  
   // setting up
@@ -330,7 +331,8 @@ void setZoomRange() {
 void loop() {
   /* Main Menu
    * - Recalibration (Initialisation)
-   * - Start
+   * - Basic Movement
+   * - Advanced Movement
    * - Quit
    */
   while (button != 0) {
@@ -369,7 +371,10 @@ void loop() {
     if (diff_zoom==0 && diff_focus==0) {
       display.print(F("Initialisation"));
     } else {
-      display.print(F("Recalibration"));
+      display.print(F("Calibration"));
+    }
+    if (!(diff_zoom==0 && diff_focus==0)) {
+      
     }
     display.drawRect(0,20,SCREEN_WIDTH,12,WHITE);
     display.setCursor(2,22);
@@ -378,7 +383,7 @@ void loop() {
     } else {
       display.setTextColor(WHITE);
     }
-    display.print(F("Start.exe"));
+    display.print(F("Primary Movements"));
     display.drawRect(0,31,SCREEN_WIDTH,12,WHITE);
     display.setCursor(2,33);
     if (option == 2) {
@@ -386,7 +391,7 @@ void loop() {
     } else {
       display.setTextColor(WHITE);
     }
-    display.print(F("Quit()"));
+    display.print(F("Advanced Movements"));
     display.display();
     display.setTextColor(WHITE);
 
@@ -718,11 +723,10 @@ void loop() {
       display.setTextSize(1);
       delay(500);
   }
-  // Start.exe 
-  /* Start Menu
+  // Primary Movements 
+  /* Menu
    * - Zoom
    * - Focus
-   * - Presets
    * - Back
    */
    STARTMENU:
@@ -783,7 +787,7 @@ void loop() {
     while (button != 0) {
       // down
       if (y_value>600 && 450<x_value<850) {
-        if (option == 3) {
+        if (option == 2) {
           option = 0;
         }
         else {
@@ -794,7 +798,7 @@ void loop() {
       // up
       if (y_value<440 && 450<x_value<850) {
         if (option == 0) {
-          option = 3;
+          option = 2;
         }
         else {
           option--;
@@ -804,7 +808,7 @@ void loop() {
       
       display.clearDisplay();
       display.setCursor(0,0);
-      display.print(F("|---- Start Menu----|\n"));
+      display.print(F("|----Primary Mov.---|\n"));
       display.drawRect(0,9,SCREEN_WIDTH,12,WHITE);
       display.setCursor(2,11); 
       if (option == 0) {
@@ -828,6 +832,7 @@ void loop() {
       } else {
         display.setTextColor(WHITE);
       }
+      /*
       display.print(F("Presets (WIP)"));
       display.drawRect(0,42,SCREEN_WIDTH,12,WHITE);
       display.setCursor(2,44);
@@ -836,6 +841,7 @@ void loop() {
       } else {
         display.setTextColor(WHITE);
       }
+      */
       display.print(F("Back"));
       display.display();
       display.setTextColor(WHITE);
@@ -1031,16 +1037,252 @@ void loop() {
     }
     if (start_option == 2) {
       // execute 
+      return;
     }
     // back
+    /*
     if (start_option == 3) {
       return;
-    }  
+    }  */
   }
 
-  // Quit()
+  // Advanced Movements
+  // No menu, just presets
   if (main_option == 2) {
-    // Power off the pin
+    // if calibration not done
+    if (diff_zoom==0 && diff_focus==0) {
+      bool sure = false;
+      // add are you sure?
+      while (button != 0) {
+        // moving joystick right
+        if (x_value>600 && 450<y_value<850) {
+          sure = false;
+          delay(200);
+        }
+    
+        // moving joystick left
+        if (x_value<440 && 450<y_value<850) {
+          sure = true;
+          delay(200);
+        }
+
+        display.clearDisplay();
+        display.setCursor(0,13);
+        display.println(F("Calibration not done."));
+        display.setCursor(27,22);
+        display.println(F("Are you sure?"));
+        display.drawRect(43,30,36,12,WHITE);
+        display.setCursor(45,32);
+        if (sure) {
+          display.setTextColor(BLACK,WHITE);
+        } else {
+          display.setTextColor(WHITE);
+        }
+        display.print(F("Yes"));
+        display.setCursor(64,32);
+        if (sure) {
+          display.setTextColor(WHITE);
+        } else {
+          display.setTextColor(BLACK,WHITE);
+        }
+        display.print(F("No"));
+        display.display();
+        display.setTextColor(WHITE);
+
+        x_value = analogRead(VRX);
+        y_value = analogRead(VRY);
+        button = digitalRead(SW);
+      }
+      x_value = analogRead(VRX);
+      y_value = analogRead(VRY);
+      button = 1;
+      delay(500);
+
+      if (sure == false) {
+        return;
+      }
+    }
+
+    while (button != 0) {
+      // down
+      if (y_value>600 && 450<x_value<850) {
+        if (option == 3) {
+          option = 0;
+        }
+        else {
+          option++;
+        }
+        delay(200);
+      }
+      // up
+      if (y_value<440 && 450<x_value<850) {
+        if (option == 0) {
+          option = 3;
+        }
+        else {
+          option--;
+        }
+        delay(200);
+      }
+      
+      display.clearDisplay();
+      display.setCursor(0,0);
+      display.print(F("|--Secondary Mov.---|\n"));
+      display.drawRect(0,9,SCREEN_WIDTH,12,WHITE);
+      display.setCursor(2,11); 
+      if (option == 0) {
+        display.setTextColor(BLACK,WHITE);
+      } else {
+        display.setTextColor(WHITE);
+      }
+      display.print(F("Bokeh Effect"));
+      display.drawRect(0,20,SCREEN_WIDTH,12,WHITE);
+      display.setCursor(2,22);
+      if (option == 1) {
+        display.setTextColor(BLACK,WHITE);
+      } else {
+        display.setTextColor(WHITE);
+      }
+      display.print(F("Firework Effect"));
+      display.drawRect(0,31,SCREEN_WIDTH,12,WHITE);
+      display.setCursor(2,33);
+      if (option == 2) {
+        display.setTextColor(BLACK,WHITE);
+      } else {
+        display.setTextColor(WHITE);
+      }
+      display.print(F("Zoom Blur Effect"));
+      display.drawRect(0,42,SCREEN_WIDTH,12,WHITE);
+      display.setCursor(2,44);
+      if (option == 3) {
+        display.setTextColor(BLACK,WHITE);
+      } else {
+        display.setTextColor(WHITE);
+      }
+      display.print(F("Back"));
+      display.display();
+      display.setTextColor(WHITE);
+
+      x_value = analogRead(VRX);
+      y_value = analogRead(VRY);
+      button = digitalRead(SW);
+    }
+
+    int start_option = option;
+    option = 0;
+    int sub_option = 0;
+    x_value = analogRead(VRX);
+    y_value = analogRead(VRY);
+    button = 1;
+    delay(500);
+
+    if (start_option == 0) {
+      // execute 
+    }
+    if (start_option == 1) {
+      // execute
+    }
+    if (start_option == 2) {
+      float divs = (SCREEN_WIDTH-30)/(float)diff_zoom;
+      float zoom_divs = zoom_min; //temp variable
+      display.clearDisplay();
+      do {
+        // down
+        if (y_value>600 && 450<x_value<850) {
+          if (sub_option == 1) {
+            sub_option = 1;
+          }
+          else {
+            sub_option++;
+          }
+          delay(200);
+        }
+        // up
+        if (y_value<440 && 450<x_value<850) {
+          if (option == 0) {
+            sub_option = 0;
+          }
+          else {
+            sub_option--;
+          }
+          delay(200);
+        }
+        
+        zoom_divs = zoom_min*divs;
+        display.setCursor(0,0);
+        if (sub_option == 0) {
+          display.setTextColor(BLACK,WHITE);
+
+          if (x_value>600 && 450<y_value<850) {
+            if (zoom_min == diff_zoom) {
+              zoom_min = zoom_min;
+            }
+            else {
+              zoom_min++;
+              zoom_motor.move(ZOOM_MOVE);
+            }
+            delay(100);
+          }
+          if (x_value<440 && 450<y_value<850) {
+            if (zoom_min == 0) {
+              zoom_min = 0;
+            }
+            else {
+              zoom_min--;
+              zoom_motor.move(-ZOOM_MOVE);
+            }
+            delay(100);
+          }
+          
+        } else {
+          display.setTextColor(WHITE,BLACK);
+        }
+        display.print(F("|---- Zoom Ring ----|\n"));
+        display.setTextColor(WHITE);
+        display.print(F("\nRange:  "));
+        display.print(diff_zoom);
+        display.print(F("\nZoom in to subject"));
+        display.setCursor(2,55);
+        if (sub_option == 1) {
+          display.setTextColor(BLACK,WHITE);
+        } else {
+          display.setTextColor(WHITE,BLACK);
+        }
+        display.print(F("Back"));
+        display.drawRect(0,33,SCREEN_WIDTH-26,14,WHITE);
+        display.fillRect(2,35,SCREEN_WIDTH-30,10,BLACK);  /* Reset inner rectangle */
+        display.fillRect(2,35,(int)zoom_divs,10,WHITE);
+        display.setCursor(105,36);
+        display.setTextColor(WHITE,BLACK);
+        display.print(zoom_min);
+        display.print(F(" "));
+        display.display();
+
+        x_value = analogRead(VRX);
+        y_value = analogRead(VRY);
+        button = digitalRead(SW);
+
+        if (sub_option == 1 && button == 0) {
+          button = 1;
+          delay(500);
+          EEPROM.write(1,zoom_min);
+          goto STARTMENU;
+        } 
+
+        if (sub_option == 0 && button == 0) {
+          button = 1;
+          delay(500);
+          zoom_motor.move(zoom_min);
+          //take picture
+          //set exposure
+          delay(1000);
+          zoom_motor.move(-zoom_min);
+        }
+      } while (true); 
+    }
+    if (start_option == 3) {
+      return;
+    }
   }
   
   // debug for joystick
