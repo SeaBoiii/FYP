@@ -38,7 +38,7 @@ bool debug = false;
 // A4988 stepper(MOTOR_STEPS, DIR, STEP, MS1, MS2, MS3)
 // focus ring is infront compared to zoom ring
 // motor objects
-A4988 focus_motor(MOTOR_STEPS, 3, 4);
+A4988 focus_motor(MOTOR_STEPS, 3, 4, 11, 10, 9);
 A4988 zoom_motor(MOTOR_STEPS, 5,6);
 
 // Joystick joy(VRX, VRY, SW)
@@ -83,7 +83,7 @@ void setup() {
 
   // setting up motor (RPM to 1 and Microstepping to 1)
   // -> Lower RPM = Higher torque
-  focus_motor.begin(1, 1);
+  focus_motor.begin(1, 1/16);
   zoom_motor.begin(1, 1);
   
 
@@ -215,7 +215,7 @@ void setFocusRange() {
         focus_min++;
         focus_motor.move(FOCUS_MOVE);
       }
-      delay(100);
+      //delay(100);
     }
     if (x_value<440 && 450<y_value<850) {
       if (focus_min == -focus_max) {
@@ -225,7 +225,7 @@ void setFocusRange() {
         focus_min--;
         focus_motor.move(-FOCUS_MOVE);
       }
-      delay(100);
+      //delay(100);
     }
 
     x_value = analogRead(VRX);
