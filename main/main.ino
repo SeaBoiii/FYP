@@ -83,7 +83,7 @@ void setup() {
 
   // setting up motor (RPM to 1 and Microstepping to 1)
   // -> Lower RPM = Higher torque
-  focus_motor.begin(1, 1/16);
+  focus_motor.begin(1, 1/4);
   zoom_motor.begin(1, 1);
   
 
