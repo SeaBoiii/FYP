@@ -83,7 +83,8 @@ void setup() {
 
   // setting up motor (RPM to 1 and Microstepping to 1)
   // -> Lower RPM = Higher torque
-  focus_motor.begin(1, 1/16);
+  // -> Higher Microstepping = Higher holding torque
+  focus_motor.begin(1, 1);
   zoom_motor.begin(1, 1);
   
 
@@ -123,21 +124,6 @@ void setup() {
   }
  
   // setting up
-  /*
-  display.clearDisplay();
-  display.setTextSize(2);
-  display.setTextColor(WHITE);
-  display.setCursor(2, 5);
-  display.println(F("Setting up"));
-  display.setCursor(12, 22);
-  display.println(F("Motors..."));
-  display.drawFastHLine(0,40, display.width(), WHITE);
-  display.setTextSize(1);
-  display.setCursor(1, 45);
-  display.println(F("Please follow instructions"));
-  display.display();
-  delay(3000); */
-
   x_value = analogRead(VRX);
   y_value = analogRead(VRY);
   button = 1;
@@ -148,12 +134,26 @@ void(* resetFunc) (void) = 0;
 
 void setFocusRange() {
   // set the focus_max
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setCursor(0,5);
+  display.println(F("You are setting \nthe max turn for \nfocus ring. \n\nUse the joystick for controls"));
+  display.display();
+  delay(8000);
+
+  display.clearDisplay();
+  display.setCursor(0,5);
+  display.setTextSize(1);
+  display.println(F("Move joystick left \nand right to adjust \nthe turn. \n\nClick joystick to \nconfirm"));
+  display.display();
+  delay(8000);
+  
   while (button != 0) {
     display.clearDisplay();
-    display.setTextSize(1);
     display.setCursor(0,5);
-    display.println(F("Max range(focus ring)\n"));
-    display.println(F("Press to confirm."));
+    display.setTextSize(1);
+    display.println(F("Please set max turn\n"));
+    display.println(F("Press to confirm"));
     display.drawFastHLine(0,40, display.width(), WHITE);
     display.setTextSize(2);
     display.setCursor(28, 49);
@@ -195,12 +195,26 @@ void setFocusRange() {
   delay(500);
 
   // focus_min
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setCursor(0,5);
+  display.println(F("You are setting \nthe min turn for \nfocus ring. \n\nUse the joystick for controls"));
+  display.display();
+  delay(8000);
+
+  display.clearDisplay();
+  display.setCursor(0,5);
+  display.setTextSize(1);
+  display.println(F("Move joystick left \nand right to adjust \nthe turn. \n\nClick joystick to \nconfirm"));
+  display.display();
+  delay(8000);
+  
   while (button != 0) {
     display.clearDisplay();
     display.setTextSize(1);
     display.setCursor(0,5);
-    display.println(F("Min range(focus ring)\n"));
-    display.println(F("Press to confirm."));
+    display.println(F("Please set min turn\n"));
+    display.println(F("Press to confirm"));
     display.drawFastHLine(0,40, display.width(), WHITE);
     display.setTextSize(2);
     display.setCursor(28, 49);
@@ -241,12 +255,25 @@ void setFocusRange() {
 
 void setZoomRange() {
   // set the zoom_max
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setCursor(0,5);
+  display.println(F("You are setting \nthe max turn for \nzoom ring. \n\nUse the joystick for controls"));
+  display.display();
+  delay(8000);
+
+  display.clearDisplay();
+  display.setCursor(0,5);
+  display.setTextSize(1);
+  display.println(F("Move joystick left \nand right to adjust \nthe turn. \n\nClick joystick to \nconfirm"));
+  display.display();
+  delay(8000);
   while (button != 0) {
     display.clearDisplay();
     display.setTextSize(1);
     display.setCursor(0,5);
-    display.println(F("Max range (zoom ring)\n"));
-    display.println(F("Press to confirm."));
+    display.println(F("Please set max turn\n"));
+    display.println(F("Press to confirm"));
     display.drawFastHLine(0,40, display.width(), WHITE);
     display.setTextSize(2);
     display.setCursor(28, 49);
@@ -288,12 +315,25 @@ void setZoomRange() {
   delay(500);
 
   // set the zoom_min
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setCursor(0,5);
+  display.println(F("You are setting \nthe min turn for \nzoom ring. \n\nUse the joystick for controls"));
+  display.display();
+  delay(8000);
+
+  display.clearDisplay();
+  display.setCursor(0,5);
+  display.setTextSize(1);
+  display.println(F("Move joystick left \nand right to adjust \nthe turn. \n\nClick joystick to \nconfirm"));
+  display.display();
+  delay(8000);
   while (button != 0) {
     display.clearDisplay();
     display.setTextSize(1);
     display.setCursor(0,5);
-    display.println(F("Min range (zoom ring)\n"));
-    display.println(F("Press to confirm."));
+    display.println(F("Please set min turn\n"));
+    display.println(F("Press to confirm"));
     display.drawFastHLine(0,40, display.width(), WHITE);
     display.setTextSize(2);
     display.setCursor(28, 49);
