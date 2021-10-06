@@ -195,6 +195,7 @@ void setFocusRange() {
   delay(500);
 
   // focus_min
+  /*
   display.clearDisplay();
   display.setTextSize(1);
   display.setCursor(0,5);
@@ -207,7 +208,7 @@ void setFocusRange() {
   display.setTextSize(1);
   display.println(F("Move joystick left \nand right to adjust \nthe turn. \n\nClick joystick to \nconfirm"));
   display.display();
-  delay(8000);
+  delay(8000); */
   
   while (button != 0) {
     display.clearDisplay();
@@ -315,6 +316,7 @@ void setZoomRange() {
   delay(500);
 
   // set the zoom_min
+  /*
   display.clearDisplay();
   display.setTextSize(1);
   display.setCursor(0,5);
@@ -327,7 +329,7 @@ void setZoomRange() {
   display.setTextSize(1);
   display.println(F("Move joystick left \nand right to adjust \nthe turn. \n\nClick joystick to \nconfirm"));
   display.display();
-  delay(8000);
+  delay(8000);*/
   while (button != 0) {
     display.clearDisplay();
     display.setTextSize(1);
@@ -827,7 +829,7 @@ void loop() {
     while (button != 0) {
       // down
       if (y_value>600 && 450<x_value<850) {
-        if (option == 2) {
+        if (option == 3) {
           option = 0;
         }
         else {
@@ -838,7 +840,7 @@ void loop() {
       // up
       if (y_value<440 && 450<x_value<850) {
         if (option == 0) {
-          option = 2;
+          option = 3;
         }
         else {
           option--;
@@ -872,8 +874,7 @@ void loop() {
       } else {
         display.setTextColor(WHITE);
       }
-      /*
-      display.print(F("Presets (WIP)"));
+      display.print(F("Zoom to fixed Dist."));
       display.drawRect(0,42,SCREEN_WIDTH,12,WHITE);
       display.setCursor(2,44);
       if (option == 3) {
@@ -881,7 +882,6 @@ void loop() {
       } else {
         display.setTextColor(WHITE);
       }
-      */
       display.print(F("Back"));
       display.display();
       display.setTextColor(WHITE);
@@ -1070,26 +1070,131 @@ void loop() {
         if (sub_option == 1 && button == 0) {
           button = 1;
           delay(500);
-          EEPROM.write(1,focus_min);
+          EEPROM.write(0,focus_min);
           goto STARTMENU;
         } 
       } while (true); 
     }
     if (start_option == 2) {
-      // execute 
-      return;
+      while (button != 0) {
+        // down
+        if (y_value>600 && 450<x_value<850) {
+          if (option == 3) {
+            option = 0;
+          }
+          else {
+            option++;
+          }
+          delay(200);
+        }
+        // up
+        if (y_value<440 && 450<x_value<850) {
+          if (option == 0) {
+            option = 3;
+          }
+          else {
+            option--;
+          }
+          delay(200);
+        }
+        
+        display.clearDisplay();
+        display.setCursor(0,0);
+        display.print(F("|---Move to dist.---|\n"));
+        display.drawRect(0,9,SCREEN_WIDTH,12,WHITE);
+        display.setCursor(2,11); 
+        if (option == 0) {
+          display.setTextColor(BLACK,WHITE);
+        } else {
+          display.setTextColor(WHITE);
+        }
+        display.print(F("Zoom to Max"));
+        display.drawRect(0,20,SCREEN_WIDTH,12,WHITE);
+        display.setCursor(2,22);
+        if (option == 1) {
+          display.setTextColor(BLACK,WHITE);
+        } else {
+          display.setTextColor(WHITE);
+        }
+        display.print(F("Zoom to Min"));
+        display.drawRect(0,31,SCREEN_WIDTH,12,WHITE);
+        display.setCursor(2,33);
+        if (option == 2) {
+          display.setTextColor(BLACK,WHITE);
+        } else {
+          display.setTextColor(WHITE);
+        }
+        display.print(F("Zoom to a Distance"));
+        display.drawRect(0,42,SCREEN_WIDTH,12,WHITE);
+        display.setCursor(2,44);
+        if (option == 3) {
+          display.setTextColor(BLACK,WHITE);
+        } else {
+          display.setTextColor(WHITE);
+        }
+        display.print(F("Back"));
+        display.display();
+        display.setTextColor(WHITE);
+  
+        x_value = analogRead(VRX);
+        y_value = analogRead(VRY);
+        button = digitalRead(SW);
+      }
+      int zoom_option = option;
+      option = 0;
+      x_value = analogRead(VRX);
+      y_value = analogRead(VRY);
+      button = 1;
+      delay(500);
+
+      if (zoom_option == 0) {
+        // zoom to max
+        int steps_to_move = diff_zoom - zoom_min;
+        display.clearDisplay();
+        display.setCursor(0,5);
+        display.println(F("Moving to the \nmaximum zoom"));
+        display.print(F("Steps to move: "));
+        display.print(steps_to_move);
+        display.display();
+        zoom_motor.startMove(-steps_to_move,3000);
+        zoom_min = diff_zoom;
+        delay(5000);
+        EEPROM.write(1,zoom_min);
+        goto STARTMENU;
+      }
+      if (zoom_option == 1) {
+        // zoom to min
+        int steps_to_move = zoom_min - 0;
+        display.clearDisplay();
+        display.setCursor(0,5);
+        display.println(F("Moving to the \nminimum zoom"));
+        display.print(F("Steps to move: "));
+        display.print(steps_to_move);
+        display.display();
+        zoom_motor.startMove(steps_to_move,3000);
+        zoom_min = 0;
+        delay(5000);
+        EEPROM.write(1,zoom_min);
+        goto STARTMENU;
+      }
+      if (zoom_option == 2) {
+        // zoom to specific distance
+      }
+      if (zoom_option == 3) {
+        goto STARTMENU;
+      }
     }
     // back
-    /*
     if (start_option == 3) {
       return;
-    }  */
+    } 
   }
 
   // Advanced Movements
   // No menu, just presets
   if (main_option == 2) {
     // if calibration not done
+    /*
     if (diff_zoom==0 && diff_focus==0) {
       bool sure = false;
       // add are you sure?
@@ -1142,6 +1247,7 @@ void loop() {
         return;
       }
     }
+    */
 
     while (button != 0) {
       // down
