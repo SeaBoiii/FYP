@@ -1156,7 +1156,9 @@ void loop() {
         display.print(F("Steps to move: "));
         display.print(steps_to_move);
         display.display();
-        zoom_motor.startMove(-steps_to_move,3000);
+        zoom_motor.setRPM(10);
+        zoom_motor.move(-steps_to_move);
+        zoom_motor.setRPM(1);
         zoom_min = diff_zoom;
         delay(5000);
         EEPROM.write(1,zoom_min);
@@ -1171,7 +1173,9 @@ void loop() {
         display.print(F("Steps to move: "));
         display.print(steps_to_move);
         display.display();
-        zoom_motor.startMove(steps_to_move,3000);
+        zoom_motor.setRPM(10);
+        zoom_motor.move(steps_to_move);
+        zoom_motor.setRPM(1);
         zoom_min = 0;
         delay(5000);
         EEPROM.write(1,zoom_min);
