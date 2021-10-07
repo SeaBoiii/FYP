@@ -35,6 +35,27 @@ bool debug = false;
 #define FOCUS_MOVE 1
 #define ZOOM_MOVE -1
 
+/* PRGMEM Buffer */
+char buffer[30];
+
+/* defining strings */
+const char back[] PROGMEM = "Back";
+const char string_0[] PROGMEM = "|---- Main Menu ----|";
+const char string_1[] PROGMEM = "Calibration";
+const char string_2[] PROGMEM = "Basic Movements";
+const char string_3[] PROGMEM = "Advanced Movements";
+
+const char string_4[] PROGMEM = "|---Recalibration---|";
+const char string_5[] PROGMEM = "Zoom Recalibration";
+const char string_6[] PROGMEM = "Focus Recalibration";
+const char string_7[] PROGMEM = "RESET all values";
+
+
+/* Setting up string table */
+const char *const main_menu[] PROGMEM = {string_0, string_1, string_2, string_3};
+const char *const recalibration_menu[] PROGMEM {string_4, string_5, string_6, string_7, back};
+
+
 // A4988 stepper(MOTOR_STEPS, DIR, STEP, MS1, MS2, MS3)
 // focus ring is infront compared to zoom ring
 // motor objects
@@ -369,6 +390,123 @@ void setZoomRange() {
   }
 }
 
+void menu(int num_option, const char *const string_table[], int option_selected) {
+  int rect_y = 9;
+  display.clearDisplay();
+  display.setCursor(0, 0);
+  strcpy_P(buffer, (char *)pgm_read_word(&(string_table[0])));
+  display.println(buffer);
+  
+  // displaying the sub menus
+  for (int i=0; i<num_option; i++) {
+    display.drawRect(0,rect_y,SCREEN_WIDTH,12,WHITE);
+    display.setCursor(2,rect_y+2);
+    if (i == option_selected) {
+      display.setTextColor(BLACK,WHITE);
+    } else {
+      display.setTextColor(WHITE);
+    }
+    strcpy_P(buffer, (char *)pgm_read_word(&(string_table[i+1])));
+    display.print(buffer);
+
+    rect_y = rect_y+11;
+  }
+  display.display();
+  display.setTextColor(WHITE);
+}
+
+int getUpDown(int num_option, int current_option, int delay_ms=200) {
+  // joystick down
+  if (y_value>600 && 450<x_value<850) {
+    delay(delay_ms);
+    if (current_option == num_option-1) {
+      return 0;
+    }
+    else return ++current_option;
+  }
+
+  // joystick up
+  if (y_value<440 && 450<x_value<850) {
+    delay(delay_ms);
+    if (current_option == 0) {
+      return num_option-1;
+    }
+    else return --current_option;
+  }
+
+  return current_option;
+}
+
+bool areYouSure() {
+  bool sure = false;
+  while (button != 0) {
+    // moving joystick right
+    if (x_value>600 && 450<y_value<850) {
+      sure = false;
+      delay(200);
+    }
+
+    // moving joystick left
+    if (x_value<440 && 450<y_value<850) {
+      sure = true;
+      delay(200);
+    }
+
+    display.clearDisplay();
+    display.setCursor(27,22);
+    display.println(F("Are you sure?"));
+    display.drawRect(43,30,36,12,WHITE);
+    display.setCursor(45,32);
+    if (sure) {
+      display.setTextColor(BLACK,WHITE);
+    } else {
+      display.setTextColor(WHITE);
+    }
+    display.print(F("Yes"));
+    display.setCursor(64,32);
+    if (sure) {
+      display.setTextColor(WHITE);
+    } else {
+      display.setTextColor(BLACK,WHITE);
+    }
+    display.print(F("No"));
+    display.display();
+    display.setTextColor(WHITE);
+    
+    x_value = analogRead(VRX);
+    y_value = analogRead(VRY);
+    button = digitalRead(SW);
+  }
+  resetJoy();
+  delay(500);
+  return sure;
+}
+
+void getJoyRead(int delay_ms=0) {
+  x_value = analogRead(VRX);
+  y_value = analogRead(VRY);
+  button = digitalRead(SW);
+  delay(delay_ms);
+}
+
+void resetJoy() {
+  x_value = analogRead(VRX);
+  y_value = analogRead(VRY);
+  button = 1;
+}
+
+void getJoyXRead() {
+  x_value = analogRead(VRX);
+}
+
+void getJoyYRead() {
+  y_value = analogRead(VRY);
+}
+
+void getJoyButton() {
+  button = digitalRead(SW);
+}
+
 /* Main Loop */
 void loop() {
   /* Main Menu
@@ -377,393 +515,195 @@ void loop() {
    * - Advanced Movement
    * - Quit
    */
+
   while (button != 0) {
-    // moving joystick down
-    if (y_value>600 && 450<x_value<850) {
-      if (option == 2) {
-        option = 0;
-      }
-      else {
-        option++;
-      }
-      delay(200);
-    }
-
-    // moving joystick up
-    if (y_value<440 && 450<x_value<850) {
-      if (option == 0) {
-        option = 2;
-      }
-      else {
-        option--;
-      }
-      delay(200);
-    }
-
-    display.clearDisplay();
-    display.setCursor(0,0);
-    display.print(F("|---- Main Menu ----|\n"));
-    display.drawRect(0,9,SCREEN_WIDTH,12,WHITE);
-    display.setCursor(2,11);
-    if (option == 0) {
-      display.setTextColor(BLACK,WHITE);
-    } else {
-      display.setTextColor(WHITE);
-    }
-    if (diff_zoom==0 && diff_focus==0) {
-      display.print(F("Initialisation"));
-    } else {
-      display.print(F("Calibration"));
-    }
-    if (!(diff_zoom==0 && diff_focus==0)) {
-      
-    }
-    display.drawRect(0,20,SCREEN_WIDTH,12,WHITE);
-    display.setCursor(2,22);
-    if (option == 1) {
-      display.setTextColor(BLACK,WHITE);
-    } else {
-      display.setTextColor(WHITE);
-    }
-    display.print(F("Primary Movements"));
-    display.drawRect(0,31,SCREEN_WIDTH,12,WHITE);
-    display.setCursor(2,33);
-    if (option == 2) {
-      display.setTextColor(BLACK,WHITE);
-    } else {
-      display.setTextColor(WHITE);
-    }
-    display.print(F("Advanced Movements"));
-    display.display();
-    display.setTextColor(WHITE);
-
-    x_value = analogRead(VRX);
-    y_value = analogRead(VRY);
-    button = digitalRead(SW);
+    option = getUpDown(3, option, 200);
+    menu(3, main_menu, option);
+    getJoyRead();
   }
 
   /* Main Option */
   int main_option = option;
   option = 0;
-  x_value = analogRead(VRX);
-  y_value = analogRead(VRY);
-  button = 1;
+  resetJoy();
   delay(500);
   
   // Recalibration/Initialisation
   if (main_option == 0) {
-      // initialisation (no memory was stored)
-      if (diff_zoom==0 && diff_focus==0) {
-        setFocusRange();
-        setZoomRange();
-
-        // calculating range
-        diff_focus = focus_max - focus_min;
-        diff_zoom = zoom_max - zoom_min;
-
-        // saving of variables
-        /*
-        int focus_min;      // address 0
-        int zoom_min;       // address 1
-        int diff_focus;     // address 2
-        int diff_zoom;      // address 3
-        */
-        EEPROM.write(2,diff_focus);
-        EEPROM.write(3,diff_zoom);
-
-        focus_max = diff_focus;
-        focus_min = 0;
-        zoom_max = diff_zoom;
-        zoom_min = 0;
-
+      // calibration
+      bool sure = false;
+      int re_option = 0;
+      RECALMENU:
+      while (button != 0) {
+        re_option = getUpDown(4, re_option, 200);
+        menu(4, recalibration_menu, re_option);
+        getJoyRead();
       }
-      /* If user has initialised:
-       *  - Zoom Recalibration
-       *  - Focus Recalibration
-       *  - Reset All
-       *  - Back
-       */
-      else {
-        bool sure = false;
-        int re_option = 0;
-        RECALMENU:
+
+      resetJoy();
+      display.clearDisplay();
+      display.setTextSize(1);
+      delay(500);
+        
+      /* Logic */
+      // zoom recalibration
+      if (re_option == 0) {
+        areYouSure();
+        
+        if (sure) {
+          zoom_max = 0;
+          setZoomRange();
+          
+          diff_zoom = zoom_max - zoom_min;
+
+          EEPROM.write(3,diff_zoom);
+  
+          zoom_max = diff_zoom;
+          zoom_min = 0;
+
+        } else {
+          goto RECALMENU;
+        }
+        sure = false;
+      }
+      // focus recalibration
+      if (re_option == 1) {
+        // add are you sure?
         while (button != 0) {
-          // moving joystick down
-          if (y_value>600 && 450<x_value<850) {
-            if (re_option == 3) {
-              re_option = 0;
-            }
-            else {
-              re_option++;
-            }
+          // moving joystick right
+          if (x_value>600 && 450<y_value<850) {
+            sure = false;
             delay(200);
           }
       
-          // moving joystick up
-          if (y_value<440 && 450<x_value<850) {
-            if (re_option == 0) {
-              re_option = 3;
-            }
-            else {
-              re_option--;
-            }
+          // moving joystick left
+          if (x_value<440 && 450<y_value<850) {
+            sure = true;
             delay(200);
           }
 
           display.clearDisplay();
-          display.setCursor(0,0);
-          display.print(F("|---Recalibration---|\n"));
-          display.drawRect(0,9,SCREEN_WIDTH,12,WHITE);
-          display.setCursor(2,11);
-          if (re_option == 0) {
-            display.setTextColor(BLACK,WHITE);
-          } else {
-            display.setTextColor(WHITE);
-          }  
-          display.print(F("Zoom Recalibration"));
-          display.drawRect(0,20,SCREEN_WIDTH,12,WHITE);
-          display.setCursor(2,22);
-          if (re_option == 1) {
+          display.setCursor(27,22);
+          display.println(F("Are you sure?"));
+          display.drawRect(43,30,36,12,WHITE);
+          display.setCursor(45,32);
+          if (sure) {
             display.setTextColor(BLACK,WHITE);
           } else {
             display.setTextColor(WHITE);
           }
-          display.print(F("Focus Recalibration"));
-          display.drawRect(0,31,SCREEN_WIDTH,12,WHITE);
-          display.setCursor(2,33);
-          if (re_option == 2) {
-            display.setTextColor(BLACK,WHITE);
+          display.print(F("Yes"));
+          display.setCursor(64,32);
+          if (sure) {
+            display.setTextColor(WHITE);   
           } else {
-            display.setTextColor(WHITE);
-          }
-          display.print(F("RESET all values"));
-          display.drawRect(0,42,SCREEN_WIDTH,12,WHITE);
-          display.setCursor(2,44);
-          if (re_option == 3) {
             display.setTextColor(BLACK,WHITE);
-          } else {
-            display.setTextColor(WHITE);
           }
-          display.print(F("Back"));
+          display.print(F("No"));
           display.display();
           display.setTextColor(WHITE);
-
+          
           x_value = analogRead(VRX);
           y_value = analogRead(VRY);
           button = digitalRead(SW);
         }
-
-        // note that now both focus and zoom motor is at ideal 0 (min)
-        // drawing of main menu
-        // 0=zoom, 1=focus, 2=presets, 3=recalibration, 4=quit
         x_value = analogRead(VRX);
         y_value = analogRead(VRY);
         button = 1;
-        display.clearDisplay();
-        display.setTextSize(1);
         delay(500);
-        
-        /* Logic */
-        // zoom recalibration
-        if (re_option == 0) {
-          while (button != 0) {
-            // moving joystick right
-            if (x_value>600 && 450<y_value<850) {
-              sure = false;
-              delay(200);
-            }
-        
-            // moving joystick left
-            if (x_value<440 && 450<y_value<850) {
-              sure = true;
-              delay(200);
-            }
 
-            display.clearDisplay();
-            display.setCursor(27,22);
-            display.println(F("Are you sure?"));
-            display.drawRect(43,30,36,12,WHITE);
-            display.setCursor(45,32);
-            if (sure) {
-              display.setTextColor(BLACK,WHITE);
-            } else {
-              display.setTextColor(WHITE);
-            }
-            display.print(F("Yes"));
-            display.setCursor(64,32);
-            if (sure) {
-              display.setTextColor(WHITE);
-            } else {
-              display.setTextColor(BLACK,WHITE);
-            }
-            display.print(F("No"));
-            display.display();
-            display.setTextColor(WHITE);
-            
-            x_value = analogRead(VRX);
-            y_value = analogRead(VRY);
-            button = digitalRead(SW);
-          }
-          x_value = analogRead(VRX);
-          y_value = analogRead(VRY);
-          button = 1;
-          delay(500);
+        if (sure) {
+          focus_max = 0;
+          setFocusRange();
+
+          diff_focus = focus_max - focus_min;
+
+          EEPROM.write(2,diff_focus);
+  
+          focus_max = diff_focus;
+          focus_min = 0;
           
-          if (sure) {
-            zoom_max = 0;
-            setZoomRange();
-            
-            diff_zoom = zoom_max - zoom_min;
-
-            EEPROM.write(3,diff_zoom);
-    
-            zoom_max = diff_zoom;
-            zoom_min = 0;
-
-          } else {
-            goto RECALMENU;
-          }
-          sure = false;
+        } else {
+          goto RECALMENU;
         }
-        // focus recalibration
-        if (re_option == 1) {
-          // add are you sure?
-          while (button != 0) {
-            // moving joystick right
-            if (x_value>600 && 450<y_value<850) {
-              sure = false;
-              delay(200);
-            }
-        
-            // moving joystick left
-            if (x_value<440 && 450<y_value<850) {
-              sure = true;
-              delay(200);
-            }
-
-            display.clearDisplay();
-            display.setCursor(27,22);
-            display.println(F("Are you sure?"));
-            display.drawRect(43,30,36,12,WHITE);
-            display.setCursor(45,32);
-            if (sure) {
-              display.setTextColor(BLACK,WHITE);
-            } else {
-              display.setTextColor(WHITE);
-            }
-            display.print(F("Yes"));
-            display.setCursor(64,32);
-            if (sure) {
-              display.setTextColor(WHITE);   
-            } else {
-              display.setTextColor(BLACK,WHITE);
-            }
-            display.print(F("No"));
-            display.display();
-            display.setTextColor(WHITE);
-            
-            x_value = analogRead(VRX);
-            y_value = analogRead(VRY);
-            button = digitalRead(SW);
-          }
-          x_value = analogRead(VRX);
-          y_value = analogRead(VRY);
-          button = 1;
-          delay(500);
-
-          if (sure) {
-            focus_max = 0;
-            setFocusRange();
-
-            diff_focus = focus_max - focus_min;
-
-            EEPROM.write(2,diff_focus);
-    
-            focus_max = diff_focus;
-            focus_min = 0;
-            
-          } else {
-            goto RECALMENU;
-          }
-          sure = false;
-        }
-        // reset all
-        if (re_option == 2) {
-          // add are you sure?
-          while (button != 0) {
-            // moving joystick right
-            if (x_value>600 && 450<y_value<850) {
-              sure = false;
-              delay(200);
-            }
-        
-            // moving joystick left
-            if (x_value<440 && 450<y_value<850) {
-              sure = true;
-              delay(200);
-            }
-
-            display.clearDisplay();
-            display.setCursor(27,22);
-            display.println(F("Are you sure?"));
-            display.drawRect(43,30,36,12,WHITE);
-            display.setCursor(45,32);
-            if (sure) {
-              display.setTextColor(BLACK,WHITE);
-            } else {
-              display.setTextColor(WHITE);
-            }
-            display.print(F("Yes"));
-            display.setCursor(64,32);
-            if (sure) {
-              display.setTextColor(WHITE);
-            } else {
-              display.setTextColor(BLACK,WHITE);
-            }
-            display.print(F("No"));
-            display.display();
-            display.setTextColor(WHITE);
-            
-            x_value = analogRead(VRX);
-            y_value = analogRead(VRY);
-            button = digitalRead(SW);
-          }
-          x_value = analogRead(VRX);
-          y_value = analogRead(VRY);
-          button = 1;
-          delay(500);
-
-          if (sure) {
-            // reset of variables
-            // setting to 255 will reset the memory
-            /*
-            int focus_min;      // address 0
-            int zoom_min;       // address 1
-            int diff_focus;     // address 2
-            int diff_zoom;      // address 3
-            */
-            EEPROM.write(0,255);
-            EEPROM.write(1,255);
-            EEPROM.write(2,255);
-            EEPROM.write(3,255);
-            resetFunc(); //call reset
-          } 
-          sure = false;
-        }
-        // back
-        if (re_option == 3) {
-          // {empty placeholder}
-        }
+        sure = false;
       }
-      // note that now both focus and zoom motor is at ideal 0 (min)
-      // drawing of main menu
-      // 0=zoom, 1=focus, 2=presets, 3=recalibration, 4=quit
-      x_value = analogRead(VRX);
-      y_value = analogRead(VRY);
-      button = 1;
-      display.clearDisplay();
-      display.setTextSize(1);
-      delay(500);
+      // reset all
+      if (re_option == 2) {
+        // add are you sure?
+        while (button != 0) {
+          // moving joystick right
+          if (x_value>600 && 450<y_value<850) {
+            sure = false;
+            delay(200);
+          }
+      
+          // moving joystick left
+          if (x_value<440 && 450<y_value<850) {
+            sure = true;
+            delay(200);
+          }
+
+          display.clearDisplay();
+          display.setCursor(27,22);
+          display.println(F("Are you sure?"));
+          display.drawRect(43,30,36,12,WHITE);
+          display.setCursor(45,32);
+          if (sure) {
+            display.setTextColor(BLACK,WHITE);
+          } else {
+            display.setTextColor(WHITE);
+          }
+          display.print(F("Yes"));
+          display.setCursor(64,32);
+          if (sure) {
+            display.setTextColor(WHITE);
+          } else {
+            display.setTextColor(BLACK,WHITE);
+          }
+          display.print(F("No"));
+          display.display();
+          display.setTextColor(WHITE);
+          
+          x_value = analogRead(VRX);
+          y_value = analogRead(VRY);
+          button = digitalRead(SW);
+        }
+        x_value = analogRead(VRX);
+        y_value = analogRead(VRY);
+        button = 1;
+        delay(500);
+
+        if (sure) {
+          // reset of variables
+          // setting to 255 will reset the memory
+          /*
+          int focus_min;      // address 0
+          int zoom_min;       // address 1
+          int diff_focus;     // address 2
+          int diff_zoom;      // address 3
+          */
+          EEPROM.write(0,255);
+          EEPROM.write(1,255);
+          EEPROM.write(2,255);
+          EEPROM.write(3,255);
+          resetFunc(); //call reset
+        } 
+        sure = false;
+      }
+      // back
+      if (re_option == 3) {
+        // {empty placeholder}
+      }
+    // note that now both focus and zoom motor is at ideal 0 (min)
+    // drawing of main menu
+    // 0=zoom, 1=focus, 2=presets, 3=recalibration, 4=quit
+    x_value = analogRead(VRX);
+    y_value = analogRead(VRY);
+    button = 1;
+    display.clearDisplay();
+    display.setTextSize(1);
+    delay(500);
   }
   // Primary Movements 
   /* Menu
