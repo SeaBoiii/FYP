@@ -18,6 +18,9 @@ bool debug = false;
 // using a 200-step motor
 #define MOTOR_STEPS 200
 
+// RPM
+#define RPM 120
+
 // Arduino Pins
 /* Motor Pins */
 #define focus_DIR 3
@@ -29,10 +32,6 @@ bool debug = false;
 #define VRX A0
 #define VRY A1
 #define SW 12
-
-/* Motor Movements*/
-#define FOCUS_MOVE 1
-#define ZOOM_MOVE -1
 
 /* PRGMEM Buffer */
 char buffer[50];
@@ -48,6 +47,7 @@ const char string_0[] PROGMEM = "|---- Main Menu ----|";
 const char string_1[] PROGMEM = "Calibration";
 const char string_2[] PROGMEM = "Basic Movements";
 const char string_3[] PROGMEM = "Advanced Movements";
+const char string_3_1[] PROGMEM = "Settings";
 
 const char string_4[] PROGMEM = "|---Recalibration---|";
 const char string_5[] PROGMEM = "Zoom Recalibration";
@@ -75,8 +75,22 @@ const char string_22[] PROGMEM = "You are setting the min turn for focus ring.";
 const char string_23[] PROGMEM = "You are setting the max turn for zoom ring.";
 const char string_24[] PROGMEM = "You are setting the min turn for zoom ring.";
 
+const char string_25[] PROGMEM = "|---- Settings -----|";
+const char string_26[] PROGMEM = "Zoom/Focus Position";
+const char string_27[] PROGMEM = "Camera Shutter Speed";
+
+const char string_28[] PROGMEM = "|----Positioning----|";
+const char string_29[] PROGMEM = "Zoom at the back";
+const char string_30[] PROGMEM = "Zoom at the front";
+
+const char string_31[] PROGMEM = "|---Shutter Speed---|";
+const char string_32[] PROGMEM = "1/2s";
+const char string_33[] PROGMEM = "1s";
+const char string_34[] PROGMEM = "2s";
+const char string_35[] PROGMEM = "4s";
+
 /* Setting up string table */
-const char *const main_menu[] PROGMEM = {string_0, string_1, string_2, string_3};
+const char *const main_menu[] PROGMEM = {string_0, string_1, string_2, string_3, string_3_1};
 const char *const recalibration_menu[] PROGMEM {string_4, string_5, string_6, string_7, back};
 const char *const basic_menu[] PROGMEM = {string_8, string_9, string_10, string_11, back};
 const char *const movetodist_menu[] PROGMEM = {string_12, string_13, string_14, string_15, back};
@@ -84,13 +98,16 @@ const char *const adv_menu[] PROGMEM = {string_16, string_17, string_18, string_
 const char *const key_phrases[] PROGMEM = {back, range};
 const char *const ring_phrases[] PROGMEM = {string_21, string_22, string_23, string_24};
 const char *const joystick_phrases[] PROGMEM = {joystick_0, joystick_1, joystick_2};
+const char *const settings_menu[] PROGMEM = {string_25, string_26, string_27, back};
+const char *const positioning_menu[] PROGMEM = {string_28, string_29, string_30, back};
+const char *const shutter_menu[] PROGMEM = {string_31, string_32, string_33, string_34, string_35, back};
 
 
 // A4988 stepper(MOTOR_STEPS, DIR, STEP, MS1, MS2, MS3)
 // focus ring is infront compared to zoom ring
 // motor objects
-A4988 focus_motor(MOTOR_STEPS, 3, 4, 11, 10, 9);
-A4988 zoom_motor(MOTOR_STEPS, 5,6);
+A4988 focus_motor(MOTOR_STEPS, focus_DIR, focus_STEP, 11, 10, 9);
+A4988 zoom_motor(MOTOR_STEPS, zoom_DIR, zoom_STEP);
 
 // Joystick joy(VRX, VRY, SW)
 // creating Joystick object
@@ -110,6 +127,8 @@ int focus_min;      // address 0
 int zoom_min;       // address 1
 int diff_focus;     // address 2
 int diff_zoom;      // address 3
+int orientation;    // address 4
+int shutter_data;   // address 5
 
 // variable declaration
 int value = 0;    // debug value
@@ -117,10 +136,14 @@ int value = 0;    // debug value
 int option = 0;
 int focus_max = 0;
 int zoom_max = 0;
+float shutter_speed = 0.5;
 
 int button = 1; // 0 for click
 int x_value = 0;
 int y_value = 0;
+
+int FOCUS_MOVE;
+int ZOOM_MOVE;
 
 
 /* Setting up the Arduino
@@ -138,12 +161,15 @@ void setup() {
   focus_motor.begin(20, 1);
   zoom_motor.begin(20, 1);
   
+  focus_motor.enable();
+  zoom_motor.enable();
 
   // on serial if debug is true
   if (debug) {
     Serial.begin(9600);
   }
 
+  // if display fails = no proceed
   if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
     Serial.println(F("SSD1306 allocation failed"));
     for(;;); // Don't proceed, loop forever
@@ -174,7 +200,38 @@ void setup() {
     diff_zoom = 0;
   }
  
-  // setting up
+  // reads the orientation
+  orientation = EEPROM.read(4);
+  if (orientation == 255) {
+    orientation = 0;
+    EEPROM.write(4,0);
+    FOCUS_MOVE = 1;
+    ZOOM_MOVE = -1;    
+  }
+  // zoom at the front
+  else if (orientation == 0) {
+    FOCUS_MOVE = 1;
+    ZOOM_MOVE = -1;
+  }
+  // zoom at the back
+  else if (orientation == 1) {
+    FOCUS_MOVE = -1;
+    ZOOM_MOVE = 1;
+  }
+
+  shutter_data = EEPROM.read(5);
+  if (shutter_data == 255) {
+    shutter_speed = 0.5;
+    EEPROM.write(5,0);
+  }
+  else if (shutter_data == 0) {
+    shutter_speed = 0.5;    
+  }
+  else {
+    shutter_speed = shutter_data;    
+  }
+
+  // setting up analog stick
   x_value = analogRead(VRX);
   y_value = analogRead(VRY);
   button = 1;
@@ -572,7 +629,7 @@ String wrap(String s, int limit){
     return s;
 }
 
-long toMS(int seconds) {
+long toMS(float seconds) {
   return seconds * 1000000;
 }
 
@@ -584,10 +641,9 @@ void loop() {
    * - Advanced Movement
    * - Quit
    */
-
   while (button != 0) {
-    option = getUpDown(3, option, 200);
-    menu(3, main_menu, option);
+    option = getUpDown(4, option, 200);
+    menu(4, main_menu, option);
     getJoyRead();
   }
 
@@ -978,6 +1034,99 @@ void loop() {
     }
   }
   
+  // Settings menu
+  if (main_option == 3) {
+    SETTINGS:
+    while (button != 0) {
+      option = getUpDown(3, option, 200);
+      menu(3, settings_menu, option);
+      getJoyRead();
+    }
+
+    int sub_option = option;
+    option = 0;
+    resetJoy();
+    delay(500);
+    
+    // orientation
+    if (sub_option == 0) {
+      while (button != 0) {
+        option = getUpDown(3, option, 200);
+        menu(3, positioning_menu, option);
+        getJoyRead();             
+      }
+
+      int position_option = option;
+      option = 0;
+      resetJoy();
+      delay(500);
+
+      if (position_option == 0) {
+        orientation = 1;
+        EEPROM.write(4,orientation);
+        FOCUS_MOVE = -1;
+        ZOOM_MOVE = 1;
+      }
+
+      if (position_option == 1) {
+        orientation = 0;
+        EEPROM.write(4,orientation);
+        FOCUS_MOVE = -1;
+        ZOOM_MOVE = 1;
+      }
+      
+      goto SETTINGS;   
+    }
+
+    // Shutter Speed
+    if (sub_option == 1) {
+      if (shutter_speed == 0.5) {
+        option = 0;
+      } else if (shutter_speed == 1) {
+        option = 1;
+      } else if (shutter_speed == 2) {
+        option = 2;
+      } else if (shutter_speed == 4) {
+        option = 3;
+      }
+      while (button != 0) {
+        option = getUpDown(5, option, 200);
+        menu(5, shutter_menu, option);
+        getJoyRead();
+      }
+
+      int shutter_option = option;
+      option = 0;
+      resetJoy();
+      delay(500);
+
+      if (shutter_option == 0) {
+        shutter_speed = 0.5;        
+      }
+      if (shutter_option == 1) {
+        shutter_speed = 1;
+      }      
+      if (shutter_option == 2) {
+        shutter_speed = 2;
+      }
+      if (shutter_option == 3) {
+        shutter_speed = 4;
+      }
+
+      if (shutter_speed == 0.5) {
+        EEPROM.write(5, 0);
+      } else {
+        EEPROM.write(5, shutter_speed);
+      }
+
+      goto SETTINGS;
+    }
+
+    // back    
+    if (sub_option == 2) {
+      return;
+    }
+  }
   // debug for joystick
   if (debug) {
     value = analogRead(A0);  // read X axis value [0..1023]
