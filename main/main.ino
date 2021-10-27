@@ -42,6 +42,9 @@ const char range[] PROGMEM = "\nRange:  ";
 const char joystick_0[] PROGMEM = "Use the joystick for controls";
 const char joystick_1[] PROGMEM = "Move joystick left and right to adjust the turn.";
 const char joystick_2[] PROGMEM = "Click joystick to confirm";
+const char set_txt[] PROGMEM = "Set";
+const char steps_txt[] PROGMEM = "Steps to move: ";
+const char blank_txt[] PROGMEM = " ";
 
 const char string_0[] PROGMEM = "|---- Main Menu ----|";
 const char string_1[] PROGMEM = "Calibration";
@@ -55,8 +58,8 @@ const char string_6[] PROGMEM = "Focus Recalibration";
 const char string_7[] PROGMEM = "RESET all values";
 
 const char string_8[] PROGMEM = "|---Basic Movement--|";
-const char string_9[] PROGMEM = "Adjust Zoom";
-const char string_10[] PROGMEM = "Adjust Focus";
+const char string_9[] PROGMEM = "Manual Zoom";
+const char string_10[] PROGMEM = "Manual Focus";
 const char string_11[] PROGMEM = "Zoom to fixed Dist.";
 
 const char string_12[] PROGMEM = "|-Move to distance--|";
@@ -84,10 +87,10 @@ const char string_29[] PROGMEM = "Zoom at the back";
 const char string_30[] PROGMEM = "Zoom at the front";
 
 const char string_31[] PROGMEM = "|---Shutter Speed---|";
-const char string_32[] PROGMEM = "1/2s";
-const char string_33[] PROGMEM = "1s";
-const char string_34[] PROGMEM = "2s";
-const char string_35[] PROGMEM = "4s";
+const char string_32[] PROGMEM = "1s";
+const char string_33[] PROGMEM = "4s";
+const char string_34[] PROGMEM = "8s";
+const char string_35[] PROGMEM = "16s";
 
 /* Setting up string table */
 const char *const main_menu[] PROGMEM = {string_0, string_1, string_2, string_3, string_3_1};
@@ -95,7 +98,7 @@ const char *const recalibration_menu[] PROGMEM {string_4, string_5, string_6, st
 const char *const basic_menu[] PROGMEM = {string_8, string_9, string_10, string_11, back};
 const char *const movetodist_menu[] PROGMEM = {string_12, string_13, string_14, string_15, back};
 const char *const adv_menu[] PROGMEM = {string_16, string_17, string_18, string_19, string_20, back};
-const char *const key_phrases[] PROGMEM = {back, range};
+const char *const key_phrases[] PROGMEM = {back, range, set_txt, steps_txt, blank_txt};
 const char *const ring_phrases[] PROGMEM = {string_21, string_22, string_23, string_24};
 const char *const joystick_phrases[] PROGMEM = {joystick_0, joystick_1, joystick_2};
 const char *const settings_menu[] PROGMEM = {string_25, string_26, string_27, back};
@@ -158,8 +161,8 @@ void setup() {
   // setting up motor (RPM to 1 and Microstepping to 1)
   // -> Lower RPM = Higher torque
   // -> Higher Microstepping = Higher holding torque
-  focus_motor.begin(20, 1);
-  zoom_motor.begin(20, 1);
+  focus_motor.begin(RPM, 1);
+  zoom_motor.begin(RPM, 1);
   
   focus_motor.enable();
   zoom_motor.enable();
@@ -178,7 +181,6 @@ void setup() {
   // initial display buffer (Adafruit splash screen)
   display.clearDisplay();
   display.display();
-  delay(1000);
 
 
   // trys to reads the stored values in memory
@@ -219,15 +221,12 @@ void setup() {
     ZOOM_MOVE = 1;
   }
 
+  // reads the shutter data
   shutter_data = EEPROM.read(5);
   if (shutter_data == 255) {
-    shutter_speed = 0.5;
-    EEPROM.write(5,0);
-  }
-  else if (shutter_data == 0) {
-    shutter_speed = 0.5;    
-  }
-  else {
+    shutter_speed = 1;
+    EEPROM.write(5, shutter_speed);
+  } else {
     shutter_speed = shutter_data;    
   }
 
@@ -254,46 +253,36 @@ void setFocusRange() {
   display.clearDisplay();
   display.setCursor(0,5);
   display.setTextSize(1);
-  display.println(F("Move joystick left \nand right to adjust \nthe turn. \n\nClick joystick to \nconfirm"));
+  display.println(F("Move joystick right \nto adjust the turn. \n\nClick joystick to \nconfirm"));
   display.display();
   delay(4000);
   
+  focus_motor.startRotate((FOCUS_MOVE)*360);
+  unsigned wait_time = focus_motor.nextAction();
   while (button != 0) {
-    display.clearDisplay();
-    display.setCursor(0,5);
-    display.setTextSize(1);
-    display.println(F("Please set max turn\n"));
-    display.println(F("Press to confirm"));
-    display.drawFastHLine(0,40, display.width(), WHITE);
-    display.setTextSize(2);
-    display.setCursor(28, 49);
-    display.print(F("Max:"));
-    display.print(focus_max);
-    display.display();
-    if (x_value>600 && 450<y_value<850) {
-      if (focus_max == 250) {
-        focus_max = focus_max;
-      }
-      else {
+    if (wait_time) {
+      display.clearDisplay();
+      display.setCursor(0,5);
+      display.setTextSize(1);
+      display.println(F("Please set max turn\n"));
+      display.println(F("Press to confirm"));
+      display.drawFastHLine(0,40, display.width(), WHITE);
+      display.setTextSize(2);
+      display.setCursor(28, 49);
+      display.print(F("Max:"));
+      display.print(focus_max);
+      display.display();
+      if (x_value>600 && 450<y_value<850) {
         focus_max++;
-        focus_motor.move(FOCUS_MOVE);
+        wait_time = focus_motor.nextAction();
       }
-      //delay(100);
-    }
-    if (x_value<440 && 450<y_value<850) {
-      if (focus_max == 0) {
-        focus_max = focus_max;
-      }
-      else {
-        focus_max--;
-        focus_motor.move(-FOCUS_MOVE);
-      }
-      //delay(100);
-    }
 
-    x_value = analogRead(VRX);
-    y_value = analogRead(VRY);
-    button = digitalRead(SW);
+      x_value = analogRead(VRX);
+      y_value = analogRead(VRY);
+      button = digitalRead(SW);
+    } else {
+      break;
+    }
   }
   
   display.clearDisplay();
@@ -305,60 +294,43 @@ void setFocusRange() {
   delay(500);
 
   // focus_min
-  /*
   display.clearDisplay();
-  display.setTextSize(1);
   display.setCursor(0,5);
-  display.println(F("You are setting \nthe min turn for \nfocus ring. \n\nUse the joystick for controls"));
+  display.setTextSize(1);
+  display.println(F("Move joystick left \nto adjust the turn. \n\nClick joystick to \nconfirm"));
   display.display();
   delay(4000);
-
-  display.clearDisplay();
-  display.setCursor(0,5);
-  display.setTextSize(1);
-  display.println(F("Move joystick left \nand right to adjust \nthe turn. \n\nClick joystick to \nconfirm"));
-  display.display();
-  delay(4000); */
   
+  focus_motor.startRotate((-FOCUS_MOVE)*360);
+  wait_time = focus_motor.nextAction();
   while (button != 0) {
-    display.clearDisplay();
-    display.setTextSize(1);
-    display.setCursor(0,5);
-    display.println(F("Please set min turn\n"));
-    display.println(F("Press to confirm"));
-    display.drawFastHLine(0,40, display.width(), WHITE);
-    display.setTextSize(2);
-    display.setCursor(28, 49);
-    display.print(F("Min:"));
-    display.print(focus_min);
-    display.display();
-    if (x_value>600 && 450<y_value<850) {
-      if (focus_min == focus_max) {
-        focus_min = focus_min;
+    if (wait_time) {
+      display.clearDisplay();
+      display.setTextSize(1);
+      display.setCursor(0,5);
+      display.println(F("Please set min turn\n"));
+      display.println(F("Press to confirm"));
+      display.drawFastHLine(0,40, display.width(), WHITE);
+      display.setTextSize(2);
+      display.setCursor(28, 49);
+      display.print(F("Min:"));
+      display.print(focus_min);
+      display.display();
+      if (x_value<440 && 450<y_value<850) {
+          focus_min--;
+          wait_time = focus_motor.nextAction();
       }
-      else {
-        focus_min++;
-        focus_motor.move(FOCUS_MOVE);
-      }
-      //delay(100);
-    }
-    if (x_value<440 && 450<y_value<850) {
-      if (focus_min == -focus_max) {
-        focus_min = focus_min;
-      }
-      else {
-        focus_min--;
-        focus_motor.move(-FOCUS_MOVE);
-      }
-      //delay(100);
-    }
 
-    x_value = analogRead(VRX);
-    y_value = analogRead(VRY);
-    button = digitalRead(SW);
+      x_value = analogRead(VRX);
+      y_value = analogRead(VRY);
+      button = digitalRead(SW);
+    } else {
+      break;
+    }
+    
   }
 
-  focus_motor.setRPM(20);
+  focus_motor.setRPM(RPM);
   button = 1;
   x_value = analogRead(VRX);
   y_value = analogRead(VRY);
@@ -366,7 +338,7 @@ void setFocusRange() {
 }
 
 void setZoomRange() {
-  zoom_motor.setRPM(1);
+  zoom_motor.setRPM(5);
   // set the zoom_max
   display.clearDisplay();
   display.setTextSize(1);
@@ -378,45 +350,36 @@ void setZoomRange() {
   display.clearDisplay();
   display.setCursor(0,5);
   display.setTextSize(1);
-  display.println(F("Move joystick left \nand right to adjust \nthe turn. \n\nClick joystick to \nconfirm"));
+  display.println(F("Move joystick right \nto adjust the turn. \n\nClick joystick to \nconfirm"));
   display.display();
   delay(4000);
-  while (button != 0) {
-    display.clearDisplay();
-    display.setTextSize(1);
-    display.setCursor(0,5);
-    display.println(F("Please set max turn\n"));
-    display.println(F("Press to confirm"));
-    display.drawFastHLine(0,40, display.width(), WHITE);
-    display.setTextSize(2);
-    display.setCursor(28, 49);
-    display.print(F("Max:"));
-    display.print(zoom_max);
-    display.display();
-    if (x_value>600 && 450<y_value<850) {
-      if (zoom_max == 250) {
-        zoom_max = zoom_max;
-      }
-      else {
-        zoom_max++;
-        zoom_motor.move(ZOOM_MOVE);
-      }
-      delay(100);
-    }
-    if (x_value<440 && 450<y_value<850) {
-      if (zoom_max == 0) {
-        zoom_max = zoom_max;
-      }
-      else {
-        zoom_max--;
-        zoom_motor.move(-ZOOM_MOVE);
-      }
-      delay(100);
-    }
 
-    x_value = analogRead(VRX);
-    y_value = analogRead(VRY);
-    button = digitalRead(SW);
+  zoom_motor.startRotate((ZOOM_MOVE)*360);
+  unsigned wait_time = zoom_motor.nextAction();
+  while (button != 0) {
+    if (wait_time) {
+      display.clearDisplay();
+      display.setTextSize(1);
+      display.setCursor(0,5);
+      display.println(F("Please set max turn\n"));
+      display.println(F("Press to confirm"));
+      display.drawFastHLine(0,40, display.width(), WHITE);
+      display.setTextSize(2);
+      display.setCursor(28, 49);
+      display.print(F("Max:"));
+      display.print(zoom_max);
+      display.display();
+      if (x_value>600 && 450<y_value<850) {
+        zoom_max++;
+        wait_time = zoom_motor.nextAction();
+      }
+
+      x_value = analogRead(VRX);
+      y_value = analogRead(VRY);
+      button = digitalRead(SW);
+    } else {
+      break;
+    }
   }
   
   display.clearDisplay();
@@ -428,58 +391,47 @@ void setZoomRange() {
   delay(500);
 
   // set the zoom_min
-  /*
   display.clearDisplay();
-  display.setTextSize(1);
   display.setCursor(0,5);
-  display.println(F("You are setting \nthe min turn for \nzoom ring. \n\nUse the joystick for controls"));
+  display.setTextSize(1);
+  display.println(F("Move joystick left \n to adjust the turn. \n\nClick joystick to \nconfirm"));
   display.display();
   delay(4000);
 
-  display.clearDisplay();
-  display.setCursor(0,5);
-  display.setTextSize(1);
-  display.println(F("Move joystick left \nand right to adjust \nthe turn. \n\nClick joystick to \nconfirm"));
-  display.display();
-  delay(4000);*/
+  zoom_motor.startRotate((-ZOOM_MOVE)*360);
+  wait_time = zoom_motor.nextAction();
   while (button != 0) {
-    display.clearDisplay();
-    display.setTextSize(1);
-    display.setCursor(0,5);
-    display.println(F("Please set min turn\n"));
-    display.println(F("Press to confirm"));
-    display.drawFastHLine(0,40, display.width(), WHITE);
-    display.setTextSize(2);
-    display.setCursor(28, 49);
-    display.print(F("Min:"));
-    display.print(zoom_min);
-    display.display();
-    if (x_value>600 && 450<y_value<850) {
-      if (zoom_min == zoom_max) {
-        zoom_min = zoom_min;
+    if (wait_time) {
+      display.clearDisplay();
+      display.setTextSize(1);
+      display.setCursor(0,5);
+      display.println(F("Please set min turn\n"));
+      display.println(F("Press to confirm"));
+      display.drawFastHLine(0,40, display.width(), WHITE);
+      display.setTextSize(2);
+      display.setCursor(28, 49);
+      display.print(F("Min:"));
+      display.print(zoom_min);
+      display.display();
+      if (x_value<440 && 450<y_value<850) {
+          zoom_min--;
+          wait_time = zoom_motor.nextAction();
       }
-      else {
-        zoom_min++;
-        zoom_motor.move(ZOOM_MOVE);
-      }
-      delay(100);
-    }
-    if (x_value<440 && 450<y_value<850) {
-      if (zoom_min == -zoom_max) {
-        zoom_min = zoom_min;
-      }
-      else {
-        zoom_min--;
-        zoom_motor.move(-ZOOM_MOVE);
-      }
-      delay(100);
-    }
 
-    zoom_motor.setRPM(20);
-    x_value = analogRead(VRX);
-    y_value = analogRead(VRY);
-    button = digitalRead(SW);
+      x_value = analogRead(VRX);
+      y_value = analogRead(VRY);
+      button = digitalRead(SW);
+    } else {
+      break;
+    }
+    
   }
+
+  zoom_motor.setRPM(RPM);
+  button = 1;
+  x_value = analogRead(VRX);
+  y_value = analogRead(VRY);
+  delay(500);
 }
 
 void menu(int num_option, const char *const string_table[], int option_selected) {
@@ -628,6 +580,17 @@ String wrap(String s, int limit){
   s.replace("~","\n");
     return s;
 }
+
+/*
+void setDisplay(const char *const string_table[]) {
+  display.clearDisplay();
+  display.setCursor(0, 0);
+  for (int i=0; i<string_table.length(); i++) {
+    strcpy_P(buffer, (char *)pgm_read_word(&(string_table[i])));
+    display.println(buffer);
+  }
+  display.display();
+} */
 
 long toMS(float seconds) {
   return seconds * 1000000;
@@ -790,7 +753,7 @@ void loop() {
     resetJoy();
     delay(500);
 
-    // zoom ring
+    // manual zoom ring
     if (start_option == 0) {
       float divs = (SCREEN_WIDTH-30)/(float)diff_zoom;
       float zoom_divs = zoom_min; //temp variable
@@ -846,7 +809,8 @@ void loop() {
         display.setCursor(105,36);
         display.setTextColor(WHITE,BLACK);
         display.print(zoom_min);
-        display.print(F(" "));
+        strcpy_P(buffer, (char *)pgm_read_word(&(key_phrases[4])));
+        display.print(buffer);
         display.display();
 
         getJoyRead();
@@ -859,7 +823,7 @@ void loop() {
         } 
       } while (true); 
     }
-    // focus ring
+    // manual focus ring
     if (start_option == 1) {
       float divs = (SCREEN_WIDTH-30)/(float)diff_focus;
       float focus_divs = focus_min; //temp variable
@@ -915,7 +879,8 @@ void loop() {
         display.setCursor(105,36);
         display.setTextColor(WHITE,BLACK);
         display.print(focus_min);
-        display.print(F(" "));
+        strcpy_P(buffer, (char *)pgm_read_word(&(key_phrases[4])));
+        display.print(buffer);
         display.display();
 
         getJoyRead();
@@ -930,6 +895,7 @@ void loop() {
     }
     // zoom to distance
     if (start_option == 2) {
+      ZOOM_MENU:
       while (button != 0) {
         option = getUpDown(4, option);
         menu(4, movetodist_menu, option);
@@ -946,14 +912,19 @@ void loop() {
         display.clearDisplay();
         display.setCursor(0,5);
         display.println(F("Moving to the \nmaximum zoom"));
-        display.print(F("Steps to move: "));
+        strcpy_P(buffer, (char *)pgm_read_word(&(key_phrases[3])));
+        display.print(buffer);
         display.print(steps_to_move);
         display.display();
-        zoom_motor.move(-steps_to_move);
+        zoom_motor.startMove((ZOOM_MOVE)*steps_to_move, toMS(shutter_speed));
+        unsigned wait_time;        
+        do {
+          wait_time = zoom_motor.nextAction();
+        } while(wait_time);        
         zoom_min = diff_zoom;
-        delay(5000);
+        delay(3000);
         EEPROM.write(1,zoom_min);
-        goto STARTMENU;
+        goto ZOOM_MENU;
       }
       // zoom to min
       if (zoom_option == 1) {
@@ -961,17 +932,108 @@ void loop() {
         display.clearDisplay();
         display.setCursor(0,5);
         display.println(F("Moving to the \nminimum zoom"));
-        display.print(F("Steps to move: "));
+        strcpy_P(buffer, (char *)pgm_read_word(&(key_phrases[3])));
+        display.print(buffer);
         display.print(steps_to_move);
         display.display();
-        zoom_motor.startMove(steps_to_move, toMS(4));
+        zoom_motor.startMove((-ZOOM_MOVE)*steps_to_move, toMS(shutter_speed));
+        unsigned wait_time; 
+        do {
+          wait_time = zoom_motor.nextAction();          
+        } while (wait_time);
         zoom_min = 0;
-        delay(5000);
+        delay(3000);
         EEPROM.write(1,zoom_min);
-        goto STARTMENU;
+        goto ZOOM_MENU;
       }
       // zoom to specific distance
       if (zoom_option == 2) {
+        zoom_motor.setRPM(5);
+        float divs = (SCREEN_WIDTH-30)/(float)diff_zoom;
+        float zoom_divs = zoom_min; //temp variable
+        display.clearDisplay();
+        do {
+          sub_option = getUpDown(2, sub_option);
+
+          zoom_divs = zoom_min*divs;
+          display.setCursor(0,0);
+          if (sub_option == 0) {
+            display.setTextColor(BLACK,WHITE);
+
+            if (x_value>600 && 450<y_value<850) {
+              if (zoom_min == diff_zoom) {
+                zoom_min = zoom_min;
+              }
+              else {
+                zoom_min++;
+                zoom_motor.move(ZOOM_MOVE);
+              }
+            }
+            if (x_value<440 && 450<y_value<850) {
+              if (zoom_min == 0) {
+                zoom_min = 0;
+              }
+              else {
+                zoom_min--;
+                zoom_motor.move(-ZOOM_MOVE);
+              }
+            }
+            
+          } else {
+            display.setTextColor(WHITE,BLACK);
+          }
+          display.print(F("|-Set zoom distance-|\n"));
+          display.setTextColor(WHITE);
+          strcpy_P(buffer, (char *)pgm_read_word(&(key_phrases[1])));
+          display.print(buffer);
+          display.print(diff_zoom);
+          display.setCursor(2,55);
+          if (sub_option == 1) {
+            display.setTextColor(BLACK,WHITE);
+          } else {
+            display.setTextColor(WHITE,BLACK);
+          }
+          strcpy_P(buffer, (char *)pgm_read_word(&(key_phrases[2])));
+          display.print(buffer);
+          display.drawRect(0,33,SCREEN_WIDTH-26,14,WHITE);
+          display.fillRect(2,35,SCREEN_WIDTH-30,10,BLACK);  /* Reset inner rectangle */
+          display.fillRect(2,35,(int)zoom_divs,10,WHITE);
+          display.setCursor(105,36);
+          display.setTextColor(WHITE,BLACK);
+          display.print(zoom_min);
+          strcpy_P(buffer, (char *)pgm_read_word(&(key_phrases[4])));
+          display.print(buffer);
+          display.display();
+
+          getJoyRead();
+
+          if (sub_option == 1 && button == 0) {
+            zoom_motor.setRPM(RPM);
+            button = 1;
+            delay(500);
+            int steps_to_move = zoom_min;
+            zoom_motor.startMove((-ZOOM_MOVE)*steps_to_move, toMS(shutter_speed/2));
+            unsigned wait_time;
+            do {
+              wait_time = zoom_motor.nextAction();
+            } while(wait_time);
+            delay(5000);
+            display.clearDisplay();
+            display.setCursor(0,5);
+            display.println(F("Moving to the \nset distance"));
+            strcpy_P(buffer, (char *)pgm_read_word(&(key_phrases[3])));
+            display.print(buffer);
+            display.print(steps_to_move);
+            display.display();
+            zoom_motor.startMove((-ZOOM_MOVE)*steps_to_move, toMS(shutter_speed));
+            do {
+              wait_time = zoom_motor.nextAction();
+            } while(wait_time);        
+            delay(3000);
+            EEPROM.write(1,zoom_min);
+            goto STARTMENU;
+          } 
+        } while (true);
       }
       // back
       if (zoom_option == 3) {
@@ -1010,22 +1072,104 @@ void loop() {
 
     // bokeh effect
     if (start_option == 0) {
-      // execute 
+      zoom_motor.setSpeedProfile(zoom_motor.LINEAR_SPEED, 2000, 500);
+      focus_motor.setSpeedProfile(zoom_motor.LINEAR_SPEED, 500, 1000);
+      int zoom_steps_to_move = diff_zoom - zoom_min;
+      int focus_steps_to_move = diff_focus - focus_min;
+      display.clearDisplay();
+      display.setCursor(0,5);
+      strcpy_P(buffer, (char *)pgm_read_word(&(key_phrases[3])));
+      display.print(buffer);
+      display.print(zoom_steps_to_move);
+      display.display();
+      zoom_motor.startMove((ZOOM_MOVE)*zoom_steps_to_move, toMS(shutter_speed));
+      focus_motor.startMove((FOCUS_MOVE)*focus_steps_to_move, toMS(shutter_speed/2));
+      unsigned wait_time;
+      unsigned focus_wait_time;
+      do {
+        wait_time = zoom_motor.nextAction();
+        focus_wait_time = focus_motor.nextAction();
+        if (!focus_wait_time) {
+          focus_motor.startMove((-FOCUS_MOVE)*focus_steps_to_move, toMS(shutter_speed/2));
+        }
+      } while(wait_time);        
+      zoom_min = diff_zoom;
+      delay(3000);
+      EEPROM.write(0,focus_min);
+      EEPROM.write(1,zoom_min);
+      goto ADVMENU;
     }
     
     // firework effect
     if (start_option == 1) {
-      // execute
+      int steps_to_move = diff_focus - focus_min;
+      display.clearDisplay();
+      display.setCursor(0,5);
+      strcpy_P(buffer, (char *)pgm_read_word(&(key_phrases[3])));
+      display.print(buffer);
+      display.print(steps_to_move);
+      display.display();
+      focus_motor.startMove((FOCUS_MOVE)*steps_to_move, toMS(shutter_speed/2));
+      unsigned wait_time; 
+      do {
+        wait_time = focus_motor.nextAction();
+      } while(wait_time);
+      focus_motor.startMove((-FOCUS_MOVE)*steps_to_move, toMS(shutter_speed/2));
+      do {
+        wait_time = focus_motor.nextAction();
+      } while(wait_time);
+      delay(3000);
+      goto ADVMENU;
     }
 
     // zoom blur effect
     if (start_option == 2) {
-
+      int zoom_steps_to_move = diff_zoom - zoom_min;
+      int focus_steps_to_move = diff_focus - focus_min;
+      display.clearDisplay();
+      display.setCursor(0,5);
+      strcpy_P(buffer, (char *)pgm_read_word(&(key_phrases[3])));
+      display.print(buffer);
+      display.print(zoom_steps_to_move);
+      display.display();
+      zoom_motor.startMove((ZOOM_MOVE)*zoom_steps_to_move, toMS(shutter_speed));
+      focus_motor.startMove((FOCUS_MOVE)*focus_steps_to_move, toMS(shutter_speed/2));
+      unsigned wait_time;
+      unsigned focus_wait_time;
+      do {
+        wait_time = zoom_motor.nextAction();
+        focus_wait_time = focus_motor.nextAction();
+        if (!focus_wait_time) {
+          focus_motor.startMove((-FOCUS_MOVE)*focus_steps_to_move, toMS(shutter_speed/2));
+        }
+      } while(wait_time);        
+      zoom_min = diff_zoom;
+      delay(3000);
+      EEPROM.write(0,focus_min);
+      EEPROM.write(1,zoom_min);
+      goto ADVMENU;
     }
 
     // sine wave
     if (start_option == 3) {
-      
+      zoom_motor.setSpeedProfile(zoom_motor.LINEAR_SPEED, 1000, 1000);
+      int steps_to_move = diff_zoom - zoom_min;
+      display.clearDisplay();
+      display.setCursor(0,5);
+      strcpy_P(buffer, (char *)pgm_read_word(&(key_phrases[3])));
+      display.print(buffer);
+      display.print(steps_to_move);
+      display.display();
+      zoom_motor.startMove((ZOOM_MOVE)*steps_to_move, toMS(shutter_speed));
+      unsigned wait_time;        
+      do {
+        wait_time = zoom_motor.nextAction();
+      } while(wait_time);        
+      zoom_min = diff_zoom;
+      delay(3000);
+      EEPROM.write(1,zoom_min);
+      zoom_motor.setSpeedProfile(zoom_motor.CONSTANT_SPEED);
+      goto ADVMENU;
     }
 
     // back
@@ -1080,13 +1224,13 @@ void loop() {
 
     // Shutter Speed
     if (sub_option == 1) {
-      if (shutter_speed == 0.5) {
+      if (shutter_speed == 1) {
         option = 0;
-      } else if (shutter_speed == 1) {
-        option = 1;
-      } else if (shutter_speed == 2) {
-        option = 2;
       } else if (shutter_speed == 4) {
+        option = 1;
+      } else if (shutter_speed == 8) {
+        option = 2;
+      } else if (shutter_speed == 16) {
         option = 3;
       }
       while (button != 0) {
@@ -1101,23 +1245,19 @@ void loop() {
       delay(500);
 
       if (shutter_option == 0) {
-        shutter_speed = 0.5;        
+        shutter_speed = 1;        
       }
       if (shutter_option == 1) {
-        shutter_speed = 1;
+        shutter_speed = 4;
       }      
       if (shutter_option == 2) {
-        shutter_speed = 2;
+        shutter_speed = 8;
       }
       if (shutter_option == 3) {
-        shutter_speed = 4;
+        shutter_speed = 16;
       }
 
-      if (shutter_speed == 0.5) {
-        EEPROM.write(5, 0);
-      } else {
-        EEPROM.write(5, shutter_speed);
-      }
+      EEPROM.write(5, shutter_speed);
 
       goto SETTINGS;
     }
