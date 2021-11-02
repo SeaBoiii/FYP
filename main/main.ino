@@ -23,10 +23,10 @@ bool debug = false;
 
 // Arduino Pins
 /* Motor Pins */
-#define focus_DIR 3
-#define focus_STEP 4
-#define zoom_DIR 5
-#define zoom_STEP 6
+#define rear_DIR 3
+#define rear_STEP 4
+#define front_DIR 5
+#define front_STEP 6
 
 /* Joystick Pins */
 #define VRX A0
@@ -41,7 +41,7 @@ const char back[] PROGMEM = "Back";
 const char range[] PROGMEM = "\nRange:  ";
 const char joystick_0[] PROGMEM = "Use the joystick for controls";
 const char joystick_1[] PROGMEM = "Move joystick left and right to adjust the turn.";
-const char joystick_2[] PROGMEM = "Click joystick to confirm";
+const char joystick_2[] PROGMEM = "Click joystick to cfm";
 const char set_txt[] PROGMEM = "Set";
 const char steps_txt[] PROGMEM = "Steps to move: ";
 const char blank_txt[] PROGMEM = " ";
@@ -73,10 +73,10 @@ const char string_18[] PROGMEM = "Firework Effect";
 const char string_19[] PROGMEM = "Zoom Blur Effect";
 const char string_20[] PROGMEM = "Sine Wave Effect";
 
-const char string_21[] PROGMEM = "You are setting the max turn for focus ring.";
-const char string_22[] PROGMEM = "You are setting the min turn for focus ring.";
-const char string_23[] PROGMEM = "You are setting the max turn for zoom ring.";
-const char string_24[] PROGMEM = "You are setting the min turn for zoom ring.";
+const char string_21[] PROGMEM = "Set the ring \nto focus on \na subject";
+const char string_22[] PROGMEM = "Set the ring \nas blur as \npossible";
+const char string_23[] PROGMEM = "You are setting \nthe maximum turn \nfor zoom ring.";
+const char string_24[] PROGMEM = "You are setting \nthe mininum turn \nfor zoom ring.";
 
 const char string_25[] PROGMEM = "|---- Settings -----|";
 const char string_26[] PROGMEM = "Zoom/Focus Position";
@@ -109,8 +109,8 @@ const char *const shutter_menu[] PROGMEM = {string_31, string_32, string_33, str
 // A4988 stepper(MOTOR_STEPS, DIR, STEP, MS1, MS2, MS3)
 // focus ring is infront compared to zoom ring
 // motor objects
-A4988 focus_motor(MOTOR_STEPS, focus_DIR, focus_STEP, 11, 10, 9);
-A4988 zoom_motor(MOTOR_STEPS, zoom_DIR, zoom_STEP);
+A4988 rear_motor(MOTOR_STEPS, rear_DIR, rear_STEP);
+A4988 front_motor(MOTOR_STEPS, front_DIR, front_STEP);
 
 // Joystick joy(VRX, VRY, SW)
 // creating Joystick object
@@ -145,9 +145,6 @@ int button = 1; // 0 for click
 int x_value = 0;
 int y_value = 0;
 
-int FOCUS_MOVE;
-int ZOOM_MOVE;
-
 
 /* Setting up the Arduino
  * [When first powering up]
@@ -161,11 +158,11 @@ void setup() {
   // setting up motor (RPM to 1 and Microstepping to 1)
   // -> Lower RPM = Higher torque
   // -> Higher Microstepping = Higher holding torque
-  focus_motor.begin(RPM, 1);
-  zoom_motor.begin(RPM, 1);
+  rear_motor.begin(RPM, 1);
+  front_motor.begin(RPM, 1);
   
-  focus_motor.enable();
-  zoom_motor.enable();
+  rear_motor.enable();
+  front_motor.enable();
 
   // on serial if debug is true
   if (debug) {
@@ -204,21 +201,15 @@ void setup() {
  
   // reads the orientation
   orientation = EEPROM.read(4);
+  /*
+   * If orientation == 0
+   * -> Zoom at the back
+   * If orientation == 1
+   * -> Zoom at the front
+   */
   if (orientation == 255) {
     orientation = 0;
-    EEPROM.write(4,0);
-    FOCUS_MOVE = 1;
-    ZOOM_MOVE = -1;    
-  }
-  // zoom at the front
-  else if (orientation == 0) {
-    FOCUS_MOVE = 1;
-    ZOOM_MOVE = -1;
-  }
-  // zoom at the back
-  else if (orientation == 1) {
-    FOCUS_MOVE = -1;
-    ZOOM_MOVE = 1;
+    EEPROM.write(4,0);  
   }
 
   // reads the shutter data
@@ -239,6 +230,71 @@ void setup() {
 
 void(* resetFunc) (void) = 0;
 
+void focus_move(int orientation, int steps) {
+  // focus in front
+  if (orientation == 0) {
+    front_motor.move(steps);
+  } 
+  // focus at back
+  if (orientation == 1) {
+    rear_motor.move(-steps);
+  }
+}
+
+void focus_startMove(int orientation, long steps, long time=0) {
+  // focus in front
+  if (orientation == 0) {
+    front_motor.startMove(steps, time);
+  }
+  // focus at back
+  if (orientation == 1) {
+    rear_motor.startMove(-steps, time);
+  }  
+}
+
+unsigned focus_nextAction(int orientation) {
+  unsigned wait_time;
+  // focus in front
+  if (orientation == 0) {
+    wait_time = front_motor.nextAction();
+  }
+  // focus at back
+  if (orientation == 1) {
+    wait_time = rear_motor.nextAction();
+  }    
+  return wait_time;
+}
+
+void zoom_move(int orientation, int steps) {
+  // zoom at back
+  if (orientation == 0) {
+    rear_motor.move(-steps);    
+  }
+  if (orientation == 1) {
+    front_motor.move(steps);
+  }
+}
+
+void zoom_startMove(int orientation, long steps, long time=0) {
+  if (orientation == 0) {
+    rear_motor.move(-steps, time);    
+  }
+  if (orientation == 1) {
+    front_motor.move(steps, time);
+  }
+}
+
+unsigned zoom_nextAction(int orientation) {
+  unsigned wait_time;
+  if (orientation == 0) {
+    wait_time = rear_motor.nextAction();
+  }
+  if (orientation == 1) {
+    wait_time = front_motor.nextAction();
+  }
+  return wait_time;
+}
+
 void setFocusRange() {
   focus_motor.setRPM(1);
   
@@ -246,43 +302,59 @@ void setFocusRange() {
   display.clearDisplay();
   display.setTextSize(1);
   display.setCursor(0,5);
-  display.println(F("You are setting \nthe max turn for \nfocus ring. \n\nUse the joystick for controls"));
+  strcpy_P(buffer, (char *)pgm_read_word(&(ring_phrases[0])));
+  display.println(buffer);
+  strcpy_P(buffer, (char *)pgm_read_word(&(joystick_phrases[0])));
+  display.println(buffer);
   display.display();
   delay(4000);
 
   display.clearDisplay();
   display.setCursor(0,5);
   display.setTextSize(1);
-  display.println(F("Move joystick right \nto adjust the turn. \n\nClick joystick to \nconfirm"));
+  strcpy_P(buffer, (char *)pgm_read_word(&(joystick_phrases[1])));
+  display.println(buffer);
+  strcpy_P(buffer, (char *)pgm_read_word(&(joystick_phrases[2])));
+  display.println(buffer);
   display.display();
   delay(4000);
   
-  focus_motor.startRotate((FOCUS_MOVE)*360);
-  unsigned wait_time = focus_motor.nextAction();
   while (button != 0) {
-    if (wait_time) {
-      display.clearDisplay();
-      display.setCursor(0,5);
-      display.setTextSize(1);
-      display.println(F("Please set max turn\n"));
-      display.println(F("Press to confirm"));
-      display.drawFastHLine(0,40, display.width(), WHITE);
-      display.setTextSize(2);
-      display.setCursor(28, 49);
-      display.print(F("Max:"));
-      display.print(focus_max);
-      display.display();
-      if (x_value>600 && 450<y_value<850) {
-        focus_max++;
-        wait_time = focus_motor.nextAction();
+    display.clearDisplay();
+    display.setCursor(0,5);
+    display.setTextSize(1);
+    display.println(F("Set to most focus\n"));
+    strcpy_P(buffer, (char *)pgm_read_word(&(joystick_phrases[2])));
+    display.println(buffer);
+    display.drawFastHLine(0,40, display.width(), WHITE);
+    display.setTextSize(2);
+    display.setCursor(28, 49);
+    display.print(F("Max:"));
+    display.print(focus_max);
+    display.display();
+    if (x_value>600 && 450<y_value<850) {
+      if (focus_max == 250) {
+        focus_max = focus_max;
       }
-
-      x_value = analogRead(VRX);
-      y_value = analogRead(VRY);
-      button = digitalRead(SW);
-    } else {
-      break;
+      else {
+        focus_max++;
+        focus_move(orientation, 1);
+      }
+      delay(100);
     }
+    if (x_value<440 && 450<y_value<850) {
+      if (focus_max == 0) {
+        focus_max = focus_max;
+      }
+      else {
+        focus_max--;
+        focus_move(orientation, -1);
+      }
+      delay(100);
+    }      
+    x_value = analogRead(VRX);
+    y_value = analogRead(VRY);
+    button = digitalRead(SW);
   }
   
   display.clearDisplay();
@@ -295,39 +367,61 @@ void setFocusRange() {
 
   // focus_min
   display.clearDisplay();
+  display.setTextSize(1);
+  display.setCursor(0,5);
+  strcpy_P(buffer, (char *)pgm_read_word(&(ring_phrases[1])));
+  display.println(buffer);
+  strcpy_P(buffer, (char *)pgm_read_word(&(joystick_phrases[0])));
+  display.println(buffer);
+  display.display();
+  delay(4000);
+
+  display.clearDisplay();
   display.setCursor(0,5);
   display.setTextSize(1);
-  display.println(F("Move joystick left \nto adjust the turn. \n\nClick joystick to \nconfirm"));
+  strcpy_P(buffer, (char *)pgm_read_word(&(joystick_phrases[1])));
+  display.println(buffer);
+  strcpy_P(buffer, (char *)pgm_read_word(&(joystick_phrases[2])));
+  display.println(buffer);
   display.display();
   delay(4000);
   
-  focus_motor.startRotate((-FOCUS_MOVE)*360);
-  wait_time = focus_motor.nextAction();
   while (button != 0) {
-    if (wait_time) {
-      display.clearDisplay();
-      display.setTextSize(1);
-      display.setCursor(0,5);
-      display.println(F("Please set min turn\n"));
-      display.println(F("Press to confirm"));
-      display.drawFastHLine(0,40, display.width(), WHITE);
-      display.setTextSize(2);
-      display.setCursor(28, 49);
-      display.print(F("Min:"));
-      display.print(focus_min);
-      display.display();
-      if (x_value<440 && 450<y_value<850) {
-          focus_min--;
-          wait_time = focus_motor.nextAction();
+    display.clearDisplay();
+    display.setTextSize(1);
+    display.setCursor(0,5);
+    display.println(F("Set to most blur\n"));
+    strcpy_P(buffer, (char *)pgm_read_word(&(joystick_phrases[2])));
+    display.println(buffer);
+    display.drawFastHLine(0,40, display.width(), WHITE);
+    display.setTextSize(2);
+    display.setCursor(28, 49);
+    display.print(F("Min:"));
+    display.print(focus_min);
+    display.display();
+    if (x_value>600 && 450<y_value<850) {
+      if (focus_min == focus_max) {
+        focus_min = focus_min;
       }
-
-      x_value = analogRead(VRX);
-      y_value = analogRead(VRY);
-      button = digitalRead(SW);
-    } else {
-      break;
+      else {
+        focus_min++;
+        focus_move(orientation, 1);
+      }
+      delay(100);
     }
-    
+    if (x_value<440 && 450<y_value<850) {
+      if (focus_min == -focus_max) {
+        focus_min = focus_min;
+      }
+      else {
+        focus_min--;
+        focus_move(orientation, -1);
+      }
+      delay(100);
+    }
+    x_value = analogRead(VRX);
+    y_value = analogRead(VRY);
+    button = digitalRead(SW);  
   }
 
   focus_motor.setRPM(RPM);
@@ -338,51 +432,67 @@ void setFocusRange() {
 }
 
 void setZoomRange() {
-  zoom_motor.setRPM(5);
+  zoom_motor.setRPM(1);
   // set the zoom_max
   display.clearDisplay();
   display.setTextSize(1);
   display.setCursor(0,5);
-  display.println(F("You are setting \nthe max turn for \nzoom ring. \n\nUse the joystick for controls"));
+  strcpy_P(buffer, (char *)pgm_read_word(&(ring_phrases[2])));
+  display.println(buffer);
+  strcpy_P(buffer, (char *)pgm_read_word(&(joystick_phrases[0])));
+  display.println(buffer);
   display.display();
   delay(4000);
 
   display.clearDisplay();
   display.setCursor(0,5);
   display.setTextSize(1);
-  display.println(F("Move joystick right \nto adjust the turn. \n\nClick joystick to \nconfirm"));
+  strcpy_P(buffer, (char *)pgm_read_word(&(joystick_phrases[1])));
+  display.println(buffer);
+  strcpy_P(buffer, (char *)pgm_read_word(&(joystick_phrases[2])));
+  display.println(buffer);
   display.display();
   delay(4000);
 
-  zoom_motor.startRotate((ZOOM_MOVE)*360);
-  unsigned wait_time = zoom_motor.nextAction();
   while (button != 0) {
-    if (wait_time) {
-      display.clearDisplay();
-      display.setTextSize(1);
-      display.setCursor(0,5);
-      display.println(F("Please set max turn\n"));
-      display.println(F("Press to confirm"));
-      display.drawFastHLine(0,40, display.width(), WHITE);
-      display.setTextSize(2);
-      display.setCursor(28, 49);
-      display.print(F("Max:"));
-      display.print(zoom_max);
-      display.display();
-      if (x_value>600 && 450<y_value<850) {
-        zoom_max++;
-        wait_time = zoom_motor.nextAction();
+    display.clearDisplay();
+    display.setTextSize(1);
+    display.setCursor(0,5);
+    display.println(F("Set to maximum zoom\n"));
+    strcpy_P(buffer, (char *)pgm_read_word(&(joystick_phrases[2])));
+    display.println(buffer);
+    display.drawFastHLine(0,40, display.width(), WHITE);
+    display.setTextSize(2);
+    display.setCursor(28, 49);
+    display.print(F("Max:"));
+    display.print(zoom_max);
+    display.display();
+    if (x_value>600 && 450<y_value<850) {
+      if (zoom_max == 250) {
+        zoom_max = zoom_max;
       }
-
-      x_value = analogRead(VRX);
-      y_value = analogRead(VRY);
-      button = digitalRead(SW);
-    } else {
-      break;
+      else {
+        zoom_max++;
+        zoom_move(orientation, 1);
+      }
+      delay(100);
     }
+    if (x_value<440 && 450<y_value<850) {
+      if (zoom_max == 0) {
+        zoom_max = zoom_max;
+      }
+      else {
+        zoom_max--;
+        zoom_move(orientation, -1);
+      }
+      delay(100);
+    }
+
+    x_value = analogRead(VRX);
+    y_value = analogRead(VRY);
+    button = digitalRead(SW);
   }
   
-  display.clearDisplay();
   zoom_min = zoom_max;
 
   button = 1; // 0 for click
@@ -392,39 +502,62 @@ void setZoomRange() {
 
   // set the zoom_min
   display.clearDisplay();
-  display.setCursor(0,5);
   display.setTextSize(1);
-  display.println(F("Move joystick left \n to adjust the turn. \n\nClick joystick to \nconfirm"));
+  display.setCursor(0,5);
+  strcpy_P(buffer, (char *)pgm_read_word(&(ring_phrases[3])));
+  display.println(buffer);
+  strcpy_P(buffer, (char *)pgm_read_word(&(joystick_phrases[0])));
+  display.println(buffer);
   display.display();
   delay(4000);
 
-  zoom_motor.startRotate((-ZOOM_MOVE)*360);
-  wait_time = zoom_motor.nextAction();
-  while (button != 0) {
-    if (wait_time) {
-      display.clearDisplay();
-      display.setTextSize(1);
-      display.setCursor(0,5);
-      display.println(F("Please set min turn\n"));
-      display.println(F("Press to confirm"));
-      display.drawFastHLine(0,40, display.width(), WHITE);
-      display.setTextSize(2);
-      display.setCursor(28, 49);
-      display.print(F("Min:"));
-      display.print(zoom_min);
-      display.display();
-      if (x_value<440 && 450<y_value<850) {
-          zoom_min--;
-          wait_time = zoom_motor.nextAction();
-      }
+  display.clearDisplay();
+  display.setCursor(0,5);
+  display.setTextSize(1);
+  strcpy_P(buffer, (char *)pgm_read_word(&(joystick_phrases[1])));
+  display.println(buffer);
+  strcpy_P(buffer, (char *)pgm_read_word(&(joystick_phrases[2])));
+  display.println(buffer);
+  display.display();
+  delay(4000);
 
-      x_value = analogRead(VRX);
-      y_value = analogRead(VRY);
-      button = digitalRead(SW);
-    } else {
-      break;
+  while (button != 0) {
+    display.clearDisplay();
+    display.setTextSize(1);
+    display.setCursor(0,5);
+    display.println(F("Set to minimum zoom\n"));
+    strcpy_P(buffer, (char *)pgm_read_word(&(joystick_phrases[2])));
+    display.println(buffer);
+    display.drawFastHLine(0,40, display.width(), WHITE);
+    display.setTextSize(2);
+    display.setCursor(28, 49);
+    display.print(F("Min:"));
+    display.print(zoom_min);
+    display.display();
+    if (x_value>600 && 450<y_value<850) {
+      if (zoom_min == zoom_max) {
+        zoom_min = zoom_min;
+      }
+      else {
+        zoom_min++;
+        zoom_move(orientation, 1);
+      }
+      delay(100);
     }
-    
+    if (x_value<440 && 450<y_value<850) {
+      if (zoom_min == -zoom_max) {
+        zoom_min = zoom_min;
+      }
+      else {
+        zoom_min--;
+        zoom_move(orientation, -1);
+      }
+      delay(100);
+    }
+
+    x_value = analogRead(VRX);
+    y_value = analogRead(VRY);
+    button = digitalRead(SW);
   }
 
   zoom_motor.setRPM(RPM);
@@ -1206,17 +1339,13 @@ void loop() {
       delay(500);
 
       if (position_option == 0) {
-        orientation = 1;
+        orientation = 0;
         EEPROM.write(4,orientation);
-        FOCUS_MOVE = -1;
-        ZOOM_MOVE = 1;
       }
 
       if (position_option == 1) {
-        orientation = 0;
+        orientation = 1;
         EEPROM.write(4,orientation);
-        FOCUS_MOVE = -1;
-        ZOOM_MOVE = 1;
       }
       
       goto SETTINGS;   
@@ -1267,19 +1396,4 @@ void loop() {
       return;
     }
   }
-  // debug for joystick
-  if (debug) {
-    value = analogRead(A0);  // read X axis value [0..1023]
-    Serial.print("X:");
-    Serial.print(value, DEC);
-  
-    value = analogRead(A1); // read Y axis value [0..1023]
-    Serial.print(" | Y:");
-    Serial.print(value, DEC);
-  
-    value = digitalRead(12); // read Button state [0,1]
-    Serial.print(" | Button:");
-    Serial.println(value, DEC);
-  }
-
 }
