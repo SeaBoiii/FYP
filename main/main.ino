@@ -265,6 +265,15 @@ unsigned focus_nextAction(int orientation) {
   return wait_time;
 }
 
+void focus_setRPM(int orientation, int rpm) {
+  if (orientation == 0) {
+    front_motor.setRPM(rpm);
+  }
+  if (orientation == 1) {
+    rear_motor.setRPM(rpm);
+  }
+}
+
 void zoom_move(int orientation, int steps) {
   // zoom at back
   if (orientation == 0) {
@@ -277,10 +286,10 @@ void zoom_move(int orientation, int steps) {
 
 void zoom_startMove(int orientation, long steps, long time=0) {
   if (orientation == 0) {
-    rear_motor.move(-steps, time);    
+    rear_motor.startMove(-steps, time);    
   }
   if (orientation == 1) {
-    front_motor.move(steps, time);
+    front_motor.startMove(steps, time);
   }
 }
 
@@ -295,8 +304,17 @@ unsigned zoom_nextAction(int orientation) {
   return wait_time;
 }
 
+void zoom_setRPM(int orientation, int rpm) {
+  if (orientation == 0) {
+    rear_motor.setRPM(rpm);
+  }
+  if (orientation == 1) {
+    front_motor.setRPM(rpm);    
+  }
+}
+
 void setFocusRange() {
-  focus_motor.setRPM(1);
+  focus_setRPM(orientation, 1);
   
   // set the focus_max
   display.clearDisplay();
@@ -424,7 +442,7 @@ void setFocusRange() {
     button = digitalRead(SW);  
   }
 
-  focus_motor.setRPM(RPM);
+  focus_setRPM(orientation, RPM);
   button = 1;
   x_value = analogRead(VRX);
   y_value = analogRead(VRY);
@@ -432,7 +450,7 @@ void setFocusRange() {
 }
 
 void setZoomRange() {
-  zoom_motor.setRPM(1);
+  zoom_setRPM(orientation, 1);
   // set the zoom_max
   display.clearDisplay();
   display.setTextSize(1);
@@ -560,7 +578,7 @@ void setZoomRange() {
     button = digitalRead(SW);
   }
 
-  zoom_motor.setRPM(RPM);
+  zoom_setRPM(orientation, RPM);
   button = 1;
   x_value = analogRead(VRX);
   y_value = analogRead(VRY);
@@ -714,19 +732,12 @@ String wrap(String s, int limit){
     return s;
 }
 
-/*
-void setDisplay(const char *const string_table[]) {
-  display.clearDisplay();
-  display.setCursor(0, 0);
-  for (int i=0; i<string_table.length(); i++) {
-    strcpy_P(buffer, (char *)pgm_read_word(&(string_table[i])));
-    display.println(buffer);
-  }
-  display.display();
-} */
-
 long toMS(float seconds) {
   return seconds * 1000000;
+}
+
+long toMilli(long micro_s) {
+  return micro_s * 0.001;
 }
 
 /* Main Loop */
@@ -905,7 +916,7 @@ void loop() {
             }
             else {
               zoom_min++;
-              zoom_motor.move(ZOOM_MOVE);
+              zoom_move(orientation, 1);
             }
             delay(100);
           }
@@ -915,7 +926,7 @@ void loop() {
             }
             else {
               zoom_min--;
-              zoom_motor.move(-ZOOM_MOVE);
+              zoom_move(orientation, -1);
             }
             delay(100);
           }
@@ -975,7 +986,7 @@ void loop() {
             }
             else {
               focus_min++;
-              focus_motor.move(FOCUS_MOVE);
+              focus_move(orientation, 1);
             }
             delay(100);
           }
@@ -985,7 +996,7 @@ void loop() {
             }
             else {
               focus_min--;
-              focus_motor.move(-FOCUS_MOVE);
+              focus_move(orientation, -1);
             }
             delay(100);
           }
@@ -1049,19 +1060,26 @@ void loop() {
         display.print(buffer);
         display.print(steps_to_move);
         display.display();
-        zoom_motor.startMove((ZOOM_MOVE)*steps_to_move, toMS(shutter_speed));
+        zoom_startMove(orientation, steps_to_move, toMS(shutter_speed));
         unsigned wait_time;        
         do {
-          wait_time = zoom_motor.nextAction();
-        } while(wait_time);        
-        zoom_min = diff_zoom;
+          wait_time = zoom_nextAction(orientation);
+          delay(toMilli(wait_time));
+        } while(wait_time);  
+
+        // return to default
+        zoom_startMove(orientation, -steps_to_move, toMS(1));
+        do {
+          wait_time = zoom_nextAction(orientation);
+          delay(toMilli(wait_time));
+        } while(wait_time);    
+
         delay(3000);
-        EEPROM.write(1,zoom_min);
         goto ZOOM_MENU;
       }
       // zoom to min
       if (zoom_option == 1) {
-        int steps_to_move = zoom_min - 0;
+        int steps_to_move = 0 - zoom_min;
         display.clearDisplay();
         display.setCursor(0,5);
         display.println(F("Moving to the \nminimum zoom"));
@@ -1069,21 +1087,30 @@ void loop() {
         display.print(buffer);
         display.print(steps_to_move);
         display.display();
-        zoom_motor.startMove((-ZOOM_MOVE)*steps_to_move, toMS(shutter_speed));
+        zoom_startMove(orientation, steps_to_move, toMS(shutter_speed));
         unsigned wait_time; 
         do {
-          wait_time = zoom_motor.nextAction();          
+          wait_time = zoom_nextAction(orientation); 
+          delay(toMilli(wait_time));         
         } while (wait_time);
-        zoom_min = 0;
+
+        // return to default
+        zoom_startMove(orientation, -steps_to_move, toMS(1));
+        do {
+          wait_time = zoom_nextAction(orientation);
+          delay(toMilli(wait_time));
+        } while(wait_time); 
+
         delay(3000);
         EEPROM.write(1,zoom_min);
         goto ZOOM_MENU;
       }
       // zoom to specific distance
       if (zoom_option == 2) {
-        zoom_motor.setRPM(5);
+        zoom_setRPM(orientation, 5);
         float divs = (SCREEN_WIDTH-30)/(float)diff_zoom;
         float zoom_divs = zoom_min; //temp variable
+        int current_zoom_min = zoom_min;
         display.clearDisplay();
         do {
           sub_option = getUpDown(2, sub_option);
@@ -1099,7 +1126,7 @@ void loop() {
               }
               else {
                 zoom_min++;
-                zoom_motor.move(ZOOM_MOVE);
+                zoom_move(orientation, 1);
               }
             }
             if (x_value<440 && 450<y_value<850) {
@@ -1108,7 +1135,7 @@ void loop() {
               }
               else {
                 zoom_min--;
-                zoom_motor.move(-ZOOM_MOVE);
+                zoom_move(orientation, -1);
               }
             }
             
@@ -1141,28 +1168,43 @@ void loop() {
           getJoyRead();
 
           if (sub_option == 1 && button == 0) {
-            zoom_motor.setRPM(RPM);
+            zoom_setRPM(orientation, RPM);
             button = 1;
             delay(500);
-            int steps_to_move = zoom_min;
-            zoom_motor.startMove((-ZOOM_MOVE)*steps_to_move, toMS(shutter_speed/2));
+            int steps_to_move = zoom_min - current_zoom_min;
+
+            // going back to default
+            zoom_startMove(orientation, -steps_to_move, toMS(1));
             unsigned wait_time;
             do {
-              wait_time = zoom_motor.nextAction();
+              wait_time = zoom_nextAction(orientation);
+              delay(toMilli(wait_time));
             } while(wait_time);
-            delay(5000);
+
+            delay(2000);
             display.clearDisplay();
             display.setCursor(0,5);
-            display.println(F("Moving to the \nset distance"));
+            display.println(F("Move to set distance"));
             strcpy_P(buffer, (char *)pgm_read_word(&(key_phrases[3])));
             display.print(buffer);
             display.print(steps_to_move);
             display.display();
-            zoom_motor.startMove((-ZOOM_MOVE)*steps_to_move, toMS(shutter_speed));
+
+            zoom_startMove(orientation, steps_to_move, toMS(shutter_speed));
             do {
-              wait_time = zoom_motor.nextAction();
+              wait_time = zoom_nextAction(orientation);
+              delay(toMilli(wait_time));
             } while(wait_time);        
+            
+            // return to default
+            zoom_startMove(orientation, -steps_to_move, toMS(1));
+            do {
+              wait_time = zoom_nextAction(orientation);
+              delay(toMilli(wait_time));
+            } while(wait_time);
+            
             delay(3000);
+            zoom_min = current_zoom_min;
             EEPROM.write(1,zoom_min);
             goto STARTMENU;
           } 
