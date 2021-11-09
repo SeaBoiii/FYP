@@ -294,19 +294,19 @@ void focus_setSpeedProfile(int orientation, bool linear, short accel=1000, short
 void zoom_move(int orientation, int steps) {
   // zoom at back
   if (orientation == 0) {
-    rear_motor.move(-steps);    
+    rear_motor.move(steps);    
   }
   if (orientation == 1) {
-    front_motor.move(steps);
+    front_motor.move(-steps);
   }
 }
 
 void zoom_startMove(int orientation, long steps, long time=0) {
   if (orientation == 0) {
-    rear_motor.startMove(-steps, time);    
+    rear_motor.startMove(steps, time);    
   }
   if (orientation == 1) {
-    front_motor.startMove(steps, time);
+    front_motor.startMove(-steps, time);
   }
 }
 
@@ -746,24 +746,6 @@ void getJoyYRead() {
 
 void getJoyButton() {
   button = digitalRead(SW);
-}
-
-String wrap(String s, int limit){
-  int space = 0;
-  int i = 0;
-  int line = 0;
-  while(i<s.length()){
-    
-    if(s.substring(i, i+1) == " ") {
-      space=i; 
-      }
-    if(line > limit-1) {
-      s=s.substring(0,space)+"~"+s.substring(space+1);line = 0;
-      }
-    i++;line++;
-    }
-  s.replace("~","\n");
-    return s;
 }
 
 long toMS(float seconds) {
