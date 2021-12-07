@@ -1,4 +1,4 @@
-// ********* FOCUS Functions ***********
+// ********* FOCUS Motor Functions ***********
 
 void focus_move(int orientation, int steps) {
   // focus in front
@@ -60,3 +60,4 @@ void focus_setSpeedProfile(int orientation, bool linear, short accel=1000, short
     }
   }
 }
+

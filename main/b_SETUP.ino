@@ -54,7 +54,7 @@ void setup() {
   orientation = EEPROM.read(4);
   /*
    * If orientation == 0
-   * -> Zoom at the back
+   * -> Zoom at the rear
    * If orientation == 1
    * -> Zoom at the front
    */
