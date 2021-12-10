@@ -1,0 +1,3 @@
+http://www.airspayce.com/mikem/arduino/AccelStepper/classAccelStepper.html
+https://www.electronics-lab.com/project/using-st7735-1-8-color-tft-display-arduino/
+https://learn.adafruit.com/1-8-tft-display/breakout-wiring-and-test
