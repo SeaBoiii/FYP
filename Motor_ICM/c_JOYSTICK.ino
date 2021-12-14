@@ -1,41 +1,44 @@
-int set = A0;
-int right = A1;
-int left = A2;
-int down = A3;
-int up = A4;
-int setbtn = A5;
+// ******** JOYSTICK Functions **********
+int getUpDown(int option, int current_option, int delay_ms=200) {
+  if (!digitalRead(SET)) return current_option;
+  if (!digitalRead(DOWN)) {
+    delay(delay_ms);
+    updateMenu = true;
+    return (current_option == option-1) ? 0 : ++current_option;
+  }
 
-int sval = 0;
-int rval = 0;
-int lval = 0;
-int dval = 0;
-int uval = 0;
-int val = 0;
+  if (!digitalRead(UP)) {
+    delay(delay_ms);
+    updateMenu = true;
+    return (current_option == 0) ? option-1 : --current_option;
+  }
 
-void setup() {
-  // put your setup code here, to run once:
-  Serial.begin(19200);
+  return current_option;
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
-  sval = analogRead(set);
-  Serial.print("Set: ");
-  Serial.println(sval);   // 0 = Pressed
-  rval = analogRead(right);
-  Serial.print("Right: ");
-  Serial.println(rval);
-  lval = analogRead(left);
-  Serial.print("Left: ");
-  Serial.println(lval);
-  dval = analogRead(down);
-  Serial.print("Down: ");
-  Serial.println(dval);
-  uval = analogRead(up);
-  Serial.print("Up: ");
-  Serial.println(uval);
-  val = analogRead(setbtn);
-  Serial.print("setbtn: ");
-  Serial.println(setbtn);
-  delay(500);
+int getLeftRight(int range, int current, int low_limit=0, int delay_ms=200) {
+  if (!digitalRead(SET)) return current;
+  if (!digitalRead(RIGHT)) {
+    delay(delay_ms);
+    updateMenu = true;
+    return (current == range) ? current : ++current; 
+  }
+
+  if (!digitalRead(LEFT)) {
+    delay(delay_ms);
+    updateMenu = true;
+    return (current == low_limit) ? low_limit : --current;
+  }
+  
+  return current;
+}
+
+int getUpdate(int s) {
+  if (!digitalRead(SET)) {
+    s = option;
+    option = 0;
+    tft.background(0,0,0);
+    updateMenu = true;
+  }
+  return s;
 }
