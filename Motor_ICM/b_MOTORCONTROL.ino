@@ -1,6 +1,7 @@
 // ******** MOTOR CONTROL Functions **********
 
-/* Calc RPM 
+/* 
+ *  Calc RPM 
  * - Based on calculations made
  *   100 RPM = 12.5 steps/s
  *   
@@ -11,6 +12,11 @@
 float calcRPM(int steps, float seconds) {
   float requiredSpeed = steps/seconds;
   return 100 * (requiredSpeed / (float)12.5);
+}
+
+float calcAccel(int steps, float seconds) {
+  float mid_speed = calcRPM(steps, seconds);
+  return (float)(mid_speed - 0) / (seconds/2 * seconds/2);
 }
 
 long toMS(float seconds) {
@@ -55,5 +61,40 @@ void setMotor(char* data) {
   if ((data[0] == 'F') || (data[0] == 'f')) {
     int steps = strtol(data+1, NULL, 10);
     // set zoom motor steps to steps
+  }
+}
+
+/*
+ * Move motor to desired location
+ * - Given the position
+ * - Move the motor to pos
+ * - Return motor to pos
+ * type = 0 [FOCUS], 1 [ZOOM]
+ *  orientation 0 [Focus Front, Zoom Rear]
+ *  orientation 1 [Zoom Front, Focus Rear]
+ */
+
+void moveMotor(int type, int pos_desired, int delay_ms=0) {
+  // zoom_range, focus_range, zoom_current, focus_current, 
+  // zoom_min, focus_min, shutter_speed
+  AccelStepper *stepper;
+  int pos_current;
+  
+  if (type) { // ZOOM
+    stepper = orientation ? &front_motor : &rear_motor;
+    pos_current = zoom_current;
+  } else { // FOCUS
+    stepper = orientation ? &rear_motor : &front_motor;
+    pos_current = focus_current;
+  }
+  
+  int steps_to_move = pos_current - pos_desired;
+  *stepper.setAcceleration(calcAccel(abs(steps_to_move), (float)shutter_speed/2));
+  *stepper.moveTo((steps_to_move > 0) ? pos_desired : -pos_desired);
+  
+  //blocking statement
+  delay(delay_ms);
+  while (*stepper.distanceToGo() != 0) {
+    *stepper.run();
   }
 }
