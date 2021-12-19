@@ -17,14 +17,6 @@ long toMS(float seconds) {
   return seconds * 1000000;
 }
 
-/*
- * Requirement for TMC driver
- * Nema 17 200 steps = 1600 steps
- * 1/8 microstepping
- */
-long convertSteps(int steps) {
-  
-}
 
 void checkSerial() {
   if (Serial.available() > 0) {
