@@ -231,6 +231,7 @@ void setup() {
   // ****** Setup Menu ******
   // Only run through if ranges are invalid
   // if range == 255
+  
   // calibrate zoom
   if (zoom_range == 255) {
     do {
@@ -268,7 +269,7 @@ void setup() {
       }
     } while (digitalRead(SET));
     zoom_range = maxZoom - zoom_current;
-    EEPROM.write(3, zoom_range);
+    EEPROM.write(1, zoom_range);
     
     zoom_current = 0; // minimum becomes absolute min pos
     zoom_motor.setCurrentPosition(0);
@@ -309,7 +310,7 @@ void setup() {
       }
     } while (digitalRead(SET));
     focus_range = maxFocus - focus_current;
-    EEPROM.write(2, focus_range);
+    EEPROM.write(0, focus_range);
     
     focus_current = 0; // minimum becomes absolute min pos
     focus_motor.setCurrentPosition(0);
