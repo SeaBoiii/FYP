@@ -141,8 +141,8 @@ const char *const focus_adjust[] PROGMEM = {adjust_focus, string_36, string_37};
 
 // Object Declaration
 /* Motor Objects */
-AccelStepper zoom_motor(AccelStepper::DRIVER, rear_STEP, rear_DIR);
-AccelStepper focus_motor(AccelStepper::DRIVER, front_STEP, front_DIR);
+AccelStepper rear_motor(AccelStepper::DRIVER, rear_STEP, rear_DIR);
+AccelStepper front_motor(AccelStepper::DRIVER, front_STEP, front_DIR);
 
 MultiStepper steppers;
 
@@ -179,8 +179,9 @@ int menu(int array_size, const char *const string_table[], int option_selected, 
 int hotbar(char title[], int current, int max_range, int current_option=0, bool haveBack=false, int header=0, int footer=3, uint16_t color=WHITE);
 int getUpDown(int option, int current_option, int delay_ms=200);
 int getLeftRight(int range, int current, int low_limit=0, int delay_ms=0);
+int calibrate(int type, const char *const string_table[], int upper_limit, int lower_limit, uint16_t color=WHITE);
 void caliMenu(const char *const string_table[], int current_step, int max_steps=200, uint16_t color=WHITE);
-void moveMotor(int type, int pos_desired, int shutter_spd=0)
+void moveMotor(int type, int pos_desired, int shutter_spd=0);
 void(* resetFunc) (void) = 0;
 
 void setup() {
@@ -197,8 +198,8 @@ void setup() {
 
   // ***** Motor *****
   // motor using accelstepper lib
-  zoom_motor.setMaxSpeed(RPM);
-  focus_motor.setMaxSpeed(RPM);
+  rear_motor.setMaxSpeed(RPM);
+  front_motor.setMaxSpeed(RPM);
 
   steppers.addStepper(zoom_motor);
   steppers.addStepper(focus_motor);
@@ -235,7 +236,9 @@ void setup() {
   
   // ** calibrate zoom ** 
   if (zoom_range == 255) {
-
+    zoom_current = 0;
+    setAccel(ZOOM, 200);
+    
     // set to maximum right
     zoom_current = calibrate(ZOOM, calizoom_right, MOTOR_STEPS, 0);
     int maxZoom = zoom_current;
@@ -244,6 +247,7 @@ void setup() {
     // set to minimum left
     zoom_current = calibrate(ZOOM, calizoom_left, maxZoom, maxZoom-MOTOR_STEPS);
     zoom_range = maxZoom - zoom_current;
+    updateScreen();
     EEPROM.write(1, zoom_range);
     
     zoom_current = 0; // minimum becomes absolute min pos
@@ -252,37 +256,29 @@ void setup() {
 
   // ** calibrate focus **
   if (focus_range == 255) {
+    focus_current = 0;
+    setAccel(FOCUS, 200);
 
     // set to maximum right
     focus_current = calibrate(FOCUS, califocus_right, MOTOR_STEPS, 0);
     int maxFocus = focus_current;
     updateScreen(500);
-    do {
-      int temp, check;
-      temp = focus_current;
-      do {
-        check = focus_current;
-        focus_current = caliMenu(califocus_left, focus_current, MOTOR_STEPS);
-        focus_current = getLeftRight(maxFocus, focus_current, -(MOTOR_STEPS-maxFocus), 0);
-      } while(check != zoom_current);
-      int steps_to_move = (focus_current - temp) * MS_STEP;
-      focus_motor.move(steps_to_move);
-      while (focus_motor.distanceToGo() != 0) {
-        focus_motor.setSpeed((steps_to_move >= 0) ? 600 : -600); 
-        focus_motor.runSpeed();
-      }
-    } while (digitalRead(SET));
+
+    // set to minimum left
+    focus_current = calibrate(FOCUS, califocus_left, maxFocus, maxFocus-MOTOR_STEPS);
     focus_range = maxFocus - focus_current;
+    updateScreen();
     EEPROM.write(0, focus_range);
     
     focus_current = 0; // minimum becomes absolute min pos
-    focus_motor.setCurrentPosition(0);
+    setCurrentPos(FOCUS, focus_current);
   }
 
-  if (shutter_speed == 255) {
+  // ** teleports to shutter menu **
+  if (shutter_speed == 255) {  
     screen = 2;
     sscreen = 1;
-    // teleport to shutter menu
+    updateScreen(500);
   }
 
 }
@@ -292,94 +288,42 @@ void loop() {
     /* Recalibration */
     case 0:
       switch(sscreen) {
-        // zoom calibration
+        // ** zoom calibration **
         case 0: {
-          zoom_motor.setCurrentPosition(zoom_current * MS_STEP);
-          do {
-            int temp, check;
-            temp = zoom_current;
-            do {
-              check = zoom_current;
-              zoom_current = caliMenu(calizoom_right, zoom_current, MOTOR_STEPS);
-              zoom_current = getLeftRight(MOTOR_STEPS, zoom_current, 0, 0);
-            } while(check != zoom_current);
-            int steps_to_move = (zoom_current - temp) * MS_STEP;
-            zoom_motor.move(steps_to_move);
-            while (zoom_motor.distanceToGo() != 0) {
-              zoom_motor.setSpeed((steps_to_move >= 0) ? 600 : -600); 
-              zoom_motor.runSpeed();
-            }
-          } while(digitalRead(SET));
+          setCurrentPos(ZOOM, zoom_current * MS_STEP);
+          setAccel(ZOOM, 200);
+
+          zoom_current = calibrate(ZOOM, calizoom_right, MOTOR_STEPS, 0);
           int maxZoom = zoom_current;
-          delay(500);
-          tft.background(0,0,0);
-          updateMenu = true;
-          do {
-            int temp, check;
-            temp = zoom_current;
-            do {
-              check = zoom_current;
-              zoom_current = caliMenu(calizoom_left, zoom_current, MOTOR_STEPS);
-              zoom_current = getLeftRight(maxZoom, zoom_current, -(MOTOR_STEPS-maxZoom), 0);
-            } while(check != zoom_current);
-            int steps_to_move = (zoom_current - temp) * MS_STEP;
-            zoom_motor.move(steps_to_move);
-            while (zoom_motor.distanceToGo() != 0) {
-              zoom_motor.setSpeed((steps_to_move >= 0) ? 600 : -600); 
-              zoom_motor.runSpeed();
-            }
-          } while (digitalRead(SET));
+          updateScreen(500);
+
+          zoom_current = calibrate(ZOOM, calizoom_left, maxZoom, maxZoom-MOTOR_STEPS);
           zoom_range = maxZoom - zoom_current;
-          EEPROM.write(3, zoom_range);
+          updateScreen();
+          EEPROM.write(1, zoom_range);
           
           zoom_current = 0; // minimum becomes absolute min pos
-          zoom_motor.setCurrentPosition(0);
+          setCurrentPos(ZOOM, zoom_current);
           sscreen = resetScreen(sscreen);
           break;
         }
         
-        // focus calibration
+        // ** focus calibration **
         case 1: {
-          focus_motor.setCurrentPosition(focus_current * MS_STEP);
-          do {
-            int temp, check;
-            temp = focus_current;
-            do {
-              check = focus_current;
-              focus_current = caliMenu(califocus_right, focus_current, MOTOR_STEPS);
-              focus_current = getLeftRight(MOTOR_STEPS, focus_current, 0, 0);
-            } while(check != focus_current);
-            int steps_to_move = (focus_current - temp) * MS_STEP;
-            focus_motor.move(steps_to_move);
-            while (focus_motor.distanceToGo() != 0) {
-              focus_motor.setSpeed((steps_to_move >= 0) ? 600 : -600); 
-              focus_motor.runSpeed();
-            }
-          } while(digitalRead(SET));
+          setCurrentPos(FOCUS, focus_current * MS_STEP);
+          setAccel(FOCUS, 200);
+
+          focus_current = calibrate(FOCUS, califocus_right, MOTOR_STEPS, 0);
           int maxFocus = focus_current;
-          delay(500);
-          tft.background(0,0,0);
-          updateMenu = true;
-          do {
-            int temp, check;
-            temp = focus_current;
-            do {
-              check = focus_current;
-              focus_current = caliMenu(califocus_left, focus_current, MOTOR_STEPS);
-              focus_current = getLeftRight(maxFocus, focus_current, -(MOTOR_STEPS-maxFocus), 0);
-            } while(check != zoom_current);
-            int steps_to_move = (focus_current - temp) * MS_STEP;
-            focus_motor.move(steps_to_move);
-            while (focus_motor.distanceToGo() != 0) {
-              focus_motor.setSpeed((steps_to_move >= 0) ? 600 : -600); 
-              focus_motor.runSpeed();
-            }
-          } while (digitalRead(SET));
+          updateScreen(500);
+
+          focus_current = calibrate(FOCUS, califocus_left, maxFocus, maxFocus-MOTOR_STEPS);
           focus_range = maxFocus - focus_current;
-          EEPROM.write(2, focus_range);
+          updateScreen();
+          EEPROM.write(0, focus_range);
           
           focus_current = 0; // minimum becomes absolute min pos
-          focus_motor.setCurrentPosition(0);
+          setCurrentPos(ZOOM, focus_current);
           sscreen = resetScreen(sscreen);
           break;
         }
