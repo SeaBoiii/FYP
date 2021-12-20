@@ -11,7 +11,7 @@ int calibrate(int type, const char *const string_table[], int upper_limit, int l
   do {
     caliMenu(string_table, pos_current, upper_limit, color);
     pos_current = getLeftRight(upper_limit, pos_current, lower_limit, 0);
-    moveMotor(type, pos_desired = pos_current);
+    moveMotor(type, pos_current);
   } while(digitalRead(SET));
   
   return pos_current;

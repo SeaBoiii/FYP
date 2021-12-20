@@ -221,11 +221,11 @@ void setup() {
   orientation = EEPROM.read(4);
   shutter_speed = EEPROM.read(5);
   
-  if (focus_current == 255) {
-    focus_current = 0;
+  if (focus_current != 255) {
+    setCurrentPos(FOCUS, focus_current);
   }
-  if (zoom_current == 255) {
-    zoom_current = 0;
+  if (zoom_current != 255) {
+    setCurrentPos(ZOOM, zoom_current);
   }
   if (orientation == 255) {
     orientation = 0;
@@ -238,6 +238,7 @@ void setup() {
   if (zoom_range == 255) {
     zoom_current = 0;
     setAccel(ZOOM, 200);
+    setCurrentPos(ZOOM, 0);
     
     // set to maximum right
     zoom_current = calibrate(ZOOM, calizoom_right, MOTOR_STEPS, 0);
@@ -258,6 +259,7 @@ void setup() {
   if (focus_range == 255) {
     focus_current = 0;
     setAccel(FOCUS, 200);
+    setCurrentPos(FOCUS, 0);
 
     // set to maximum right
     focus_current = calibrate(FOCUS, califocus_right, MOTOR_STEPS, 0);
@@ -355,7 +357,7 @@ void loop() {
     /* Movements */
     case 1:
       switch(sscreen) {
-        case 0: // focus
+        case 0: // ** focus **
           switch(ssscreen) {
             case 0: { // focus to max
               int steps_to_move = focus_range - focus_current;
@@ -427,7 +429,7 @@ void loop() {
               ssscreen = getUpdate(ssscreen);
           }
           break;
-        case 1: // zoom
+        case 1: // ** zoom **
           switch(ssscreen) {
             case 0: { // zoom to max
               int steps_to_move = zoom_range - zoom_current;
@@ -496,7 +498,7 @@ void loop() {
               ssscreen = getUpdate(ssscreen);
           }
           break;
-        case 2: // focus & zoom
+        case 2: // ** focus & zoom **
           switch(ssscreen) {
             case 0: {
                 // may cause broken bones
@@ -539,43 +541,7 @@ void loop() {
           sscreen = -1;
           break;
         default: {  // [Movement Menu] 
-          if (firstTime = true) {
-            // adjust zoom to desired image
-            zoom_motor.setCurrentPosition(zoom_current * MS_STEP);
-            do {
-              int temp, check;
-              temp = zoom_current;
-              do {
-                check = zoom_current;
-                zoom_current = caliMenu(zoom_adjust, zoom_current, zoom_range);
-                zoom_current = getLeftRight(zoom_range, zoom_current, 0, 0);
-              } while(check != zoom_current);
-              int steps_to_move = (zoom_current - temp) * MS_STEP;
-              zoom_motor.move(steps_to_move);
-              while (zoom_motor.distanceToGo() != 0) {
-                zoom_motor.setSpeed((steps_to_move >= 0) ? 600 : -600); 
-                zoom_motor.runSpeed();
-              }
-            } while(digitalRead(SET));
-
-            // adjust focus to desired image
-            focus_motor.setCurrentPosition(focus_current * MS_STEP);
-            do {
-              int temp, check;
-              temp = focus_current;
-              do {
-                check = focus_current;
-                focus_current = caliMenu(focus_adjust, focus_current, focus_range);
-                focus_current = getLeftRight(focus_range, focus_current, 0, 0);
-              } while(check != focus_current);
-              int steps_to_move = (focus_current - temp) * MS_STEP;
-              focus_motor.move(steps_to_move);
-              while (focus_motor.distanceToGo() != 0) {
-                focus_motor.setSpeed((steps_to_move >= 0) ? 600 : -600); 
-                focus_motor.runSpeed();
-              }
-            } while(digitalRead(SET));
-          }
+          
           max_option = menu(5, movement_menu, option, true);
           sscreen = getUpdate(sscreen);
         }
