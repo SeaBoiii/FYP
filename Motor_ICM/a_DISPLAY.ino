@@ -19,29 +19,45 @@
  *  o  Select current option
  */
 
-int menu(int array_size, const char *const string_table[], int option_selected, bool header=false, int footer=2) {
+int menu(int array_size, const char *const string_table[], int option_selected, int header=0, int footer=2, uint16_t color=DEEPPINK) {
   int total_num = array_size; 
   if (!updateMenu) return total_num;
   updateMenu = false;
   tft.setCursor(0, 0);
   int rect_y = 9;
-  if (header) {
+  
+  if (header != 0) {
     tft.setTextColor(AQUA);
     tft.print(F("Shutter Speed: "));
     tft.setTextColor(WHITE);
     tft.println(shutter_speed);
-    tft.setTextColor(AQUA);
-    tft.print(F("Front Motor: "));
-    tft.setTextColor(WHITE);
-    tft.println(orientation ? "Zoom" : "Focus");
-    tft.setTextColor(AQUA);
-    tft.print(F("Rear Motor: "));
-    tft.setTextColor(WHITE);
-    tft.println(orientation ? "Focus" : "Zoom");
-    tft.println();
+    switch (header) {
+      case 1: {
+        tft.setTextColor(AQUA);
+        tft.print(F("Front Motor: "));
+        tft.setTextColor(WHITE);
+        tft.println(orientation ? "Zoom" : "Focus");
+        tft.setTextColor(AQUA);
+        tft.print(F("Rear Motor: "));
+        tft.setTextColor(WHITE);
+        tft.println(orientation ? "Focus" : "Zoom");
+      }
+      case 2: {
+        tft.setTextColor(AQUA);
+        tft.print(F("Focus Range: "));
+        tft.setTextColor(WHITE);
+        tft.println(focus_range);
+        tft.setTextColor(AQUA);
+        tft.print(F("Zoom Range: "));
+        tft.setTextColor(WHITE);
+        tft.println(zoom_range);
+      }
+    }
+    tft.println(); 
     rect_y =42;
   }
-  tft.setTextColor(DEEPPINK);
+
+  tft.setTextColor(color);
   strcpy_P(buffer, (char *)pgm_read_word(&(string_table[0])));
   tft.println(buffer);
   tft.setTextColor(WHITE,BLACK);
@@ -98,29 +114,45 @@ int menu(int array_size, const char *const string_table[], int option_selected, 
  *  int footer - Type of footer to display [1]
  */
 
-int hotbar(char title[], int current, int max_range, int current_option=0, bool haveBack=false, bool header=false, int footer=3) {
+int hotbar(char title[], int current, int max_range, int current_option=0, bool haveBack=false, int header=0, int footer=3, uint16_t color=WHITE) {
   if (!updateMenu) return current;
   updateMenu = false;
   
-  int divs = (tft.width()-30)/(float)max_range * current;
+  int divs = (tft.width()-30)/(float)max_range * abs(current);
   tft.setCursor(0, 0);
   int rect_y = 37;
-  if (header) {
+
+  if (header != 0) {
     tft.setTextColor(AQUA);
     tft.print(F("Shutter Speed: "));
     tft.setTextColor(WHITE);
     tft.println(shutter_speed);
-    tft.setTextColor(AQUA);
-    tft.print(F("Front Motor: "));
-    tft.setTextColor(WHITE);
-    tft.println(orientation ? "Zoom" : "Focus");
-    tft.setTextColor(AQUA);
-    tft.print(F("Rear Motor: "));
-    tft.setTextColor(WHITE);
-    tft.println(orientation ? "Focus" : "Zoom");
-    tft.println();
-    rect_y = 75;
+    switch (header) {
+      case 1: {
+        tft.setTextColor(AQUA);
+        tft.print(F("Front Motor: "));
+        tft.setTextColor(WHITE);
+        tft.println(orientation ? "Zoom" : "Focus");
+        tft.setTextColor(AQUA);
+        tft.print(F("Rear Motor: "));
+        tft.setTextColor(WHITE);
+        tft.println(orientation ? "Focus" : "Zoom");
+      }
+      case 2: {
+        tft.setTextColor(AQUA);
+        tft.print(F("Focus Range: "));
+        tft.setTextColor(WHITE);
+        tft.println(focus_range);
+        tft.setTextColor(AQUA);
+        tft.print(F("Zoom Range: "));
+        tft.setTextColor(WHITE);
+        tft.println(zoom_range);
+      }
+    }
+    tft.println(); 
+    rect_y =75;
   }
+
   option ? tft.setTextColor(WHITE,BLACK) : tft.setTextColor(BLACK,WHITE);
   if (title != NULL) {
     char myChar;
@@ -141,7 +173,7 @@ int hotbar(char title[], int current, int max_range, int current_option=0, bool 
   /* Draw Hotbar */
   tft.drawRect(0,rect_y,tft.width()-26,14,WHITE);
   tft.fillRect(2,rect_y+2,tft.width()-30,10,BLACK); // reset inner rectangle
-  tft.fillRect(2,rect_y+2,divs,10,WHITE);
+  tft.fillRect(2,rect_y+2,divs,10,color);
   tft.setCursor(105,rect_y+3);
   tft.setTextColor(WHITE,BLACK);
   tft.print(current);
@@ -195,13 +227,18 @@ int resetScreen(int s) {
   return s;
 }
 
+void updateScreen(float delay_ms) {
+  delay(delay_ms);
+  tft.background(0,0,0);
+  updateMenu = true;
+}
+
 /* --- Calibrate Screen ---
  * String_table will determine if zoom/focus
- * return calibration distance
  */
-int caliMenu(const char *const string_table[], int current_step, int max_steps=200) {
-  if (!updateMenu) return current_step;
-  current_step = hotbar(NULL, current_step, max_steps, 0, false, false, 1);
+void caliMenu(const char *const string_table[], int current_step, int max_steps=200, uint16_t color=WHITE) {
+  if (!updateMenu) return;
+  current_step = hotbar(NULL, current_step, max_steps, 0, false, false, 1, color);
   int i = 0;
   tft.setCursor(0,0);
   strcpy_P(buffer, (char *)pgm_read_word(&(string_table[i++])));
@@ -214,9 +251,9 @@ int caliMenu(const char *const string_table[], int current_step, int max_steps=2
   tft.println(buffer);
   tft.setTextColor(WHITE);
   
-  return current_step;
+  return;
 }
 
 /* --- Move Motor Screen ---
- *  
+ * Similar to cali Menu 
  */

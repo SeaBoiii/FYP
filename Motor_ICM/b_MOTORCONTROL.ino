@@ -74,7 +74,7 @@ void setMotor(char* data) {
  *  orientation 1 [Zoom Front, Focus Rear]
  */
 
-void moveMotor(int type, int pos_desired, int delay_ms=0) {
+void moveMotor(int type, int pos_desired, int shutter_spd=0) {
   // zoom_range, focus_range, zoom_current, focus_current, 
   // zoom_min, focus_min, shutter_speed
   AccelStepper *stepper;
@@ -88,13 +88,45 @@ void moveMotor(int type, int pos_desired, int delay_ms=0) {
     pos_current = focus_current;
   }
   
-  int steps_to_move = pos_current - pos_desired;
-  *stepper.setAcceleration(calcAccel(abs(steps_to_move), (float)shutter_speed/2));
-  *stepper.moveTo((steps_to_move > 0) ? pos_desired : -pos_desired);
+  int steps_to_move = pos_desired - pos_current;
+  if (shutter_spd != 0) {
+    stepper->setAcceleration(calcAccel(abs(steps_to_move), (float)shutter_spd/2));
+  }
+  // if +ve, move clockwise
+  // else -ve, move anti-clockwise
+  stepper->moveTo((steps_to_move > 0) ? pos_desired : -pos_desired);
   
   //blocking statement
-  delay(delay_ms);
-  while (*stepper.distanceToGo() != 0) {
-    *stepper.run();
+  delay(shutter_spd);
+  while (stepper->distanceToGo() != 0) {
+    stepper->run();
   }
+}
+
+/* @Override AccelStepper methods
+ *  type = 0 [FOCUS], 1 [ZOOM]
+ *  orientation 0 [Focus Front, Zoom Rear]
+ *  orientation 1 [Zoom Front, Focus Rear]
+ */
+
+void setAccel(int type, float accel) {
+  AccelStepper *stepper;
+  if (type) {
+    stepper = orientation ? &front_motor : &rear_motor;
+  } else {
+    stepper = orientation ? &rear_motor : &front_motor;
+  }
+
+  stepper->setAcceleration(accel);
+}
+
+void setCurrentPos(int type, float value) {
+  AccelStepper *stepper;
+  if (type) {
+    stepper = orientation ? &front_motor : &rear_motor;
+  } else {
+    stepper = orientation ? &rear_motor : &front_motor;
+  }
+
+  stepper->setCurrentPosition(value);
 }

@@ -175,11 +175,12 @@ int max_option = 0;
 bool firstTime;
 
 // Function Declaration
-int menu(int array_size, const char *const string_table[], int option_selected, bool header=false, int footer=2);
-int hotbar(char title[], int current, int max_range, int current_option=0, bool haveBack=false, bool header=false, int footer=3);
+int menu(int array_size, const char *const string_table[], int option_selected, int header=0, int footer=2, uint16_t color=DEEPPINK);
+int hotbar(char title[], int current, int max_range, int current_option=0, bool haveBack=false, int header=0, int footer=3, uint16_t color=WHITE);
 int getUpDown(int option, int current_option, int delay_ms=200);
-int getLeftRight(int range, int current, int low_limit=0, int delay_ms=200);
-int caliMenu(const char *const string_table[], int current_step, int max_steps=200);
+int getLeftRight(int range, int current, int low_limit=0, int delay_ms=0);
+void caliMenu(const char *const string_table[], int current_step, int max_steps=200, uint16_t color=WHITE);
+void moveMotor(int type, int pos_desired, int shutter_spd=0)
 void(* resetFunc) (void) = 0;
 
 void setup() {
@@ -232,68 +233,30 @@ void setup() {
   // Only run through if ranges are invalid
   // if range == 255
   
-  // calibrate zoom
+  // ** calibrate zoom ** 
   if (zoom_range == 255) {
-    do {
-      int temp, check;
-      temp = zoom_current;
-      do {
-        check = zoom_current;
-        zoom_current = caliMenu(calizoom_right, zoom_current, MOTOR_STEPS);
-        zoom_current = getLeftRight(MOTOR_STEPS, zoom_current, 0, 0);
-      } while(check != zoom_current);
-      int steps_to_move = (zoom_current - temp) * MS_STEP;
-      zoom_motor.move(steps_to_move);
-      while (zoom_motor.distanceToGo() != 0) {
-        zoom_motor.setSpeed((steps_to_move >= 0) ? 600 : -600); 
-        zoom_motor.runSpeed();
-      }
-    } while(digitalRead(SET));
+
+    // set to maximum right
+    zoom_current = calibrate(ZOOM, calizoom_right, MOTOR_STEPS, 0);
     int maxZoom = zoom_current;
-    delay(500);
-    tft.background(0,0,0);
-    updateMenu = true;
-    do {
-      int temp, check;
-      temp = zoom_current;
-      do {
-        check = zoom_current;
-        zoom_current = caliMenu(calizoom_left, zoom_current, MOTOR_STEPS);
-        zoom_current = getLeftRight(maxZoom, zoom_current, -(MOTOR_STEPS-maxZoom), 0);
-      } while(check != zoom_current);
-      int steps_to_move = (zoom_current - temp) * MS_STEP;
-      zoom_motor.move(steps_to_move);
-      while (zoom_motor.distanceToGo() != 0) {
-        zoom_motor.setSpeed((steps_to_move >= 0) ? 600 : -600); 
-        zoom_motor.runSpeed();
-      }
-    } while (digitalRead(SET));
+    updateScreen(500);
+
+    // set to minimum left
+    zoom_current = calibrate(ZOOM, calizoom_left, maxZoom, maxZoom-MOTOR_STEPS);
     zoom_range = maxZoom - zoom_current;
     EEPROM.write(1, zoom_range);
     
     zoom_current = 0; // minimum becomes absolute min pos
-    zoom_motor.setCurrentPosition(0);
+    setCurrentPos(ZOOM, zoom_current);
   }
+
+  // ** calibrate focus **
   if (focus_range == 255) {
-    do {
-      int temp, check;
-      temp = focus_current;
-      do {
-        check = focus_current;
-        focus_current = caliMenu(califocus_right, focus_current, MOTOR_STEPS);
-        focus_current = getLeftRight(MOTOR_STEPS, focus_current, 0, 0);
-      } while(check != focus_current);
-      int steps_to_move = (focus_current - temp) * MS_STEP;
-      focus_motor.move(steps_to_move);
-      while (focus_motor.distanceToGo() != 0) {
-        focus_motor.setSpeed((steps_to_move >= 0) ? 600 : -600); 
-        focus_motor.runSpeed();
-      }
-    } while(digitalRead(SET));
+
+    // set to maximum right
+    focus_current = calibrate(FOCUS, califocus_right, MOTOR_STEPS, 0);
     int maxFocus = focus_current;
-    delay(500);
-    tft.background(0,0,0);
-    updateMenu = true;
+    updateScreen(500);
     do {
       int temp, check;
       temp = focus_current;
@@ -439,7 +402,7 @@ void loop() {
           sscreen = -1;
           break;
         default:
-          max_option = menu(4, recalibration_menu, option);
+          max_option = menu(4, recalibration_menu, option, 2);
           sscreen = getUpdate(sscreen);
           break;
       }

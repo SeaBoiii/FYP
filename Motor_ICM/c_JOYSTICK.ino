@@ -1,5 +1,9 @@
 // ******** JOYSTICK Functions **********
-int getUpDown(int option, int current_option, int delay_ms=200) {
+/*
+ * returns the option either ++ or --
+ * checks for up and down joystick movement
+ */
+int getUpDown(int option, int current_option, int delay_ms=0) {
   if (!digitalRead(SET)) return current_option;
   if (!digitalRead(DOWN)) {
     delay(delay_ms);
@@ -16,7 +20,12 @@ int getUpDown(int option, int current_option, int delay_ms=200) {
   return current_option;
 }
 
-int getLeftRight(int range, int current, int low_limit=0, int delay_ms=200) {
+/*
+ * returns the option either ++ or --
+ * checks for left and right joystick
+ * able to set to lower limit if required
+ */
+int getLeftRight(int range, int current, int low_limit=0, int delay_ms=0) {
   if (!digitalRead(SET)) return current;
   if (!digitalRead(RIGHT)) {
     delay(delay_ms);
@@ -33,6 +42,11 @@ int getLeftRight(int range, int current, int low_limit=0, int delay_ms=200) {
   return current;
 }
 
+/*
+ * Checks if SET is pressed
+ * Clears the screen,
+ * resets option
+ */
 int getUpdate(int s) {
   if (!digitalRead(SET)) {
     s = option;
