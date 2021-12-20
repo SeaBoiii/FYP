@@ -176,7 +176,7 @@ bool firstTime;
 
 // Function Declaration
 int menu(int array_size, const char *const string_table[], int option_selected, int header=0, int footer=2, uint16_t color=DEEPPINK);
-int hotbar(char title[], int current, int max_range, int current_option=0, bool haveBack=false, int header=0, int footer=3, uint16_t color=WHITE);
+void hotbar(char title[], int current, int max_range, int current_option=0, bool haveBack=false, int header=0, int footer=3, uint16_t color=WHITE);
 int getUpDown(int option, int current_option, int delay_ms=200);
 int getLeftRight(int range, int current, int low_limit=0, int delay_ms=0);
 int calibrate(int type, const char *const string_table[], int upper_limit, int lower_limit, uint16_t color=WHITE);
@@ -522,7 +522,7 @@ void loop() {
               ssscreen = getUpdate(ssscreen);
           }
           break;
-        case 3: // presets
+        case 3: // ** presets **
           switch(ssscreen) {
             case 1:
             case 2:
@@ -551,7 +551,7 @@ void loop() {
     /* Settings */
     case 2:
       switch (sscreen) {
-        case 0: // positioning menu
+        case 0: // ** orientation menu **
           switch(ssscreen) {
             case 0: // zoom at the back
               orientation = 0;
@@ -573,10 +573,10 @@ void loop() {
           }
           break;
    
-        case 1: // shutter menu
+        case 1: // ** shutter menu **
           option = 0;
           do {
-            shutter_speed = hotbar(shutter_menu, shutter_speed, 16, option, true);
+            hotbar(shutter_menu, shutter_speed, 16, option, true);
             option = getUpDown(2, option, 0);
             if (!option) shutter_speed = getLeftRight(16, shutter_speed,1, 0);
           } while(!(!digitalRead(SET) && option));
@@ -584,7 +584,7 @@ void loop() {
           sscreen = resetScreen(sscreen);
           break;
         
-        case 2: // back
+        case 2: // ** back **
           screen = -1;
           sscreen = -1;
           break;

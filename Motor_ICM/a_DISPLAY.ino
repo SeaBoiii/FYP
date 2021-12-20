@@ -114,8 +114,8 @@ int menu(int array_size, const char *const string_table[], int option_selected, 
  *  int footer - Type of footer to display [1]
  */
 
-int hotbar(char title[], int current, int max_range, int current_option=0, bool haveBack=false, int header=0, int footer=3, uint16_t color=WHITE) {
-  if (!updateMenu) return current;
+void hotbar(char title[], int current, int max_range, int current_option=0, bool haveBack=false, int header=0, int footer=3, uint16_t color=WHITE) {
+  if (!updateMenu) return;
   updateMenu = false;
   
   int divs = (tft.width()-30)/(float)max_range * abs(current);
@@ -215,7 +215,7 @@ int hotbar(char title[], int current, int max_range, int current_option=0, bool 
     break;
   }
   
-  return current;
+  return;
 }
 
 /* Reset Screen */
@@ -238,7 +238,7 @@ void updateScreen(float delay_ms) {
  */
 void caliMenu(const char *const string_table[], int current_step, int max_steps=200, uint16_t color=WHITE) {
   if (!updateMenu) return;
-  current_step = hotbar(NULL, current_step, max_steps, 0, false, false, 1, color);
+  hotbar(NULL, current_step, max_steps, 0, false, false, 1, color);
   int i = 0;
   tft.setCursor(0,0);
   strcpy_P(buffer, (char *)pgm_read_word(&(string_table[i++])));
