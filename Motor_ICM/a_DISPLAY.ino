@@ -227,7 +227,7 @@ int resetScreen(int s) {
   return s;
 }
 
-void updateScreen(float delay_ms) {
+void updateScreen(float delay_ms=0) {
   delay(delay_ms);
   tft.background(0,0,0);
   updateMenu = true;
@@ -259,6 +259,7 @@ void caliMenu(const char *const string_table[], int current_step, int max_steps=
  */
 void moveMotorMenu(int count, const char *const string_table[], int current_step, int max_steps, uint16_t color=WHITE) {
   if (!updateMenu) return;
+  int i=0;
   hotbar(NULL, current_step, max_steps, 0, false, 0, 1, color);
   tft.setCursor(0,0);
   strcpy_P(buffer, (char *)pgm_read_word(&(string_table[i])));
@@ -270,12 +271,16 @@ void moveMotorMenu(int count, const char *const string_table[], int current_step
   tft.setTextColor(WHITE);
 }
 
+/*
+ * A simple way to print a
+ * countdown menu
+ */
 void countdownMenu() {
   int i=0;
   strcpy_P(buffer, (char *)pgm_read_word(&(countdown[i])));
-  delay(1000);
+  delay(5000);
   for (i=1; i<4; i++) {
-    tft.setTextsize(3);
+    tft.setTextSize(3);
     tft.setCursor(0,20);
     tft.setTextColor(WHITE,BLACK);
     strcpy_P(buffer, (char *)pgm_read_word(&(countdown[i])));
@@ -286,4 +291,40 @@ void countdownMenu() {
   strcpy_P(buffer, (char *)pgm_read_word(&(countdown[i])));
   tft.println(buffer);
   tft.setTextSize(1);
+}
+
+void printMoveSteps(int type, char title[], uint16_t color, bool goBack) {
+  tft.setTextColor(AQUA);
+  tft.print(F("Shutter Speed: "));
+  tft.setTextColor(WHITE);
+  tft.println(shutter_speed);
+  tft.setTextColor(AQUA);
+  tft.print(type ? "Zoom" : "Focus");
+  tft.print(F(" Range: "));
+  tft.setTextColor(WHITE);
+  tft.println(type ? zoom_range : focus_range);
+  tft.println();
+
+  char myChar;
+  tft.setTextColor(color);
+  for (byte k=0; k<strlen_P(title); k++) {
+    myChar = pgm_read_byte_near(title+k);
+    tft.print(myChar);
+  }
+  
+  tft.line(0, tft.width(), 75, 75);
+  tft.setCursor(0, 85);
+  if (goBack) {
+    tft.println(F("Returning to "));
+    tft.setTextColor(RED);
+    tft.print(F("PREVIOUS "));
+    tft.setTextColor(WHITE);
+    tft.println(F("location"));
+  } else {
+    tft.println(F("Moving to "));
+    tft.setTextColor(LIGHTSKYBLUE);
+    tft.println(F("DESIRED "));
+    tft.setTextColor(WHITE);
+    tft.println(F("location"));
+  }
 }

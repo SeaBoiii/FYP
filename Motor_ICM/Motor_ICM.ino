@@ -43,6 +43,9 @@
 #define DARKGREEN 0x0320
 #define RED       0xF800 
 #define LIGHTSKYBLUE 0x867F 
+#define SNOW 0xFFDF
+#define VIOLET 0xEC1D 
+#define YELLOWGREEN 0x9E66
 
 /* Symbols */
 #define UP_ARROW    0x18
@@ -177,11 +180,14 @@ bool firstTime;
 // Function Declaration
 int menu(int array_size, const char *const string_table[], int option_selected, int header=0, int footer=2, uint16_t color=DEEPPINK);
 void hotbar(char title[], int current, int max_range, int current_option=0, bool haveBack=false, int header=0, int footer=3, uint16_t color=WHITE);
-int getUpDown(int option, int current_option, int delay_ms=200);
-int getLeftRight(int range, int current, int low_limit=0, int delay_ms=0);
-int calibrate(int type, const char *const string_table[], int upper_limit, int lower_limit, uint16_t color=WHITE);
 void caliMenu(const char *const string_table[], int current_step, int max_steps=200, uint16_t color=WHITE);
+void updateScreen(float delay_ms=0);
+int getUpDown(int option, int current_option, int delay_ms=0);
+int getLeftRight(int range, int current, int low_limit=0, int delay_ms=0);
 void moveMotor(int type, int pos_desired, int shutter_spd=0);
+int calibrate(int type, const char *const string_table[], int upper_limit, int lower_limit, uint16_t color=WHITE);
+int chooseDist(int type, int count, const char *const string_table[], bool goBack=false, uint16_t color=WHITE);
+void goDist(int type, char title[], int pos_desired, uint16_t color=WHITE);
 void(* resetFunc) (void) = 0;
 
 void setup() {
@@ -201,8 +207,8 @@ void setup() {
   rear_motor.setMaxSpeed(RPM);
   front_motor.setMaxSpeed(RPM);
 
-  steppers.addStepper(zoom_motor);
-  steppers.addStepper(focus_motor);
+  steppers.addStepper(rear_motor);
+  steppers.addStepper(front_motor);
   
   // ***** Display *****
   // able to call out similar functions
@@ -360,62 +366,14 @@ void loop() {
         case 0: // ** focus **
           switch(ssscreen) {
             case 0: { // focus to max
-              int steps_to_move = focus_range - focus_current;
-              for (int i=0; i<5; i++) {
-                hotbar(string_20, 0, steps_to_move, 0, false, false, 0);
-                tft.setTextSize(2);
-                tft.setCursor(0, 59);
-                tft.setTextColor(RED,BLACK);
-                strcpy_P(buffer, (char *)pgm_read_word(&(countdown[i])));
-                tft.print(buffer);
-                delay(1000);
-              }
-              tft.setTextSize(1);
-              tft.setTextColor(WHITE);
-              delay(toMS(shutter_speed/2));
-              focus_motor.move(steps_to_move * MS_STEP);
-              focus_motor.setSpeed(calcRPM(abs(steps_to_move * MS_STEP), shutter_speed/2));
-              while (focus_motor.distanceToGo() != 0) {
-                updateMenu = true;
-                steps_to_move = hotbar(string_20, 0, --steps_to_move, 0, false, false, 0);
-                focus_motor.runSpeed();
-              }
-              delay(5000);
-              // return back to original
-              focus_motor.move(-steps_to_move * MS_STEP);
-              focus_motor.setSpeed(-400);
-              while (focus_motor.distanceToGo() != 0) {
-                focus_motor.runSpeed();
-              }
+              countdownMenu();
+              goDist(FOCUS, string_20, focus_range, SNOW);
               ssscreen = resetScreen(ssscreen);
               break;
             }
             case 1: { // focus to min
-              int steps_to_move = focus_current - 0;
-              for (int i=0; i<5; i++) {
-                hotbar(string_21, 0, steps_to_move, 0, false, false, 0);
-                tft.setTextSize(2);
-                tft.setCursor(0, 59);
-                tft.setTextColor(RED,BLACK);
-                strcpy_P(buffer, (char *)pgm_read_word(&(countdown[i])));
-                tft.print(buffer);
-                delay(1000);
-              }
-              delay(toMS(shutter_speed/2));
-              focus_motor.move(-steps_to_move * MS_STEP);
-              focus_motor.setSpeed(-calcRPM(abs(steps_to_move * MS_STEP), shutter_speed/2));
-              while (focus_motor.distanceToGo() != 0) {
-                updateMenu = true;
-                steps_to_move = hotbar(string_21, 0, --steps_to_move, 0, false, false, 0);
-                focus_motor.runSpeed();
-              }
-              delay(5000);
-              // return back to original
-              focus_motor.move(steps_to_move * MS_STEP);
-              focus_motor.setSpeed(400);
-              while (focus_motor.distanceToGo() != 0) {
-                focus_motor.runSpeed();
-              }
+              countdownMenu();
+              goDist(FOCUS, string_21, 0, VIOLET);
               ssscreen = resetScreen(ssscreen);
               break;
             }
@@ -432,59 +390,14 @@ void loop() {
         case 1: // ** zoom **
           switch(ssscreen) {
             case 0: { // zoom to max
-              int steps_to_move = zoom_range - zoom_current;
-              for (int i=0; i<5; i++) {
-                hotbar(string_24, 0, steps_to_move, 0, false, false, 0);
-                tft.setTextSize(2);
-                tft.setCursor(0, 59);
-                tft.setTextColor(RED,BLACK);
-                strcpy_P(buffer, (char *)pgm_read_word(&(countdown[i])));
-                tft.print(buffer);
-                delay(1000);
-              }
-              delay(toMS(shutter_speed/2));
-              zoom_motor.move(steps_to_move * MS_STEP);
-              zoom_motor.setSpeed(calcRPM(abs(steps_to_move * MS_STEP), shutter_speed/2));
-              while (zoom_motor.distanceToGo() != 0) {
-                updateMenu = true;
-                steps_to_move = hotbar(string_24, 0, --steps_to_move, 0, false, false, 0);
-                zoom_motor.runSpeed();
-              }
-              delay(5000);
-              // return back to original
-              zoom_motor.move(-steps_to_move * MS_STEP);
-              zoom_motor.setSpeed(-400);
-              while (zoom_motor.distanceToGo() != 0) {
-                zoom_motor.runSpeed();
-              }
+              countdownMenu();
+              goDist(ZOOM, string_24, zoom_range, SNOW);
               ssscreen = resetScreen(ssscreen);
               break;
             }
             case 1: { // zoom to min
-              int steps_to_move = zoom_current - 0;
-              for (int i=0; i<5; i++) {
-                hotbar(string_25, 0, steps_to_move, 0, false, false, 0);
-                tft.setTextSize(2);
-                tft.setCursor(0, 59);
-                tft.setTextColor(RED,BLACK);
-                strcpy_P(buffer, (char *)pgm_read_word(&(countdown[i])));
-                tft.print(buffer);
-                delay(1000);
-              }
-              delay(toMS(shutter_speed/2));
-              zoom_motor.move(-steps_to_move * MS_STEP);
-              zoom_motor.setSpeed(-calcRPM(abs(steps_to_move * MS_STEP), shutter_speed/2));
-              while (zoom_motor.distanceToGo() != 0) {
-                updateMenu = true;
-                steps_to_move = hotbar(string_24, 0, --steps_to_move, 0, false, false, 0);
-                zoom_motor.runSpeed();
-              }
-              // return back to original
-              zoom_motor.move(steps_to_move * MS_STEP);
-              zoom_motor.setSpeed(400);
-              while (zoom_motor.distanceToGo() != 0) {
-                zoom_motor.runSpeed();
-              }
+              countdownMenu();
+              goDist(ZOOM, string_25, 0, VIOLET);
               ssscreen = resetScreen(ssscreen);
               break;
             }
