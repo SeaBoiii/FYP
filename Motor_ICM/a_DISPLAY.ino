@@ -257,3 +257,15 @@ void caliMenu(const char *const string_table[], int current_step, int max_steps=
 /* --- Move Motor Screen ---
  * Similar to cali Menu 
  */
+void moveMotorMenu(int count, const char *const string_table[], int current_step, int max_steps, uint16_t color=WHITE) {
+  if (!updateMenu) return;
+  hotbar(NULL, current_step, max_steps, 0, false, 0, 1, color);
+  tft.setCursor(0,0);
+  strcpy_P(buffer, (char *)pgm_read_word(&(string_table[i])));
+  tft.setCursor(0, 59);
+  for (i=1; i<count; i++) {
+    strcpy_P(buffer, (char *)pgm_read_word(&(string_table[i])));
+    tft.println(buffer);
+  }
+  tft.setTextColor(WHITE);
+}
