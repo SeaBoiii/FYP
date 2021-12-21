@@ -269,3 +269,21 @@ void moveMotorMenu(int count, const char *const string_table[], int current_step
   }
   tft.setTextColor(WHITE);
 }
+
+void countdownMenu() {
+  int i=0;
+  strcpy_P(buffer, (char *)pgm_read_word(&(countdown[i])));
+  delay(1000);
+  for (i=1; i<4; i++) {
+    tft.setTextsize(3);
+    tft.setCursor(0,20);
+    tft.setTextColor(WHITE,BLACK);
+    strcpy_P(buffer, (char *)pgm_read_word(&(countdown[i])));
+    tft.println(buffer);
+    delay(1000);
+  }
+  tft.setTextSize(2);
+  strcpy_P(buffer, (char *)pgm_read_word(&(countdown[i])));
+  tft.println(buffer);
+  tft.setTextSize(1);
+}

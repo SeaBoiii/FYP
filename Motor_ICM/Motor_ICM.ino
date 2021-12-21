@@ -42,7 +42,7 @@
 #define DEEPPINK  0xF8B2  
 #define DARKGREEN 0x0320
 #define RED       0xF800 
-
+#define LIGHTSKYBLUE 0x867F 
 
 /* Symbols */
 #define UP_ARROW    0x18
@@ -330,7 +330,7 @@ void loop() {
           break;
         }
         
-        // reset all calibration
+        // ** reset all calibration **
         case 2: {
           // TODO: Add are you sure?
           EEPROM.write(0,255);
@@ -342,7 +342,7 @@ void loop() {
           break; 
         }
           
-        // back
+        // ** back **
         case 3:
           screen = -1;
           sscreen = -1;
