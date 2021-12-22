@@ -483,6 +483,15 @@ void loop() {
           sscreen = -1;
           break;
         default: {  // [Movement Menu] 
+          if (firstTime) {
+            zoom_current = chooseDist(ZOOM, 3, zoom_adjust, false, AQUA);
+            EEPROM.write(3, zoom_current);
+            delay(500);
+            focus_current = chooseDist(FOCUS, 3, focus_adjust, false, DEEPPINK);
+            EEPROM.write(2, focus_current);
+            delay(500);
+            firstTime = false;
+          }
           max_option = menu(5, movement_menu, option, true);
           sscreen = getUpdate(sscreen);
         }
