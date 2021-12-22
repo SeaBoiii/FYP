@@ -121,8 +121,9 @@ const char counttext_5[] PROGMEM = "SNAP!";
 
 const char adjust_zoom[] PROGMEM = "|--- Adjust Zoom ---|";
 const char adjust_focus[] PROGMEM = "|---Adjust Focus ---|";
-const char string_36[] PROGMEM = "Adjust the lens to the";
-const char string_37[] PROGMEM = " desired Image";
+const char string_36[] PROGMEM = "Adjust the [ZOOM] lens";
+const char string_36_1[] PROGMEM = "Adjust the [FOCUS] lens";
+const char string_37[] PROGMEM = " to the desired Image";
 
 const char string_38[] PROGMEM = " desired Outcome";
 
@@ -142,7 +143,7 @@ const char *const califocus_left[] PROGMEM = {cali_focus, string_cali, string_le
 const char *const califocus_right[] PROGMEM = {cali_focus, string_cali, string_right};
 const char *const countdown[] PROGMEM = {counttext_1, counttext_2, counttext_3, counttext_4, counttext_5};
 const char *const zoom_adjust[] PROGMEM = {adjust_zoom, string_36, string_37};
-const char *const focus_adjust[] PROGMEM = {adjust_focus, string_36, string_37};
+const char *const focus_adjust[] PROGMEM = {adjust_focus, string_36_1, string_37};
 const char *const focus_dist[] PROGMEM = {string_22, string_36, string_38};
 const char *const zoom_dist[] PROGMEM = {string_26, string_36, string_38};
 const char *const zoomfocus_dist[] PROGMEM = {string_30, string_36, string_38};
@@ -482,7 +483,6 @@ void loop() {
           sscreen = -1;
           break;
         default: {  // [Movement Menu] 
-          
           max_option = menu(5, movement_menu, option, true);
           sscreen = getUpdate(sscreen);
         }
