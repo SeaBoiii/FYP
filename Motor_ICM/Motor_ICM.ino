@@ -258,13 +258,13 @@ void setup() {
   if (focus_current == 255) {
     focus_current = 0;
   } else if (focus_current != 255) {
-    setCurrentPos(FOCUS, focus_current);
+    setCurrentPos(FOCUS, focus_current * MS_STEP);
   }
   if (zoom_current == 255) {
     zoom_current = 0;
   }
   else if (zoom_current != 255) {
-    setCurrentPos(ZOOM, zoom_current);
+    setCurrentPos(ZOOM, zoom_current * MS_STEP);
   }
   
   // ****** Setup Menu ******
