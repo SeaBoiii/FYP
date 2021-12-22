@@ -127,7 +127,7 @@ const char string_36[] PROGMEM = "Adjust [ZOOM] lens";
 const char string_36_1[] PROGMEM = "Adjust [FOCUS] lens";
 const char string_37[] PROGMEM = "to the desired Image";
 
-const char string_38[] PROGMEM = " desired Outcome";
+const char string_38[] PROGMEM = "to desired Outcome";
 
 /* String Table */
 const char *const main_menu[] PROGMEM = {string_0, string_1, string_2, string_3};
@@ -425,6 +425,7 @@ void loop() {
             case 2: { // focus to dist
               int pos_desired;
               pos_desired = chooseDist(FOCUS, 3, focus_dist, true, YELLOWGREEN);
+              updateScreen();
               delay(500);
               countdownMenu();
               goDist(FOCUS, string_22, pos_desired, YELLOWGREEN);
@@ -444,14 +445,12 @@ void loop() {
           switch(ssscreen) {
             case 0: { // zoom to max
               countdownMenu();
-              delay(toMS(shutter_speed/2));
               goDist(ZOOM, string_24, zoom_range, SNOW);
               ssscreen = resetScreen(ssscreen);
               break;
             }
             case 1: { // zoom to min
               countdownMenu();
-              delay(toMS(shutter_speed/2));
               goDist(ZOOM, string_25, 0, VIOLET);
               ssscreen = resetScreen(ssscreen);
               break;
@@ -459,9 +458,9 @@ void loop() {
             case 2: { // zoom to dist
               int pos_desired;
               pos_desired = chooseDist(ZOOM, 3, zoom_dist, true, YELLOWGREEN);
+              updateScreen();
               delay(500);
               countdownMenu();
-              delay(toMS(shutter_speed/2));
               goDist(ZOOM, string_26, pos_desired, YELLOWGREEN);
               ssscreen = resetScreen(ssscreen);
               break;

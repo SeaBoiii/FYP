@@ -35,11 +35,12 @@ int chooseDist(int type, int count, const char *const string_table[], bool goBac
     // needs to go back to original spot
     delay(500);
     tft.setCursor(0, 59);
-    tft.println(F("Returning to "));
-    tft.setTextColor(RED);
+    tft.setTextColor(WHITE,BLACK);
+    tft.println(F("Returning to         "));
+    tft.setTextColor(RED,BLACK);
     tft.print(F("PREVIOUS "));
-    tft.setTextColor(WHITE);
-    tft.println(F("location"));
+    tft.setTextColor(WHITE,BLACK);
+    tft.println(F("location          "));
     for (int i=2; i<count; i++) {
       tft.println("                  ");
     }
@@ -57,7 +58,6 @@ void goDist(int type, char title[], int pos_desired, uint16_t color=WHITE) {
 
   printMoveSteps(type, title, color, false); 
   moveMotor(type, pos_desired, shutter_speed/2);
-  zoom_current = pos_desired;
   setAccel(type, CALI_ACCEL);
   updateScreen(4000);
   printMoveSteps(type, title, color, true);
