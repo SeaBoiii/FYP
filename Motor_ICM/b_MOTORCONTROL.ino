@@ -14,9 +14,13 @@ float calcRPM(int steps, float seconds) {
   return 100 * (requiredSpeed / (float)12.5);
 }
 
+/*
+ * Calculating the acceleration
+ * - Requires some finetuning
+ */
 float calcAccel(int steps, float seconds) {
   float mid_speed = calcRPM(steps, seconds);
-  return (float)(mid_speed - 0) / (seconds/2 * seconds/2);
+  return (float)(mid_speed - 0) / (seconds/2);
 }
 
 long toMS(float seconds) {
@@ -135,4 +139,25 @@ void setCurrentPos(int type, float value) {
   }
 
   stepper->setCurrentPosition(value);
+}
+
+/*
+ * MultiStepper methods
+ * Functions available: moveTo & runSpeedToPosition
+ */
+void moveMultiMotor(float zoom_value, float focus_value, float shutter_spd) {
+  long positions[2];
+  positions[0] = orientation ? focus_value : zoom_value;
+  positions[1] = orientation ? zoom_value : focus_value;
+
+  steppers.moveTo(positions);
+  
+  //adjust speed accordingly
+  float zoom_RPM = calcRPM(zoom_value, shutter_spd);
+  float focus_RPM = calcRPM(focus_value, shutter_spd);
+  rear_motor.setSpeed(orientation ? focus_RPM : zoom_RPM);
+  front_motor.setSpeed(orientation ? zoom_RPM : focus_RPM);
+
+  steppers.runSpeedToPosition(); // Blocks until all are in position
+  
 }
