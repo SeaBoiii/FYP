@@ -124,6 +124,8 @@ const char adjust_focus[] PROGMEM = "|---Adjust Focus ---|";
 const char string_36[] PROGMEM = "Adjust the lens to the";
 const char string_37[] PROGMEM = " desired Image";
 
+const char string_38[] PROGMEM = " desired Outcome";
+
 /* String Table */
 const char *const main_menu[] PROGMEM = {string_0, string_1, string_2, string_3};
 const char *const recalibration_menu[] PROGMEM {string_4, string_5, string_6, string_7, back};
@@ -141,6 +143,9 @@ const char *const califocus_right[] PROGMEM = {cali_focus, string_cali, string_r
 const char *const countdown[] PROGMEM = {counttext_1, counttext_2, counttext_3, counttext_4, counttext_5};
 const char *const zoom_adjust[] PROGMEM = {adjust_zoom, string_36, string_37};
 const char *const focus_adjust[] PROGMEM = {adjust_focus, string_36, string_37};
+const char *const focus_dist[] PROGMEM = {string_22, string_36, string_38};
+const char *const zoom_dist[] PROGMEM = {string_26, string_36, string_38};
+const char *const zoomfocus_dist[] PROGMEM = {string_30, string_36, string_38};
 
 // Object Declaration
 /* Motor Objects */
@@ -378,7 +383,15 @@ void loop() {
               ssscreen = resetScreen(ssscreen);
               break;
             }
-            case 2:
+            case 2: { // focus to dist
+              int pos_desired;
+              pos_desired = chooseDist(FOCUS, 3, focus_dist, true, YELLOWGREEN);
+              delay(500);
+              countdownMenu();
+              goDist(FOCUS, string_22, pos_desired, YELLOWGREEN);
+              ssscreen = resetScreen(ssscreen);
+              break;
+            }
             case 3: // back
               sscreen = -1;
               ssscreen = -1;
@@ -402,7 +415,15 @@ void loop() {
               ssscreen = resetScreen(ssscreen);
               break;
             }
-            case 2:
+            case 2: { // zoom to dist
+              int pos_desired;
+              pos_desired = chooseDist(ZOOM, 3, zoom_dist, true, YELLOWGREEN);
+              delay(500);
+              countdownMenu();
+              goDist(ZOOM, string_26, pos_desired, YELLOWGREEN);
+              ssscreen = resetScreen(ssscreen);
+              break;
+            }
             case 3: // back
               sscreen = -1;
               ssscreen = -1;
