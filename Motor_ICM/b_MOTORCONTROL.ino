@@ -147,7 +147,7 @@ void setCurrentPos(int type, float value) {
  * To not move a motor, put '-1' in the value
  */
 void moveMultiMotor(float zoom_value, float focus_value, float shutter_spd=0) {
-  long positions[2];
+  long positions[2]; // 0: rear motor, 1: front_motor
   
   if (zoom_value == -1) {
     positions[0] = orientation ? focus_value : zoom_current;
