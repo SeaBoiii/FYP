@@ -89,6 +89,10 @@ void moveMotor(int type, int pos_desired, int shutter_spd=0) {
   }
   
   int steps_to_move = (pos_desired - pos_current) * MS_STEP;
+  Serial.print("Steps to move: ");
+  Serial.println(steps_to_move);
+  Serial.print("Current Position: ");
+  Serial.println(stepper->currentPosition());
   if (shutter_spd != 0) {
     stepper->setAcceleration(calcAccel(abs(steps_to_move), (float)shutter_spd));
   }
