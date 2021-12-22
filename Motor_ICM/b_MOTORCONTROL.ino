@@ -99,6 +99,9 @@ void moveMotor(int type, int pos_desired, int shutter_spd=0) {
   // if +ve, move clockwise
   // else -ve, move anti-clockwise
   stepper->moveTo((steps_to_move > 0) ? pos_desired * MS_STEP : -pos_desired * MS_STEP);
+  if (steps_to_move == 0) return;
+  //stepper->moveTo((steps_to_move > 0) ? pos_desired * MS_STEP : -pos_desired * MS_STEP);
+  stepper->moveTo(pos_desired * MS_STEP);
   
   //blocking statement
   //delay(shutter_spd);
