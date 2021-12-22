@@ -275,6 +275,9 @@ void moveMotorMenu(int count, const char *const string_table[], int current_step
   hotbar(NULL, current_step, max_steps, 0, false, 0, 1, color, updateBar);
   tft.setCursor(0,0);
   strcpy_P(buffer, (char *)pgm_read_word(&(string_table[i])));
+  tft.setTextColor(color);
+  tft.println(buffer);
+  tft.setTextColor(WHITE);
   tft.setCursor(0, 59);
   for (i=1; i<count; i++) {
     strcpy_P(buffer, (char *)pgm_read_word(&(string_table[i])));
