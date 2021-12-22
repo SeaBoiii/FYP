@@ -27,30 +27,33 @@ int menu(int array_size, const char *const string_table[], int option_selected, 
   int rect_y = 9;
   
   if (header != 0) {
-    tft.setTextColor(AQUA);
-    tft.print(F("Shutter Speed: "));
-    tft.setTextColor(WHITE);
-    tft.println(shutter_speed);
+    if (header > 1) {
+      tft.setTextColor(AQUA);
+      tft.print(F("Shutter Speed: "));
+      tft.setTextColor(WHITE);
+      tft.println(shutter_speed);
+    }
     switch (header) {
+      case -1:
       case 1: {
         tft.setTextColor(AQUA);
         tft.print(F("Front Motor: "));
-        tft.setTextColor(WHITE);
-        tft.println(orientation ? "Zoom" : "Focus");
+        tft.setTextColor(WHITE,BLACK);
+        tft.println(orientation ? "Zoom " : "Focus");
         tft.setTextColor(AQUA);
         tft.print(F("Rear Motor: "));
-        tft.setTextColor(WHITE);
-        tft.println(orientation ? "Focus" : "Zoom");
+        tft.setTextColor(WHITE,BLACK);
+        tft.println(orientation ? "Focus" : "Zoom ");
         break;
       }
       case 2: {
         tft.setTextColor(AQUA);
         tft.print(F("Focus Range: "));
-        tft.setTextColor(WHITE);
+        tft.setTextColor(WHITE,BLACK);
         tft.println(focus_range);
         tft.setTextColor(AQUA);
         tft.print(F("Zoom Range: "));
-        tft.setTextColor(WHITE);
+        tft.setTextColor(WHITE,BLACK);
         tft.println(zoom_range);
         break;
       }
