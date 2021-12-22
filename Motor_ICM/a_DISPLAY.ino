@@ -41,6 +41,7 @@ int menu(int array_size, const char *const string_table[], int option_selected, 
         tft.print(F("Rear Motor: "));
         tft.setTextColor(WHITE);
         tft.println(orientation ? "Focus" : "Zoom");
+        break;
       }
       case 2: {
         tft.setTextColor(AQUA);
@@ -51,7 +52,9 @@ int menu(int array_size, const char *const string_table[], int option_selected, 
         tft.print(F("Zoom Range: "));
         tft.setTextColor(WHITE);
         tft.println(zoom_range);
+        break;
       }
+      default: break;
     }
     tft.println(); 
     rect_y =42;
@@ -245,9 +248,11 @@ void caliMenu(const char *const string_table[], int current_step, int max_steps=
   hotbar(NULL, current_step, max_steps, 0, false, false, 1, color, updateBar);
   int i = 0;
   tft.setCursor(0,0);
+  tft.setTextColor(color);
   strcpy_P(buffer, (char *)pgm_read_word(&(string_table[i++])));
   tft.println(buffer);
   tft.setCursor(0, 59);
+  tft.setTextColor(WHITE);
   strcpy_P(buffer, (char *)pgm_read_word(&(string_table[i++])));
   tft.print(buffer);
   strcpy_P(buffer, (char *)pgm_read_word(&(string_table[i++])));
