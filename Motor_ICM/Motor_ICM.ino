@@ -225,6 +225,7 @@ void setup() {
   tft.background(0,0,0);
   tft.setTextSize(2);
 
+  // This costs 2% (for aesthetic)
   for(int i=0; i<10; i++) { // just to know if initialised properly
     tft.stroke(random(0, 255), random(0, 255), random(0, 255));
     tft.text("MOTOR ICM",6,80);
@@ -260,7 +261,7 @@ void setup() {
     int choice = 0;
     do {
       orientation = choice ? 1 : 0;
-      menu(3, positioning_menu, option);
+      menu(2, positioning_menu, choice, -1);
       choice = getUpDown(2, choice, 0);
     } while (digitalRead(SET));
     updateScreen(500);
