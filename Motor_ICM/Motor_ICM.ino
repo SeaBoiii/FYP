@@ -249,7 +249,7 @@ void setup() {
   // ** calibrate zoom ** 
   if (zoom_range == 255) {
     zoom_current = 0;
-    setAccel(ZOOM, 200);
+    setAccel(ZOOM, 200 * MS_STEP);
     setCurrentPos(ZOOM, 0);
     
     // set to maximum right
@@ -270,7 +270,7 @@ void setup() {
   // ** calibrate focus **
   if (focus_range == 255) {
     focus_current = 0;
-    setAccel(FOCUS, 200);
+    setAccel(FOCUS, 200 * MS_STEP);
     setCurrentPos(FOCUS, 0);
 
     // set to maximum right
@@ -305,7 +305,7 @@ void loop() {
         // ** zoom calibration **
         case 0: {
           setCurrentPos(ZOOM, zoom_current * MS_STEP);
-          setAccel(ZOOM, 200);
+          setAccel(ZOOM, 200 * MS_STEP);
 
           zoom_current = calibrate(ZOOM, calizoom_right, MOTOR_STEPS, 0);
           int maxZoom = zoom_current;
@@ -325,7 +325,7 @@ void loop() {
         // ** focus calibration **
         case 1: {
           setCurrentPos(FOCUS, focus_current * MS_STEP);
-          setAccel(FOCUS, 200);
+          setAccel(FOCUS, 200 * MS_STEP);
 
           focus_current = calibrate(FOCUS, califocus_right, MOTOR_STEPS, 0);
           int maxFocus = focus_current;
