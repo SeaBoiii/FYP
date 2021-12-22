@@ -343,10 +343,14 @@ void loop() {
           setCurrentPos(ZOOM, zoom_current * MS_STEP);
           setAccel(ZOOM, CALI_ACCEL);
 
+          moveMotor(ZOOM, zoom_range);
+          zoom_current = zoom_range;
           zoom_current = calibrate(ZOOM, calizoom_right, MOTOR_STEPS, 0);
           int maxZoom = zoom_current;
           updateScreen(500);
 
+          moveMotor(ZOOM, 0);
+          zoom_current = 0;
           zoom_current = calibrate(ZOOM, calizoom_left, maxZoom, maxZoom-MOTOR_STEPS);
           zoom_range = maxZoom - zoom_current;
           updateScreen();
@@ -364,10 +368,14 @@ void loop() {
           setCurrentPos(FOCUS, focus_current * MS_STEP);
           setAccel(FOCUS, CALI_ACCEL);
 
+          moveMotor(FOCUS, focus_range);
+          focus_current = focus_range;
           focus_current = calibrate(FOCUS, califocus_right, MOTOR_STEPS, 0);
           int maxFocus = focus_current;
           updateScreen(500);
 
+          moveMotor(FOCUS, 0);
+          focus_current = 0;
           focus_current = calibrate(FOCUS, califocus_left, maxFocus, maxFocus-MOTOR_STEPS);
           focus_range = maxFocus - focus_current;
           updateScreen();
