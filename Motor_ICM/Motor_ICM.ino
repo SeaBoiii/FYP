@@ -507,11 +507,13 @@ void loop() {
             case 2: { // zoom to max, focus to min
               countdownMenu();
               goMultiDist(string_30, zoom_range, 0, CORAL);
+              ssscreen = resetScreen(ssscreen);
               break;
             }
             case 3: { // zoom to min, focus to max
               countdownMenu();
               goMultiDist(string_39, 0, focus_range, CADETBLUE);
+              ssscreen = resetScreen(ssscreen);
               break;
             }
             case 4: { // to certain dist
@@ -531,6 +533,7 @@ void loop() {
               delay(500);
               countdownMenu();
               goMultiDist(string_40, zoom_desired, focus_desired, LIME);
+              ssscreen = resetScreen(ssscreen);
               break;
             }
             case 5: { // back
@@ -539,7 +542,7 @@ void loop() {
               break;
             }
             default:
-              max_option = menu(7, zoomfocus_menu, option, 2);
+              max_option = menu(6, zoomfocus_menu, option, 2);
               ssscreen = getUpdate(ssscreen);
           }
           break;
@@ -565,6 +568,7 @@ void loop() {
           if (firstTime) {
             setAccel(ZOOM, CALI_ACCEL);
             setAccel(FOCUS, CALI_ACCEL);
+            
             zoom_current = chooseDist(ZOOM, 3, zoom_adjust, false, AQUA);
             EEPROM.write(3, zoom_current);
             updateScreen(500);
