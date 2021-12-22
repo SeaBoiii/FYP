@@ -293,11 +293,13 @@ void moveMotorMenu(int count, const char *const string_table[], int current_step
 void countdownMenu() {
   int i=0;
   strcpy_P(buffer, (char *)pgm_read_word(&(countdown[i])));
+  tft.setCursor(0,0);
+  tft.println(buffer);
   delay(5000);
   for (i=1; i<4; i++) {
-    tft.setTextSize(3);
-    tft.setCursor(0,20);
-    tft.setTextColor(WHITE,BLACK);
+    tft.setTextSize(4);
+    tft.setCursor(70,0);
+    tft.setTextColor(RED,BLACK);
     strcpy_P(buffer, (char *)pgm_read_word(&(countdown[i])));
     tft.println(buffer);
     delay(1000);
@@ -306,9 +308,26 @@ void countdownMenu() {
   strcpy_P(buffer, (char *)pgm_read_word(&(countdown[i])));
   tft.println(buffer);
   tft.setTextSize(1);
+
+  delay(500);
+  tft.setTextColor(WHITE);
+  tft.println("\n\n\nStaying still for...");
+  tft.setTextSize(3);
+  tft.setTextColor(AQUA);
+  for (int i=shutter_speed/2; i>0; i--) {
+    tft.setTextColor(AQUA,BLACK);
+    tft.setCursor(20,120);
+    tft.print(i);
+    tft.print("s");
+    delay(1000);
+  }
+  tft.setTextColor(WHITE);
+  tft.setTextSize(1);
+  updateScreen();
 }
 
 void printMoveSteps(int type, char title[], uint16_t color, bool goBack) {
+  tft.setCursor(0,0);
   tft.setTextColor(AQUA);
   tft.print(F("Shutter Speed: "));
   tft.setTextColor(WHITE);
@@ -327,8 +346,9 @@ void printMoveSteps(int type, char title[], uint16_t color, bool goBack) {
     tft.print(myChar);
   }
   
-  tft.line(0, tft.width(), 75, 75);
+  tft.line(0, 75, tft.width(), 75);
   tft.setCursor(0, 85);
+  tft.setTextColor(WHITE);
   if (goBack) {
     tft.println(F("Returning to "));
     tft.setTextColor(RED);

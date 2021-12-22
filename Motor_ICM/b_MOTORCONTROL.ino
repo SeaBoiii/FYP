@@ -20,7 +20,7 @@ float calcAccel(int steps, float seconds) {
 }
 
 long toMS(float seconds) {
-  return seconds * 1000000;
+  return seconds * 1000;
 }
 
 /*
@@ -98,7 +98,7 @@ void moveMotor(int type, int pos_desired, int shutter_spd=0) {
   }
   // if +ve, move clockwise
   // else -ve, move anti-clockwise
-  if (steps_to_move == 0) return;
+  //if (steps_to_move == 0) return;
   //stepper->moveTo((steps_to_move > 0) ? pos_desired * MS_STEP : -pos_desired * MS_STEP);
   stepper->moveTo(pos_desired * MS_STEP);
   

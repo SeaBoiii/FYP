@@ -43,6 +43,7 @@ int chooseDist(int type, int count, const char *const string_table[], bool goBac
     for (int i=2; i<count; i++) {
       tft.println("                  ");
     }
+    setAccel(type, CALI_ACCEL);
     moveMotor(type, type ? zoom_current : focus_current);
   }
   
@@ -54,9 +55,11 @@ void goDist(int type, char title[], int pos_desired, uint16_t color=WHITE) {
   pos_current = type ? zoom_current : focus_current;
   upper_limit = type ? zoom_range : focus_range;
 
-  printMoveSteps(type, title, false, color); 
+  printMoveSteps(type, title, color, false); 
   moveMotor(type, pos_desired, shutter_speed/2);
-  delay(4000);
-  printMoveSteps(type, title, true, color);
+  zoom_current = pos_desired
+  setAccel(type, CALI_ACCEL);
+  updateScreen(4000);
+  printMoveSteps(type, title, color, true);
   moveMotor(type, pos_current);
 }

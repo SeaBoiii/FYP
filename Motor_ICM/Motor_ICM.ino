@@ -246,11 +246,16 @@ void setup() {
   zoom_current = EEPROM.read(3);
   orientation = EEPROM.read(4);
   shutter_speed = EEPROM.read(5);
-  
-  if (focus_current != 255) {
+
+  if (focus_current == 255) {
+    focus_current = 0;
+  } else if (focus_current != 255) {
     setCurrentPos(FOCUS, focus_current);
   }
-  if (zoom_current != 255) {
+  if (zoom_current == 255) {
+    zoom_current = 0;
+  }
+  else if (zoom_current != 255) {
     setCurrentPos(ZOOM, zoom_current);
   }
   
@@ -289,6 +294,7 @@ void setup() {
     
     zoom_current = 0; // minimum becomes absolute min pos
     setCurrentPos(ZOOM, zoom_current);
+    EEPROM.write(3, zoom_current);
   }
 
   // ** calibrate focus **
@@ -310,6 +316,7 @@ void setup() {
     
     focus_current = 0; // minimum becomes absolute min pos
     setCurrentPos(FOCUS, focus_current);
+    EEPROM.write(2, focus_current);
   }
 
   // ** teleports to shutter menu **
@@ -347,6 +354,7 @@ void loop() {
           
           zoom_current = 0; // minimum becomes absolute min pos
           setCurrentPos(ZOOM, zoom_current);
+          EEPROM.write(3, zoom_current);
           sscreen = resetScreen(sscreen);
           break;
         }
@@ -367,6 +375,7 @@ void loop() {
           
           focus_current = 0; // minimum becomes absolute min pos
           setCurrentPos(ZOOM, focus_current);
+          EEPROM.write(2, focus_current);
           sscreen = resetScreen(sscreen);
           break;
         }
@@ -403,14 +412,12 @@ void loop() {
           switch(ssscreen) {
             case 0: { // focus to max
               countdownMenu();
-              delay(toMS(shutter_speed/2));
               goDist(FOCUS, string_20, focus_range, SNOW);
               ssscreen = resetScreen(ssscreen);
               break;
             }
             case 1: { // focus to min
               countdownMenu();
-              delay(toMS(shutter_speed/2));
               goDist(FOCUS, string_21, 0, VIOLET);
               ssscreen = resetScreen(ssscreen);
               break;
@@ -420,7 +427,6 @@ void loop() {
               pos_desired = chooseDist(FOCUS, 3, focus_dist, true, YELLOWGREEN);
               delay(500);
               countdownMenu();
-              delay(toMS(shutter_speed/2));
               goDist(FOCUS, string_22, pos_desired, YELLOWGREEN);
               ssscreen = resetScreen(ssscreen);
               break;
@@ -514,13 +520,13 @@ void loop() {
         default: {  // [Movement Menu] 
           if (firstTime) {
             setAccel(ZOOM, CALI_ACCEL);
+            setAccel(FOCUS, CALI_ACCEL);
             zoom_current = chooseDist(ZOOM, 3, zoom_adjust, false, AQUA);
             EEPROM.write(3, zoom_current);
-            delay(500);
-            setAccel(FOCUS, CALI_ACCEL);
+            updateScreen(500);
             focus_current = chooseDist(FOCUS, 3, focus_adjust, false, DEEPPINK);
             EEPROM.write(2, focus_current);
-            delay(500);
+            updateScreen(500);
             firstTime = false;
           }
           max_option = menu(5, movement_menu, option, 2);
