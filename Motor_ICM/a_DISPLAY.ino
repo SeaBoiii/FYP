@@ -240,9 +240,9 @@ void updateScreen(float delay_ms=0) {
 /* --- Calibrate Screen ---
  * String_table will determine if zoom/focus
  */
-void caliMenu(const char *const string_table[], int current_step, int max_steps=200, uint16_t color=WHITE) {
+void caliMenu(const char *const string_table[], int current_step, int max_steps=200, uint16_t color=WHITE, bool updateBar=false) {
   if (!updateMenu) return;
-  hotbar(NULL, current_step, max_steps, 0, false, false, 1, color);
+  hotbar(NULL, current_step, max_steps, 0, false, false, 1, color, updateBar);
   int i = 0;
   tft.setCursor(0,0);
   strcpy_P(buffer, (char *)pgm_read_word(&(string_table[i++])));
@@ -261,10 +261,10 @@ void caliMenu(const char *const string_table[], int current_step, int max_steps=
 /* --- Move Motor Screen ---
  * Similar to cali Menu 
  */
-void moveMotorMenu(int count, const char *const string_table[], int current_step, int max_steps, uint16_t color=WHITE) {
+void moveMotorMenu(int count, const char *const string_table[], int current_step, int max_steps, uint16_t color=WHITE, bool updateBar=false) {
   if (!updateMenu) return;
   int i=0;
-  hotbar(NULL, current_step, max_steps, 0, false, 0, 1, color);
+  hotbar(NULL, current_step, max_steps, 0, false, 0, 1, color, updateBar);
   tft.setCursor(0,0);
   strcpy_P(buffer, (char *)pgm_read_word(&(string_table[i])));
   tft.setCursor(0, 59);

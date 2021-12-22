@@ -179,8 +179,9 @@ bool firstTime;
 
 // Function Declaration
 int menu(int array_size, const char *const string_table[], int option_selected, int header=0, int footer=2, uint16_t color=DEEPPINK);
-void hotbar(char title[], int current, int max_range, int current_option=0, bool haveBack=false, int header=0, int footer=3, uint16_t color=WHITE);
-void caliMenu(const char *const string_table[], int current_step, int max_steps=200, uint16_t color=WHITE);
+void hotbar(char title[], int current, int max_range, int current_option=0, bool haveBack=false, int header=0, int footer=3, uint16_t color=WHITE, bool updateBar=false);
+void caliMenu(const char *const string_table[], int current_step, int max_steps=200, uint16_t color=WHITE, bool updateBar=false);
+void moveMotorMenu(int count, const char *const string_table[], int current_step, int max_steps, uint16_t color=WHITE, bool updateBar=false);
 void updateScreen(float delay_ms=0);
 int getUpDown(int option, int current_option, int delay_ms=0);
 int getLeftRight(int range, int current, int low_limit=0, int delay_ms=0);

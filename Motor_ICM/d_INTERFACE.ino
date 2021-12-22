@@ -8,8 +8,9 @@
 int calibrate(int type, const char *const string_table[], int upper_limit, int lower_limit, uint16_t color=WHITE) {
   int pos_current;
   pos_current = type ? zoom_current : focus_current;
+  caliMenu(string_table, pos_current, upper_limit, color);
   do {
-    caliMenu(string_table, pos_current, upper_limit, color);
+    caliMenu(string_table, pos_current, upper_limit, color, true);
     pos_current = getLeftRight(upper_limit, pos_current, lower_limit, 0);
     moveMotor(type, pos_current);
   } while(digitalRead(SET));
@@ -21,8 +22,9 @@ int chooseDist(int type, int count, const char *const string_table[], bool goBac
   int pos_current, upper_limit;
   pos_current = type ? zoom_current : focus_current;
   upper_limit = type ? zoom_range : focus_range;
+  moveMotorMenu(count, string_table, pos_current, upper_limit, color);
   do {
-    moveMotorMenu(count, string_table, pos_current, upper_limit, color);
+    moveMotorMenu(count, string_table, pos_current, upper_limit, color, true);
     pos_current = getLeftRight(upper_limit, pos_current, 0, 0);
     moveMotor(type, pos_current);
   } while(digitalRead(SET));
