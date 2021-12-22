@@ -90,14 +90,14 @@ void moveMotor(int type, int pos_desired, int shutter_spd=0) {
   
   int steps_to_move = (pos_desired - pos_current) * MS_STEP;
   if (shutter_spd != 0) {
-    stepper->setAcceleration(calcAccel(abs(steps_to_move), (float)shutter_spd/2));
+    stepper->setAcceleration(calcAccel(abs(steps_to_move), (float)shutter_spd));
   }
   // if +ve, move clockwise
   // else -ve, move anti-clockwise
   stepper->moveTo((steps_to_move > 0) ? pos_desired * MS_STEP : -pos_desired * MS_STEP);
   
   //blocking statement
-  delay(shutter_spd);
+  //delay(shutter_spd);
   while (stepper->distanceToGo() != 0) {
     stepper->run();
   }

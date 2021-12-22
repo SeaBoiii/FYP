@@ -53,7 +53,7 @@ void goDist(int type, char title[], int pos_desired, uint16_t color=WHITE) {
   upper_limit = type ? zoom_range : focus_range;
 
   printMoveSteps(type, title, false, color); 
-  moveMotor(type, pos_desired, shutter_speed);
+  moveMotor(type, pos_desired, shutter_speed/2);
   delay(4000);
   printMoveSteps(type, title, true, color);
   moveMotor(type, pos_current);
