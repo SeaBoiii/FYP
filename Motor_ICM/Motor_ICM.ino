@@ -109,7 +109,7 @@ const char string_35[] PROGMEM = "Sine Wave Effect";
 
 const char cali_zoom[] PROGMEM = "|--Calibrate Zoom --|";
 const char cali_focus[] PROGMEM = "|--Calibrate Focus--|";
-const char string_cali[] PROGMEM = "Move the joystick to the extreme";
+const char string_cali[] PROGMEM = "Move the joystick to \nthe extreme";
 const char string_left[] PROGMEM = "  left";
 const char string_right[] PROGMEM = "  right";
 
@@ -221,8 +221,18 @@ void setup() {
   // able to call out similar functions
   // in Adafruit GFX lib
   tft.begin();
-  tft.background(0,0,0);
   tft.setRotation(0);
+  tft.background(0,0,0);
+  tft.setTextSize(2);
+
+  for(int i=0; i<10; i++) { // just to know if initialised properly
+    tft.stroke(random(0, 255), random(0, 255), random(0, 255));
+    tft.text("MOTOR ICM",6,80);
+    delay(200);
+  }
+  tft.setTextColor(WHITE);
+  tft.setTextSize(1);
+  tft.background(0,0,0);
 
   // ***** EEPROM Read *****
   // reads the stored memory
@@ -240,9 +250,7 @@ void setup() {
   if (zoom_current != 255) {
     setCurrentPos(ZOOM, zoom_current);
   }
-  if (orientation == 255) {
-    orientation = 0;
-  }
+  
   // ****** Setup Menu ******
   // Only run through if ranges are invalid
   // if range == 255
@@ -266,14 +274,14 @@ void setup() {
     setCurrentPos(ZOOM, 0);
     
     // set to maximum right
-    zoom_current = calibrate(ZOOM, calizoom_right, MOTOR_STEPS, 0);
+    zoom_current = calibrate(ZOOM, calizoom_right, MOTOR_STEPS, 0, AQUA);
     int maxZoom = zoom_current;
     updateScreen(500);
 
     // set to minimum left
-    zoom_current = calibrate(ZOOM, calizoom_left, maxZoom, maxZoom-MOTOR_STEPS);
+    zoom_current = calibrate(ZOOM, calizoom_left, maxZoom, maxZoom-MOTOR_STEPS, AQUA);
     zoom_range = maxZoom - zoom_current;
-    updateScreen();
+    updateScreen(500);
     EEPROM.write(1, zoom_range);
     
     zoom_current = 0; // minimum becomes absolute min pos
@@ -287,12 +295,12 @@ void setup() {
     setCurrentPos(FOCUS, 0);
 
     // set to maximum right
-    focus_current = calibrate(FOCUS, califocus_right, MOTOR_STEPS, 0);
+    focus_current = calibrate(FOCUS, califocus_right, MOTOR_STEPS, 0, DEEPPINK);
     int maxFocus = focus_current;
     updateScreen(500);
 
     // set to minimum left
-    focus_current = calibrate(FOCUS, califocus_left, maxFocus, maxFocus-MOTOR_STEPS);
+    focus_current = calibrate(FOCUS, califocus_left, maxFocus, maxFocus-MOTOR_STEPS, DEEPPINK);
     focus_range = maxFocus - focus_current;
     updateScreen();
     EEPROM.write(0, focus_range);
@@ -362,6 +370,7 @@ void loop() {
           EEPROM.write(1,255);
           EEPROM.write(2,255);
           EEPROM.write(3,255);
+          EEPROM.write(4,255);
           EEPROM.write(5,255);
           resetFunc();
           break; 
@@ -413,7 +422,7 @@ void loop() {
               ssscreen = -1;
               break;
             default:
-              max_option = menu(4, focus_menu, option, true);
+              max_option = menu(4, focus_menu, option, 2);
               ssscreen = getUpdate(ssscreen);
           }
           break;
@@ -448,7 +457,7 @@ void loop() {
               ssscreen = -1;
               break;
             default:
-              max_option = menu(4, zoom_menu, option, true);
+              max_option = menu(4, zoom_menu, option, 2);
               ssscreen = getUpdate(ssscreen);
           }
           break;
@@ -472,7 +481,7 @@ void loop() {
               ssscreen = -1;
               break;
             default:
-              max_option = menu(4, zoomfocus_menu, option, true);
+              max_option = menu(4, zoomfocus_menu, option, 2);
               ssscreen = getUpdate(ssscreen);
           }
           break;
@@ -486,7 +495,7 @@ void loop() {
               ssscreen = -1;
               break;
             default:
-              max_option = menu(5, presets_menu, option, true);
+              max_option = menu(5, presets_menu, option, 2);
               ssscreen = getUpdate(ssscreen);
           }
           break;
@@ -504,7 +513,7 @@ void loop() {
             delay(500);
             firstTime = false;
           }
-          max_option = menu(5, movement_menu, option, true);
+          max_option = menu(5, movement_menu, option, 2);
           sscreen = getUpdate(sscreen);
         }
       }
@@ -529,7 +538,7 @@ void loop() {
               EEPROM.write(4,orientation);
               break;
             default:
-              max_option = menu(3, positioning_menu, option, true);
+              max_option = menu(3, positioning_menu, option, 1);
               ssscreen = getUpdate(ssscreen);
               break;
           }
@@ -552,7 +561,7 @@ void loop() {
           break;
 
         default: // [settings menu]
-          max_option = menu(3, settings_menu, option, true);
+          max_option = menu(3, settings_menu, option, 1);
           sscreen = getUpdate(sscreen);
       }
       break;
@@ -560,7 +569,7 @@ void loop() {
     /* Main Menu */
     default:
       firstTime = true;
-      max_option = menu(3, main_menu, option, true);
+      max_option = menu(3, main_menu, option, 2);
       screen = getUpdate(screen);
       break;
   }
