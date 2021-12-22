@@ -46,6 +46,7 @@
 #define SNOW 0xFFDF
 #define VIOLET 0xEC1D 
 #define YELLOWGREEN 0x9E66
+#define GOLDENROD 0xF7FE
 
 /* Symbols */
 #define UP_ARROW    0x18
@@ -312,8 +313,13 @@ void setup() {
 
   // ** teleports to shutter menu **
   if (shutter_speed == 255) {  
-    screen = 2;
-    sscreen = 1;
+    shutter_speed = 1;
+    hotbar(shutter_menu, shutter_speed, 40);
+    do {
+      hotbar(shutter_menu, shutter_speed, 40, 0, false, 0, 3, GOLDENROD, true);
+      shutter_speed = getLeftRight(40, shutter_speed,1, 0);
+    } while(!(!digitalRead(SET) && option));
+    EEPROM.write(5, shutter_speed);
     updateScreen(500);
   }
 
@@ -547,10 +553,11 @@ void loop() {
    
         case 1: // ** shutter menu **
           option = 0;
+          hotbar(shutter_menu, shutter_speed, 40, option, true);
           do {
-            hotbar(shutter_menu, shutter_speed, 16, option, true);
+            hotbar(shutter_menu, shutter_speed, 40, option, true, 0, 3, GOLDENROD, true);
             option = getUpDown(2, option, 0);
-            if (!option) shutter_speed = getLeftRight(16, shutter_speed,1, 0);
+            if (!option) shutter_speed = getLeftRight(40, shutter_speed,1, 0);
           } while(!(!digitalRead(SET) && option));
           EEPROM.write(5, shutter_speed);
           sscreen = resetScreen(sscreen);
