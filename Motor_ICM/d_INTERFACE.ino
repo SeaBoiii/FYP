@@ -57,7 +57,7 @@ void goDist(int type, char title[], int pos_desired, uint16_t color=WHITE) {
 
   printMoveSteps(type, title, color, false); 
   moveMotor(type, pos_desired, shutter_speed/2);
-  zoom_current = pos_desired
+  zoom_current = pos_desired;
   setAccel(type, CALI_ACCEL);
   updateScreen(4000);
   printMoveSteps(type, title, color, true);
