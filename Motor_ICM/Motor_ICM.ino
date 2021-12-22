@@ -246,6 +246,18 @@ void setup() {
   // ****** Setup Menu ******
   // Only run through if ranges are invalid
   // if range == 255
+
+  // ** gets the motor orientation **
+  if (orientation == 255 || zoom_range == 255 || focus_range == 255) {
+    int choice = 0;
+    do {
+      orientation = choice ? 1 : 0;
+      menu(3, positioning_menu, option);
+      choice = getUpDown(2, choice, 0);
+    } while (digitalRead(SET));
+    updateScreen(500);
+    EEPROM.write(4, orientation); 
+  }
   
   // ** calibrate zoom ** 
   if (zoom_range == 255) {
