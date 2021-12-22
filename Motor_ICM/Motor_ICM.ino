@@ -14,6 +14,7 @@
 #define FOCUS 0
 #define ZOOM 1
 #define MS_STEP 8 // default 1/8 microstep
+#define CALI_ACCEL 400
 
 // Arduino Pins
 /* TFT Display Pins */
@@ -46,7 +47,7 @@
 #define SNOW 0xFFDF
 #define VIOLET 0xEC1D 
 #define YELLOWGREEN 0x9E66
-#define GOLDENROD 0xF7FE
+#define GOLDENROD 0xF81F
 
 /* Symbols */
 #define UP_ARROW    0x18
@@ -122,9 +123,9 @@ const char counttext_5[] PROGMEM = "SNAP!";
 
 const char adjust_zoom[] PROGMEM = "|--- Adjust Zoom ---|";
 const char adjust_focus[] PROGMEM = "|---Adjust Focus ---|";
-const char string_36[] PROGMEM = "Adjust the [ZOOM] lens";
-const char string_36_1[] PROGMEM = "Adjust the [FOCUS] lens";
-const char string_37[] PROGMEM = " to the desired Image";
+const char string_36[] PROGMEM = "Adjust [ZOOM] lens";
+const char string_36_1[] PROGMEM = "Adjust [FOCUS] lens";
+const char string_37[] PROGMEM = "to the desired Image";
 
 const char string_38[] PROGMEM = " desired Outcome";
 
@@ -272,7 +273,7 @@ void setup() {
   // ** calibrate zoom ** 
   if (zoom_range == 255) {
     zoom_current = 0;
-    setAccel(ZOOM, 200 * MS_STEP);
+    setAccel(ZOOM, CALI_ACCEL);
     setCurrentPos(ZOOM, 0);
     
     // set to maximum right
@@ -293,7 +294,7 @@ void setup() {
   // ** calibrate focus **
   if (focus_range == 255) {
     focus_current = 0;
-    setAccel(FOCUS, 200 * MS_STEP);
+    setAccel(FOCUS, CALI_ACCEL);
     setCurrentPos(FOCUS, 0);
 
     // set to maximum right
@@ -314,11 +315,11 @@ void setup() {
   // ** teleports to shutter menu **
   if (shutter_speed == 255) {  
     shutter_speed = 1;
-    hotbar(shutter_menu, shutter_speed, 40);
+    hotbar(shutter_menu, shutter_speed, 40, 0, false, 0, 1);
     do {
-      hotbar(shutter_menu, shutter_speed, 40, 0, false, 0, 3, GOLDENROD, true);
+      hotbar(shutter_menu, shutter_speed, 40, 0, false, 0, 1, GOLDENROD, true);
       shutter_speed = getLeftRight(40, shutter_speed,1, 0);
-    } while(!(!digitalRead(SET) && option));
+    } while(digitalRead(SET));
     EEPROM.write(5, shutter_speed);
     updateScreen(500);
   }
@@ -333,7 +334,7 @@ void loop() {
         // ** zoom calibration **
         case 0: {
           setCurrentPos(ZOOM, zoom_current * MS_STEP);
-          setAccel(ZOOM, 200 * MS_STEP);
+          setAccel(ZOOM, CALI_ACCEL);
 
           zoom_current = calibrate(ZOOM, calizoom_right, MOTOR_STEPS, 0);
           int maxZoom = zoom_current;
@@ -353,7 +354,7 @@ void loop() {
         // ** focus calibration **
         case 1: {
           setCurrentPos(FOCUS, focus_current * MS_STEP);
-          setAccel(FOCUS, 200 * MS_STEP);
+          setAccel(FOCUS, CALI_ACCEL);
 
           focus_current = calibrate(FOCUS, califocus_right, MOTOR_STEPS, 0);
           int maxFocus = focus_current;
@@ -512,9 +513,11 @@ void loop() {
           break;
         default: {  // [Movement Menu] 
           if (firstTime) {
+            setAccel(ZOOM, CALI_ACCEL);
             zoom_current = chooseDist(ZOOM, 3, zoom_adjust, false, AQUA);
             EEPROM.write(3, zoom_current);
             delay(500);
+            setAccel(FOCUS, CALI_ACCEL);
             focus_current = chooseDist(FOCUS, 3, focus_adjust, false, DEEPPINK);
             EEPROM.write(2, focus_current);
             delay(500);
