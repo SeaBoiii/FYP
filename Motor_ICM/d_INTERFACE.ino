@@ -51,15 +51,23 @@ int chooseDist(int type, int count, const char *const string_table[], bool goBac
   return pos_current;
 }
 
-void goDist(int type, char title[], int pos_desired, uint16_t color=WHITE) {
+void goDist(int type, char title[], int pos_desired, uint16_t color=WHITE, float shutter_spd = shutter_speed/2) {
   int pos_current, upper_limit;
   pos_current = type ? zoom_current : focus_current;
   upper_limit = type ? zoom_range : focus_range;
 
   printMoveSteps(type, title, color, false); 
-  moveMotor(type, pos_desired, shutter_speed/2);
+  moveMotor(type, pos_desired, shutter_spd);
   setAccel(type, CALI_ACCEL);
   updateScreen(4000);
   printMoveSteps(type, title, color, true);
   moveMotor(type, pos_current);
+}
+
+void goMultiDist(char title[], int zoom_desired, int focus_desired, uint16_t color=WHITE, float shutter_spd = shutter_speed/2) {
+  printMoveSteps(NULL, title, color, false);
+  moveMultiMotor(zoom_desired, focus_desired, shutter_spd);
+  updateScreen(2000);
+  printMoveSteps(NULL, title, color, true);
+  moveMultiMotor(zoom_current, focus_current, shutter_spd);
 }

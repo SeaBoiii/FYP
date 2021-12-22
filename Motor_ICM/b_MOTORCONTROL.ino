@@ -144,12 +144,27 @@ void setCurrentPos(int type, float value) {
 /*
  * MultiStepper methods
  * Functions available: moveTo & runSpeedToPosition
+ * To not move a motor, put '-1' in the value
  */
 void moveMultiMotor(float zoom_value, float focus_value, float shutter_spd=0) {
   long positions[2];
-  positions[0] = orientation ? focus_value : zoom_value;
-  positions[1] = orientation ? zoom_value : focus_value;
+  
+  if (zoom_value == -1) {
+    positions[0] = orientation ? focus_value : zoom_current;
+    positions[1] = orientation ? zoom_current : focus_value;
+  } else if (focus_value == -1) {
+    positions[0] = orientation ? focus_current : zoom_value;
+    positions[1] = orientation ? zoom_value : focus_current;
+  } else if (focus_value == -1 && zoom_value == -1) {
+    positions[0] = orientation ? focus_current : zoom_current;
+    positions[1] = orientation ? zoom_current : focus_current;
+  } else {
+    positions[0] = orientation ? focus_value : zoom_value;
+    positions[1] = orientation ? zoom_value : focus_value;
+  }
 
+  positions[0] = positions[0] * MS_STEP; // Add the microstep 
+  positions[1] = positions[1] * MS_STEP;
   steppers.moveTo(positions);
   
   //adjust speed accordingly
