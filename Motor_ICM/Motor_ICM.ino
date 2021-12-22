@@ -373,12 +373,14 @@ void loop() {
           switch(ssscreen) {
             case 0: { // focus to max
               countdownMenu();
+              delay(toMS(shutter_speed/2));
               goDist(FOCUS, string_20, focus_range, SNOW);
               ssscreen = resetScreen(ssscreen);
               break;
             }
             case 1: { // focus to min
               countdownMenu();
+              delay(toMS(shutter_speed/2));
               goDist(FOCUS, string_21, 0, VIOLET);
               ssscreen = resetScreen(ssscreen);
               break;
@@ -388,6 +390,7 @@ void loop() {
               pos_desired = chooseDist(FOCUS, 3, focus_dist, true, YELLOWGREEN);
               delay(500);
               countdownMenu();
+              delay(toMS(shutter_speed/2));
               goDist(FOCUS, string_22, pos_desired, YELLOWGREEN);
               ssscreen = resetScreen(ssscreen);
               break;
@@ -405,12 +408,14 @@ void loop() {
           switch(ssscreen) {
             case 0: { // zoom to max
               countdownMenu();
+              delay(toMS(shutter_speed/2));
               goDist(ZOOM, string_24, zoom_range, SNOW);
               ssscreen = resetScreen(ssscreen);
               break;
             }
             case 1: { // zoom to min
               countdownMenu();
+              delay(toMS(shutter_speed/2));
               goDist(ZOOM, string_25, 0, VIOLET);
               ssscreen = resetScreen(ssscreen);
               break;
@@ -420,6 +425,7 @@ void loop() {
               pos_desired = chooseDist(ZOOM, 3, zoom_dist, true, YELLOWGREEN);
               delay(500);
               countdownMenu();
+              delay(toMS(shutter_speed/2));
               goDist(ZOOM, string_26, pos_desired, YELLOWGREEN);
               ssscreen = resetScreen(ssscreen);
               break;
