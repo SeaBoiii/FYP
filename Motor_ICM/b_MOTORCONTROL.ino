@@ -145,7 +145,7 @@ void setCurrentPos(int type, float value) {
  * MultiStepper methods
  * Functions available: moveTo & runSpeedToPosition
  */
-void moveMultiMotor(float zoom_value, float focus_value, float shutter_spd) {
+void moveMultiMotor(float zoom_value, float focus_value, float shutter_spd=0) {
   long positions[2];
   positions[0] = orientation ? focus_value : zoom_value;
   positions[1] = orientation ? zoom_value : focus_value;
@@ -153,10 +153,12 @@ void moveMultiMotor(float zoom_value, float focus_value, float shutter_spd) {
   steppers.moveTo(positions);
   
   //adjust speed accordingly
-  float zoom_RPM = calcRPM(zoom_value, shutter_spd);
-  float focus_RPM = calcRPM(focus_value, shutter_spd);
-  rear_motor.setSpeed(orientation ? focus_RPM : zoom_RPM);
-  front_motor.setSpeed(orientation ? zoom_RPM : focus_RPM);
+  if (!shutter_spd) {
+    float zoom_RPM = calcRPM(zoom_value, shutter_spd);
+    float focus_RPM = calcRPM(focus_value, shutter_spd);
+    rear_motor.setSpeed(orientation ? focus_RPM : zoom_RPM);
+    front_motor.setSpeed(orientation ? zoom_RPM : focus_RPM);
+  }
 
   steppers.runSpeedToPosition(); // Blocks until all are in position
   
