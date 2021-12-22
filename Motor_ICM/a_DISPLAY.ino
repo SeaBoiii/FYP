@@ -114,7 +114,7 @@ int menu(int array_size, const char *const string_table[], int option_selected, 
  *  int footer - Type of footer to display [1]
  */
 
-void hotbar(char title[], int current, int max_range, int current_option=0, bool haveBack=false, int header=0, int footer=3, uint16_t color=WHITE) {
+void hotbar(char title[], int current, int max_range, int current_option=0, bool haveBack=false, int header=0, int footer=3, uint16_t color=WHITE, bool updateBar=false) {
   if (!updateMenu) return;
   updateMenu = false;
   
@@ -123,33 +123,35 @@ void hotbar(char title[], int current, int max_range, int current_option=0, bool
   int rect_y = 37;
 
   if (header != 0) {
-    tft.setTextColor(AQUA);
-    tft.print(F("Shutter Speed: "));
-    tft.setTextColor(WHITE);
-    tft.println(shutter_speed);
-    switch (header) {
-      case 1: {
-        tft.setTextColor(AQUA);
-        tft.print(F("Front Motor: "));
-        tft.setTextColor(WHITE);
-        tft.println(orientation ? "Zoom" : "Focus");
-        tft.setTextColor(AQUA);
-        tft.print(F("Rear Motor: "));
-        tft.setTextColor(WHITE);
-        tft.println(orientation ? "Focus" : "Zoom");
+    if (!updateBar) {
+      tft.setTextColor(AQUA);
+      tft.print(F("Shutter Speed: "));
+      tft.setTextColor(WHITE);
+      tft.println(shutter_speed);
+      switch (header) {
+        case 1: {
+          tft.setTextColor(AQUA);
+          tft.print(F("Front Motor: "));
+          tft.setTextColor(WHITE);
+          tft.println(orientation ? "Zoom" : "Focus");
+          tft.setTextColor(AQUA);
+          tft.print(F("Rear Motor: "));
+          tft.setTextColor(WHITE);
+          tft.println(orientation ? "Focus" : "Zoom");
+        }
+        case 2: {
+          tft.setTextColor(AQUA);
+          tft.print(F("Focus Range: "));
+          tft.setTextColor(WHITE);
+          tft.println(focus_range);
+          tft.setTextColor(AQUA);
+          tft.print(F("Zoom Range: "));
+          tft.setTextColor(WHITE);
+          tft.println(zoom_range);
+        }
       }
-      case 2: {
-        tft.setTextColor(AQUA);
-        tft.print(F("Focus Range: "));
-        tft.setTextColor(WHITE);
-        tft.println(focus_range);
-        tft.setTextColor(AQUA);
-        tft.print(F("Zoom Range: "));
-        tft.setTextColor(WHITE);
-        tft.println(zoom_range);
-      }
+      tft.println(); 
     }
-    tft.println(); 
     rect_y =75;
   }
 
@@ -179,40 +181,42 @@ void hotbar(char title[], int current, int max_range, int current_option=0, bool
   tft.print(current);
   tft.print(" ");
 
-  switch(footer) {
-    case 1:
-      tft.drawChar(2,130,LEFT_ARROW,WHITE,BLACK,2);
-      tft.drawChar(17,130,RIGHT_ARROW,WHITE,BLACK,2);
-      tft.setCursor(32,134);
-      tft.println(F(": Adjust values"));
-      tft.drawChar(2,145,SELECT,WHITE,BLACK,2);
-      tft.setCursor(17,149);
-      tft.println(F(": Press to set"));
+  if (!updateBar) {
+    switch(footer) {
+      case 1:
+        tft.drawChar(2,130,LEFT_ARROW,WHITE,BLACK,2);
+        tft.drawChar(17,130,RIGHT_ARROW,WHITE,BLACK,2);
+        tft.setCursor(32,134);
+        tft.println(F(": Adjust values"));
+        tft.drawChar(2,145,SELECT,WHITE,BLACK,2);
+        tft.setCursor(17,149);
+        tft.println(F(": Press to set"));
+        break;
+      case 2:
+        tft.drawChar(2,130,UP_ARROW,WHITE,BLACK,2);
+        tft.drawChar(17,130,DOWN_ARROW,WHITE,BLACK,2);
+        tft.setCursor(32,134);
+        tft.println(F(": Navigate"));
+        tft.drawChar(2,145,SELECT,WHITE,BLACK,2);
+        tft.setCursor(17,149);
+        tft.println(F(": Press to set"));
+        break;
+      case 3:
+        tft.drawChar(2,115,LEFT_ARROW,WHITE,BLACK,2);
+        tft.drawChar(17,115,RIGHT_ARROW,WHITE,BLACK,2);
+        tft.setCursor(32,119);
+        tft.println(F(": Adjust values"));
+        tft.drawChar(2,130,UP_ARROW,WHITE,BLACK,2);
+        tft.drawChar(17,130,DOWN_ARROW,WHITE,BLACK,2);
+        tft.setCursor(32,134);
+        tft.println(F(": Navigate"));
+        tft.drawChar(2,145,SELECT,WHITE,BLACK,2);
+        tft.setCursor(17,149);
+        tft.println(F(": Press to set"));
+        break;
+      default:
       break;
-    case 2:
-      tft.drawChar(2,130,UP_ARROW,WHITE,BLACK,2);
-      tft.drawChar(17,130,DOWN_ARROW,WHITE,BLACK,2);
-      tft.setCursor(32,134);
-      tft.println(F(": Navigate"));
-      tft.drawChar(2,145,SELECT,WHITE,BLACK,2);
-      tft.setCursor(17,149);
-      tft.println(F(": Press to set"));
-      break;
-    case 3:
-      tft.drawChar(2,115,LEFT_ARROW,WHITE,BLACK,2);
-      tft.drawChar(17,115,RIGHT_ARROW,WHITE,BLACK,2);
-      tft.setCursor(32,119);
-      tft.println(F(": Adjust values"));
-      tft.drawChar(2,130,UP_ARROW,WHITE,BLACK,2);
-      tft.drawChar(17,130,DOWN_ARROW,WHITE,BLACK,2);
-      tft.setCursor(32,134);
-      tft.println(F(": Navigate"));
-      tft.drawChar(2,145,SELECT,WHITE,BLACK,2);
-      tft.setCursor(17,149);
-      tft.println(F(": Press to set"));
-      break;
-    default:
-    break;
+    }
   }
   
   return;
