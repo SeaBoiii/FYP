@@ -300,20 +300,20 @@ void setup() {
     zoom_current = 0;
     setAccel(ZOOM, CALI_ACCEL);
     setCurrentPos(ZOOM, 0);
-    
-    // set to maximum right
-    zoom_current = calibrate(ZOOM, calizoom_right, MOTOR_STEPS, 0, AQUA);
-    int maxZoom = zoom_current;
-    updateScreen(500);
 
     // set to minimum left
-    zoom_current = calibrate(ZOOM, calizoom_left, maxZoom, maxZoom-MOTOR_STEPS, AQUA);
-    zoom_range = maxZoom - zoom_current;
+    int minZoom = calibrate(ZOOM, calizoom_left, 50, -50, AQUA);
+    setCurrentPos(ZOOM, zoom_current); // set to 0
+    updateScreen(500);
+    
+    // set to maximum right
+    int maxZoom = calibrate(ZOOM, calizoom_right, MOTOR_STEPS, 0, AQUA);
+    zoom_range = maxZoom - minZoom;
     updateScreen(500);
     EEPROM.write(1, zoom_range);
-    
-    zoom_current = 0; // minimum becomes absolute min pos
-    setCurrentPos(ZOOM, zoom_current);
+
+    // minimum becomes absolute min pos
+    setCurrentPos(ZOOM, zoom_current); // zoom_current currently 0
     EEPROM.write(3, zoom_current);
   }
 
@@ -323,19 +323,19 @@ void setup() {
     setAccel(FOCUS, CALI_ACCEL);
     setCurrentPos(FOCUS, 0);
 
-    // set to maximum right
-    focus_current = calibrate(FOCUS, califocus_right, MOTOR_STEPS, 0, DEEPPINK);
-    int maxFocus = focus_current;
+    // set to minimum left
+    int minFocus = calibrate(FOCUS, califocus_left, 50, -50, DEEPPINK);
+    setCurrentPos(FOCUS, focus_current); // set to 0
     updateScreen(500);
 
-    // set to minimum left
-    focus_current = calibrate(FOCUS, califocus_left, maxFocus, maxFocus-MOTOR_STEPS, DEEPPINK);
-    focus_range = maxFocus - focus_current;
-    updateScreen();
+    // set to maximum right
+    int maxFocus = calibrate(FOCUS, califocus_right, MOTOR_STEPS, 0, DEEPPINK);
+    focus_range = maxFocus - minFocus;
+    updateScreen(500);
     EEPROM.write(0, focus_range);
-    
-    focus_current = 0; // minimum becomes absolute min pos
-    setCurrentPos(FOCUS, focus_current);
+
+    // minimum becomes absolute min pos
+    setCurrentPos(FOCUS, focus_current); // focus_current currently 0
     EEPROM.write(2, focus_current);
   }
 
