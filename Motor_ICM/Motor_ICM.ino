@@ -200,7 +200,7 @@ void moveMultiMotor(float zoom_value, float focus_value, float shutter_spd=0);
 int calibrate(int type, const char *const string_table[], int upper_limit, int lower_limit, uint16_t color=WHITE);
 int chooseDist(int type, int count, const char *const string_table[], bool goBack=false, uint16_t color=WHITE);
 void goDist(int type, char title[], int pos_desired, uint16_t color=WHITE, float shutter_spd = shutter_speed/2, bool goBack=true);
-void goMultiDist(char title[], int zoom_desired, int focus_desired, uint16_t color=WHITE, float shutter_spd = shutter_speed/2);
+void goMultiDist(char title[], int zoom_desired, int focus_desired, uint16_t color=WHITE, float shutter_spd = shutter_speed/2, bool goBack=true);
 void(* resetFunc) (void) = 0;
 
 void setup() {
