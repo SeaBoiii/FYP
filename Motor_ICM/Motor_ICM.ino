@@ -80,13 +80,6 @@ const char string_5[] PROGMEM = "Zoom Recalibration";
 const char string_6[] PROGMEM = "Focus Recalibration";
 const char string_7[] PROGMEM = "RESET all values";
 
-/*
-const char string_8[] PROGMEM = "|---- Movements ----|";
-const char string_9[] PROGMEM = "Adjust Focus";
-const char string_10[] PROGMEM = "Adjust Zoom";
-const char string_11[] PROGMEM = "Zoom & Focus";
-const char string_11_1[] PROGMEM = "Presets (WIP)"; */
-
 const char string_12[] PROGMEM = "|---- Settings -----|";
 const char string_13[] PROGMEM = "Zoom/Focus Position";
 const char string_14[] PROGMEM = "Camera Shutter Speed";
@@ -97,17 +90,17 @@ const char string_17[] PROGMEM = "Zoom at the front";
 
 const char shutter_menu[] PROGMEM = "|---Shutter Speed---|";
 
-const char string_19[] PROGMEM = "|--Adjusting Focus--|";
+const char string_19[] PROGMEM = "|--Focus Movements--|";
 const char string_20[] PROGMEM = "Focus to Max";
 const char string_21[] PROGMEM = "Focus to Min";
 const char string_22[] PROGMEM = "Focus to a Value";
 
-const char string_23[] PROGMEM = "|--Adjusting Zoom --|";
+const char string_23[] PROGMEM = "|--Zoom Movements --|";
 const char string_24[] PROGMEM = "Zoom to Max";
 const char string_25[] PROGMEM = "Zoom to Min";
 const char string_26[] PROGMEM = "Zoom to a Value";
 
-const char string_27[] PROGMEM = "|-Adjust Zoom&Focus-|";
+const char string_27[] PROGMEM = "|Zoom&Focus Movement|";
 const char string_28[] PROGMEM = "ZoomFocus to Max";
 const char string_29[] PROGMEM = "ZoomFocus to Min";
 const char string_30[] PROGMEM = "ZoomFocus to a Value";
@@ -142,7 +135,6 @@ const char string_38[] PROGMEM = "to desired Outcome";
 /* String Table */
 const char *const main_menu[] PROGMEM = {mm_0, mm_1, mm_2, mm_3, mm_4, mm_5, mm_6, mm_7};
 const char *const recalibration_menu[] PROGMEM {string_4, string_5, string_6, string_7, back};
-//const char *const movement_menu[] PROGMEM = {string_8, string_9, string_10, string_11, string_11_1, back};
 const char *const settings_menu[] PROGMEM = {string_12, string_13, string_14, back};
 const char *const positioning_menu[] PROGMEM = {string_15, string_16, string_17, back};
 const char *const focus_menu[] PROGMEM = {string_19, string_20, string_21, string_22, back};
