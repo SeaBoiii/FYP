@@ -189,7 +189,7 @@ int screen = -1;    // main screen
 int sscreen = -1;   // sub screen
 int ssscreen = -1;
 int max_option = 0;
-bool firstTime;
+bool firstTime = false;
 
 // Function Declaration
 int menu(int array_size, const char *const string_table[], int option_selected, int header=0, int footer=2, uint16_t color=DEEPPINK);
@@ -281,6 +281,7 @@ void setup() {
     } while(digitalRead(SET));
     EEPROM.write(5, shutter_speed);
     updateScreen(500);
+    firstTime = true;
   }
 
   // ** gets the motor orientation **
@@ -293,6 +294,7 @@ void setup() {
     } while (digitalRead(SET));
     updateScreen(500);
     EEPROM.write(4, orientation); 
+    firstTime = true;
   }
   
   // ** calibrate zoom ** 
@@ -315,6 +317,7 @@ void setup() {
     // minimum becomes absolute min pos
     setCurrentPos(ZOOM, zoom_current); // zoom_current currently 0
     EEPROM.write(3, zoom_current);
+    firstTime = true;
   }
 
   // ** calibrate focus **
@@ -337,8 +340,22 @@ void setup() {
     // minimum becomes absolute min pos
     setCurrentPos(FOCUS, focus_current); // focus_current currently 0
     EEPROM.write(2, focus_current);
+    firstTime = true;
   }
 
+  // ** set image position (KIV)**
+  if (firstTime) {
+    setAccel(ZOOM, CALI_ACCEL);
+    setAccel(FOCUS, CALI_ACCEL);
+    
+    zoom_current = chooseDist(ZOOM, 3, zoom_adjust, false, AQUA);
+    EEPROM.write(3, zoom_current);
+    updateScreen(500);
+    focus_current = chooseDist(FOCUS, 3, focus_adjust, false, DEEPPINK);
+    EEPROM.write(2, focus_current);
+    updateScreen(500);
+    firstTime = false;
+  }
 }
 
 void loop() {
