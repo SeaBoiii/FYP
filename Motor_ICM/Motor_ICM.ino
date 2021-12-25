@@ -271,6 +271,18 @@ void setup() {
   // Only run through if ranges are invalid
   // if range == 255
 
+  // ** sets up shutter speed **
+  if (shutter_speed == 255) {  
+    shutter_speed = 1;
+    hotbar(shutter_menu, shutter_speed, 40, 0, false, 0, 1);
+    do {
+      hotbar(shutter_menu, shutter_speed, 40, 0, false, 0, 1, GOLDENROD, true);
+      shutter_speed = getLeftRight(40, shutter_speed,1, 0);
+    } while(digitalRead(SET));
+    EEPROM.write(5, shutter_speed);
+    updateScreen(500);
+  }
+
   // ** gets the motor orientation **
   if (orientation == 255 || zoom_range == 255 || focus_range == 255) {
     int choice = 0;
@@ -325,18 +337,6 @@ void setup() {
     focus_current = 0; // minimum becomes absolute min pos
     setCurrentPos(FOCUS, focus_current);
     EEPROM.write(2, focus_current);
-  }
-
-  // ** teleports to shutter menu **
-  if (shutter_speed == 255) {  
-    shutter_speed = 1;
-    hotbar(shutter_menu, shutter_speed, 40, 0, false, 0, 1);
-    do {
-      hotbar(shutter_menu, shutter_speed, 40, 0, false, 0, 1, GOLDENROD, true);
-      shutter_speed = getLeftRight(40, shutter_speed,1, 0);
-    } while(digitalRead(SET));
-    EEPROM.write(5, shutter_speed);
-    updateScreen(500);
   }
 
 }
