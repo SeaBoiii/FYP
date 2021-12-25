@@ -10,8 +10,7 @@
  * in AccelMotor is in steps/s
  */
 float calcRPM(int steps, float seconds) {
-  float requiredSpeed = steps/seconds;
-  return 100 * (requiredSpeed / (float)12.5);
+  return (steps * MS_STEP)/seconds;
 }
 
 /*
@@ -19,8 +18,8 @@ float calcRPM(int steps, float seconds) {
  * - Requires some finetuning
  */
 float calcAccel(int steps, float seconds) {
-  float mid_speed = calcRPM(steps, seconds);
-  return (float)(mid_speed - 0) / (seconds/2);
+  float max_speed = calcRPM(steps, seconds);
+  return (float)max_speed / seconds);
 }
 
 long toMS(float seconds) {
