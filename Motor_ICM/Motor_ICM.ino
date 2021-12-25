@@ -35,6 +35,10 @@
 #define RIGHT A1
 #define SET   A0 
 
+/* Camera Control Pins */
+#define PRIME A6
+#define SHUTTER A7
+
 // Strings
 /* Colour Strings */
 #define WHITE     0xFFFF
@@ -202,9 +206,25 @@ int chooseDist(int type, int count, const char *const string_table[], bool goBac
 void goDist(int type, char title[], int pos_desired, uint16_t color=WHITE, float shutter_spd = shutter_speed/2, bool goBack=true);
 void goMultiDist(char title[], int zoom_desired, int focus_desired, uint16_t color=WHITE, float shutter_spd = shutter_speed/2, bool goBack=true);
 void(* resetFunc) (void) = 0;
+void nikonTime() {
+  digitalWrite(PRIME, LOW);   // close focus (half-pressed shutter)
+  digitalWrite(SHUTTER, LOW); // close shutter (fully pressed)
+  delay(1000);
+  digitalWrite(PRIME, HIGH);  // return to open for both
+  digitalWrite(SHUTTER, HIGH);
+}
 
 void setup() {
   Serial.begin(9600);
+
+  // **** Camera Controls ****
+  // set the pins to output pins 
+  // Using a Nikon D7100 shutter release
+  // & a dual relay module
+  // Currently in Time mode (2 presses)
+  // HIGH = Open Position, LOW = Close
+  pinMode(PRIME, OUTPUT);
+  pinMode(SHUTTER, OUTPUT);
   
   // ***** Joystick *****
   // change the pinmode for the joystick

@@ -56,7 +56,9 @@ void goDist(int type, char title[], int pos_desired, uint16_t color=WHITE, float
   upper_limit = type ? zoom_range : focus_range;
 
   printMoveSteps(type, title, color, false); 
+  nikonTime()
   moveMotor(type, pos_desired, shutter_spd);
+  nikonTime()
   updateScreen(4000);
 
   // returns to original spot
@@ -69,7 +71,9 @@ void goDist(int type, char title[], int pos_desired, uint16_t color=WHITE, float
 
 void goMultiDist(char title[], int zoom_desired, int focus_desired, uint16_t color=WHITE, float shutter_spd = shutter_speed/2, bool goBack=true) {
   printMoveSteps(NULL, title, color, false);
+  nikonTime()
   moveMultiMotor(zoom_desired, focus_desired, shutter_spd);
+  nikonTime()
   updateScreen(2000);
 
   // returns to original spot
