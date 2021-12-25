@@ -44,30 +44,38 @@ int chooseDist(int type, int count, const char *const string_table[], bool goBac
     for (int i=2; i<count; i++) {
       tft.println("                  ");
     }
-    setAccel(type, CALI_ACCEL);
     moveMotor(type, type ? zoom_current : focus_current);
   }
   
   return pos_current;
 }
 
-void goDist(int type, char title[], int pos_desired, uint16_t color=WHITE, float shutter_spd = shutter_speed/2) {
+void goDist(int type, char title[], int pos_desired, uint16_t color=WHITE, float shutter_spd = shutter_speed/2, bool goBack=true) {
   int pos_current, upper_limit;
   pos_current = type ? zoom_current : focus_current;
   upper_limit = type ? zoom_range : focus_range;
 
   printMoveSteps(type, title, color, false); 
   moveMotor(type, pos_desired, shutter_spd);
-  setAccel(type, CALI_ACCEL);
   updateScreen(4000);
-  printMoveSteps(type, title, color, true);
-  moveMotor(type, pos_current);
+
+  // returns to original spot
+  if (goBack) {
+    printMoveSteps(type, title, color, true);
+    moveMotor(type, pos_current);
+  }
+  updateScreen();
 }
 
-void goMultiDist(char title[], int zoom_desired, int focus_desired, uint16_t color=WHITE, float shutter_spd = shutter_speed/2) {
+void goMultiDist(char title[], int zoom_desired, int focus_desired, uint16_t color=WHITE, float shutter_spd = shutter_speed/2, bool goBack=true) {
   printMoveSteps(NULL, title, color, false);
   moveMultiMotor(zoom_desired, focus_desired, shutter_spd);
   updateScreen(2000);
-  printMoveSteps(NULL, title, color, true);
-  moveMultiMotor(zoom_current, focus_current, shutter_spd);
+
+  // returns to original spot
+  if (goBack) {
+    printMoveSteps(NULL, title, color, true);
+    moveMultiMotor(zoom_current, focus_current, shutter_spd);
+  }
+  updateScreen();
 }
