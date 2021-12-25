@@ -66,21 +66,26 @@ char buffer[50];
 /* Defining Strings */
 const char back[] PROGMEM = "Back";
 
-const char string_0[] PROGMEM = "|---- Main Menu ----|";
-const char string_1[] PROGMEM = "Calibration";
-const char string_2[] PROGMEM = "Start Movements";
-const char string_3[] PROGMEM = "Settings";
+const char mm_0[] PROGMEM = "|---- Main Menu ----|";
+const char mm_1[] PROGMEM = "Camera Settings";
+const char mm_2[] PROGMEM = "Motor Calibration";
+const char mm_3[] PROGMEM = "Focus Movements";
+const char mm_4[] PROGMEM = "Zoom Movements";
+const char mm_5[] PROGMEM = "ZoomFocus Movements";
+const char mm_6[] PROGMEM = "Fixed Patterns";
+const char mm_7[] PROGMEM = "Customise Patterns";
 
 const char string_4[] PROGMEM = "|---Recalibration---|";
 const char string_5[] PROGMEM = "Zoom Recalibration";
 const char string_6[] PROGMEM = "Focus Recalibration";
 const char string_7[] PROGMEM = "RESET all values";
 
+/*
 const char string_8[] PROGMEM = "|---- Movements ----|";
 const char string_9[] PROGMEM = "Adjust Focus";
 const char string_10[] PROGMEM = "Adjust Zoom";
 const char string_11[] PROGMEM = "Zoom & Focus";
-const char string_11_1[] PROGMEM = "Presets (WIP)";
+const char string_11_1[] PROGMEM = "Presets (WIP)"; */
 
 const char string_12[] PROGMEM = "|---- Settings -----|";
 const char string_13[] PROGMEM = "Zoom/Focus Position";
@@ -106,6 +111,8 @@ const char string_27[] PROGMEM = "|-Adjust Zoom&Focus-|";
 const char string_28[] PROGMEM = "ZoomFocus to Max";
 const char string_29[] PROGMEM = "ZoomFocus to Min";
 const char string_30[] PROGMEM = "ZoomFocus to a Value";
+const char string_39[] PROGMEM = "Zoom[MAX]&Focus[MIN]";
+const char string_40[] PROGMEM = "Zoom[MIN]&Focus[MAX]";
 
 const char string_31[] PROGMEM = "|----- Presets -----|";
 const char string_32[] PROGMEM = "Bokeh Effect";
@@ -130,15 +137,12 @@ const char adjust_focus[] PROGMEM = "|---Adjust Focus ---|";
 const char string_36[] PROGMEM = "Adjust [ZOOM] lens";
 const char string_36_1[] PROGMEM = "Adjust [FOCUS] lens";
 const char string_37[] PROGMEM = "to the desired Image";
-
 const char string_38[] PROGMEM = "to desired Outcome";
-const char string_39[] PROGMEM = "Zoom[MAX]&Focus[MIN]";
-const char string_40[] PROGMEM = "Zoom[MIN]&Focus[MAX]";
 
 /* String Table */
-const char *const main_menu[] PROGMEM = {string_0, string_1, string_2, string_3};
+const char *const main_menu[] PROGMEM = {mm_0, mm_1, mm_2, mm_3, mm_4, mm_5, mm_6, mm_7};
 const char *const recalibration_menu[] PROGMEM {string_4, string_5, string_6, string_7, back};
-const char *const movement_menu[] PROGMEM = {string_8, string_9, string_10, string_11, string_11_1, back};
+//const char *const movement_menu[] PROGMEM = {string_8, string_9, string_10, string_11, string_11_1, back};
 const char *const settings_menu[] PROGMEM = {string_12, string_13, string_14, back};
 const char *const positioning_menu[] PROGMEM = {string_15, string_16, string_17, back};
 const char *const focus_menu[] PROGMEM = {string_19, string_20, string_21, string_22, back};
@@ -360,8 +364,57 @@ void setup() {
 
 void loop() {
   switch(screen) {
+    /* Camera Settings */
+    case 0: {
+      switch (sscreen) {
+        case 0: // ** orientation menu **
+          switch(ssscreen) {
+            case 0: // zoom at the back
+              orientation = 0;
+              ssscreen = -1;
+              break;
+            case 1: // zoom at the front
+              orientation = 1;
+              ssscreen = -1;
+              break;
+            case 2: // back
+              ssscreen = -1;
+              sscreen = -1;
+              EEPROM.write(4,orientation);
+              break;
+            default:
+              max_option = menu(3, positioning_menu, option, 1);
+              ssscreen = getUpdate(ssscreen);
+              break;
+          }
+          break;
+   
+        case 1: // ** shutter menu **
+          option = 0;
+          hotbar(shutter_menu, shutter_speed, 40, option, true);
+          do {
+            hotbar(shutter_menu, shutter_speed, 40, option, true, 0, 3, GOLDENROD, true);
+            option = getUpDown(2, option, 0);
+            if (!option) shutter_speed = getLeftRight(40, shutter_speed,1, 0);
+          } while(!(!digitalRead(SET) && option));
+          EEPROM.write(5, shutter_speed);
+          sscreen = resetScreen(sscreen);
+          break;
+        
+        case 2: // ** back **
+          screen = -1;
+          sscreen = -1;
+          break;
+
+        default: // [settings menu]
+          max_option = menu(3, settings_menu, option, 1);
+          sscreen = getUpdate(sscreen);
+      }
+      break;
+    }
+    
     /* Recalibration */
-    case 0:
+    case 1: {
       switch(sscreen) {
         // ** zoom calibration **
         case 0: {
@@ -437,226 +490,189 @@ void loop() {
           break;
       }
       break;
+    }
+    
+    /* POV Calibration */
+    case 2: {
+      setAccel(ZOOM, CALI_ACCEL);
+      setAccel(FOCUS, CALI_ACCEL);
       
-    /* Movements */
-    case 1:
+      zoom_current = chooseDist(ZOOM, 3, zoom_adjust, false, AQUA);
+      EEPROM.write(3, zoom_current);
+      updateScreen(500);
+      focus_current = chooseDist(FOCUS, 3, focus_adjust, false, DEEPPINK);
+      EEPROM.write(2, focus_current);
+      updateScreen(500);
+
+      screen = resetScreen(screen);
+      break;
+    }
+
+    /* Focus Movement */
+    case 3: {
+      switch(sscreen) { 
+        case 0: { // focus to max
+          countdownMenu();
+          goDist(FOCUS, string_20, focus_range, SNOW);
+          sscreen = resetScreen(sscreen);
+          break;
+        }
+        case 1: { // focus to min
+          countdownMenu();
+          goDist(FOCUS, string_21, 0, VIOLET);
+          sscreen = resetScreen(sscreen);
+          break;
+        }
+        case 2: { // focus to dist
+          int pos_desired;
+          pos_desired = chooseDist(FOCUS, 3, focus_dist, true, YELLOWGREEN);
+          updateScreen();
+          delay(500);
+          countdownMenu();
+          goDist(FOCUS, string_22, pos_desired, YELLOWGREEN);
+          sscreen = resetScreen(sscreen);
+          break;
+        }
+        case 3: { // back
+          screen = -1;
+          sscreen = -1;
+          break;
+        }
+        default: {
+          max_option = menu(4, focus_menu, option, 3);
+          sscreen = getUpdate(sscreen);
+          break;
+        }
+      }
+    }
+
+    /* Zoom Movement */
+    case 4: {
       switch(sscreen) {
-        case 0: // ** focus **
-          switch(ssscreen) {
-            case 0: { // focus to max
-              countdownMenu();
-              goDist(FOCUS, string_20, focus_range, SNOW);
-              ssscreen = resetScreen(ssscreen);
-              break;
-            }
-            case 1: { // focus to min
-              countdownMenu();
-              goDist(FOCUS, string_21, 0, VIOLET);
-              ssscreen = resetScreen(ssscreen);
-              break;
-            }
-            case 2: { // focus to dist
-              int pos_desired;
-              pos_desired = chooseDist(FOCUS, 3, focus_dist, true, YELLOWGREEN);
-              updateScreen();
-              delay(500);
-              countdownMenu();
-              goDist(FOCUS, string_22, pos_desired, YELLOWGREEN);
-              ssscreen = resetScreen(ssscreen);
-              break;
-            }
-            case 3: // back
-              sscreen = -1;
-              ssscreen = -1;
-              break;
-            default:
-              max_option = menu(4, focus_menu, option, 3);
-              ssscreen = getUpdate(ssscreen);
-          }
+        case 0: { // zoom to max
+          countdownMenu();
+          goDist(ZOOM, string_24, zoom_range, SNOW);
+          sscreen = resetScreen(sscreen);
           break;
-        case 1: // ** zoom **
-          switch(ssscreen) {
-            case 0: { // zoom to max
-              countdownMenu();
-              goDist(ZOOM, string_24, zoom_range, SNOW);
-              ssscreen = resetScreen(ssscreen);
-              break;
-            }
-            case 1: { // zoom to min
-              countdownMenu();
-              goDist(ZOOM, string_25, 0, VIOLET);
-              ssscreen = resetScreen(ssscreen);
-              break;
-            }
-            case 2: { // zoom to dist
-              int pos_desired;
-              pos_desired = chooseDist(ZOOM, 3, zoom_dist, true, YELLOWGREEN);
-              updateScreen();
-              delay(500);
-              countdownMenu();
-              goDist(ZOOM, string_26, pos_desired, YELLOWGREEN);
-              ssscreen = resetScreen(ssscreen);
-              break;
-            }
-            case 3: // back
-              sscreen = -1;
-              ssscreen = -1;
-              break;
-            default:
-              max_option = menu(4, zoom_menu, option, 4);
-              ssscreen = getUpdate(ssscreen);
-          }
+        }
+        case 1: { // zoom to min
+          countdownMenu();
+          goDist(ZOOM, string_25, 0, VIOLET);
+          sscreen = resetScreen(sscreen);
           break;
-        case 2: // ** focus & zoom **
-          switch(ssscreen) {
-            case 0: { // both to max
-              countdownMenu();
-              goMultiDist(string_28, zoom_range, focus_range, VIOLET);
-              ssscreen = resetScreen(ssscreen);
-              break;
-            }
-            case 1: { // both to min
-              countdownMenu();
-              goMultiDist(string_29, 0, 0, AZURE);
-              ssscreen = resetScreen(ssscreen);
-              break;
-            }
-            case 2: { // zoom to max, focus to min
-              countdownMenu();
-              goMultiDist(string_30, zoom_range, 0, CORAL);
-              ssscreen = resetScreen(ssscreen);
-              break;
-            }
-            case 3: { // zoom to min, focus to max
-              countdownMenu();
-              goMultiDist(string_39, 0, focus_range, CADETBLUE);
-              ssscreen = resetScreen(ssscreen);
-              break;
-            }
-            case 4: { // to certain dist
-              int zoom_desired, focus_desired;
-              zoom_desired = chooseDist(ZOOM, 3, zoom_dist, true, YELLOWGREEN);
-              if (zoom_desired == zoom_current) {
-                zoom_desired = -1;
-              }
-              updateScreen(500);
-              
-              focus_desired = chooseDist(FOCUS, 3, focus_dist, true, RED);
-              if (focus_desired == focus_current) {
-                focus_desired = -1;
-              }
-              updateScreen();
-              
-              delay(500);
-              countdownMenu();
-              goMultiDist(string_40, zoom_desired, focus_desired, LIME);
-              ssscreen = resetScreen(ssscreen);
-              break;
-            }
-            case 5: { // back
-              sscreen = -1;
-              ssscreen = -1;
-              break;
-            }
-            default:
-              max_option = menu(6, zoomfocus_menu, option, 2);
-              ssscreen = getUpdate(ssscreen);
-          }
+        }
+        case 2: { // zoom to dist
+          int pos_desired;
+          pos_desired = chooseDist(ZOOM, 3, zoom_dist, true, YELLOWGREEN);
+          updateScreen();
+          delay(500);
+          countdownMenu();
+          goDist(ZOOM, string_26, pos_desired, YELLOWGREEN);
+          sscreen = resetScreen(sscreen);
           break;
-        case 3: // ** presets **
-          switch(ssscreen) {
-            case 1:
-            case 2:
-            case 3:
-            case 4: // back
-              sscreen = -1;
-              ssscreen = -1;
-              break;
-            default:
-              max_option = menu(5, presets_menu, option, 2);
-              ssscreen = getUpdate(ssscreen);
-          }
+        }
+        case 3: { // back
+          screen = -1;
+          sscreen = -1;
           break;
+        }
+        default: {
+          max_option = menu(4, zoom_menu, option, 4);
+          sscreen =
+          getUpdate(sscreen);
+          break;
+        }
+      }
+    }
+
+    /* ZoomFocus Movements */
+    case 5: {
+      switch (sscreen) {
+        case 0: { // both to max
+          countdownMenu();
+          goMultiDist(string_28, zoom_range, focus_range, VIOLET);
+          sscreen = resetScreen(sscreen);
+          break;
+        }
+        case 1: { // both to min
+          countdownMenu();
+          goMultiDist(string_29, 0, 0, AZURE);
+          sscreen = resetScreen(sscreen);
+          break;
+        }
+        case 2: { // zoom to max, focus to min
+          countdownMenu();
+          goMultiDist(string_30, zoom_range, 0, CORAL);
+          sscreen = resetScreen(sscreen);
+          break;
+        }
+        case 3: { // zoom to min, focus to max
+          countdownMenu();
+          goMultiDist(string_39, 0, focus_range, CADETBLUE);
+          sscreen = resetScreen(sscreen);
+          break;
+        }
+        case 4: { // to certain dist
+          int zoom_desired, focus_desired;
+          zoom_desired = chooseDist(ZOOM, 3, zoom_dist, true, YELLOWGREEN);
+          if (zoom_desired == zoom_current) zoom_desired = -1; // failsafe
+          updateScreen(500);
+          
+          focus_desired = chooseDist(FOCUS, 3, focus_dist, true, RED);
+          if (focus_desired == focus_current) focus_desired = -1; // failsafe
+          updateScreen();
+          
+          delay(500);
+          countdownMenu();
+          goMultiDist(string_40, zoom_desired, focus_desired, LIME);
+          sscreen = resetScreen(sscreen);
+          break;
+        }
+        case 5: { // back
+          screen = -1;
+          sscreen = -1;
+          break;
+        }
+        default: {
+          max_option = menu(6, zoomfocus_menu, option, 2);
+          sscreen = getUpdate(sscreen);
+          break;
+        }
+      }
+    }
+    
+    /* Fixed Patterns */ //Todo
+    case 6: {
+      switch (sscreen) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
         case 4: // back
           screen = -1;
           sscreen = -1;
           break;
-        default: {  // [Movement Menu] 
-          if (firstTime) {
-            setAccel(ZOOM, CALI_ACCEL);
-            setAccel(FOCUS, CALI_ACCEL);
-            
-            zoom_current = chooseDist(ZOOM, 3, zoom_adjust, false, AQUA);
-            EEPROM.write(3, zoom_current);
-            updateScreen(500);
-            focus_current = chooseDist(FOCUS, 3, focus_adjust, false, DEEPPINK);
-            EEPROM.write(2, focus_current);
-            updateScreen(500);
-            firstTime = false;
-          }
-          max_option = menu(5, movement_menu, option, 2);
+        default:
+          max_option = menu(5, presets_menu, option, 2);
           sscreen = getUpdate(sscreen);
-        }
+          break;
       }
-      break;
+    }
 
-    /* Settings */
-    case 2:
-      switch (sscreen) {
-        case 0: // ** orientation menu **
-          switch(ssscreen) {
-            case 0: // zoom at the back
-              orientation = 0;
-              ssscreen = -1;
-              break;
-            case 1: // zoom at the front
-              orientation = 1;
-              ssscreen = -1;
-              break;
-            case 2: // back
-              ssscreen = -1;
-              sscreen = -1;
-              EEPROM.write(4,orientation);
-              break;
-            default:
-              max_option = menu(3, positioning_menu, option, 1);
-              ssscreen = getUpdate(ssscreen);
-              break;
-          }
-          break;
-   
-        case 1: // ** shutter menu **
-          option = 0;
-          hotbar(shutter_menu, shutter_speed, 40, option, true);
-          do {
-            hotbar(shutter_menu, shutter_speed, 40, option, true, 0, 3, GOLDENROD, true);
-            option = getUpDown(2, option, 0);
-            if (!option) shutter_speed = getLeftRight(40, shutter_speed,1, 0);
-          } while(!(!digitalRead(SET) && option));
-          EEPROM.write(5, shutter_speed);
-          sscreen = resetScreen(sscreen);
-          break;
-        
-        case 2: // ** back **
-          screen = -1;
-          sscreen = -1;
-          break;
-
-        default: // [settings menu]
-          max_option = menu(3, settings_menu, option, 1);
-          sscreen = getUpdate(sscreen);
-      }
+    /* Custom Patterns */ //Todo
+    case 7: {
+      screen = -1;
       break;
+    }
 
     /* Main Menu */
     default:
-      firstTime = true;
-      max_option = menu(3, main_menu, option, 2);
+      max_option = menu(8, main_menu, option, 0);
       screen = getUpdate(screen);
       break;
   }
   option = getUpDown(max_option, option, 0);
-  /*
+  /* debug
   Serial.print("Screen: ");
   Serial.println(screen);
   Serial.print("SScreen: ");

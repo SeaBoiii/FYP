@@ -79,7 +79,9 @@ int menu(int array_size, const char *const string_table[], int option_selected, 
         tft.println(zoom_current);
         break;
       }
-      default: break;
+      default:{ 
+        break;
+      }
     }
     tft.println(); 
     rect_y =42;
