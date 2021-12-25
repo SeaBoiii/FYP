@@ -19,7 +19,7 @@ float calcRPM(int steps, float seconds) {
  */
 float calcAccel(int steps, float seconds) {
   float max_speed = calcRPM(steps, seconds);
-  return (float)max_speed / seconds);
+  return (float)max_speed / seconds;
 }
 
 long toMS(float seconds) {
