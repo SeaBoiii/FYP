@@ -278,8 +278,7 @@ void setup() {
   }
   if (zoom_current == 255) {
     zoom_current = 0;
-  }
-  else if (zoom_current != 255) {
+  } else if (zoom_current != 255) {
     setCurrentPos(ZOOM, zoom_current * MS_STEP);
   }
   
@@ -321,7 +320,7 @@ void setup() {
 
     // set to minimum left
     int minZoom = calibrate(ZOOM, calizoom_left, 50, -50, AQUA);
-    setCurrentPos(ZOOM, zoom_current); // set to 0
+    setCurrentPos(ZOOM, 0); // set to 0
     updateScreen(500);
     
     // set to maximum right
@@ -332,7 +331,6 @@ void setup() {
     EEPROM.write(1, zoom_range);
 
     // minimum becomes absolute min pos
-    setCurrentPos(ZOOM, zoom_current); // zoom_current currently 0
     EEPROM.write(3, zoom_current);
     firstTime = true;
   }
@@ -345,7 +343,7 @@ void setup() {
 
     // set to minimum left
     int minFocus = calibrate(FOCUS, califocus_left, 50, -50, DEEPPINK);
-    setCurrentPos(FOCUS, focus_current); // set to 0
+    setCurrentPos(FOCUS, 0); // set to 0
     updateScreen(500);
 
     // set to maximum right
@@ -356,7 +354,6 @@ void setup() {
     EEPROM.write(0, focus_range);
 
     // minimum becomes absolute min pos
-    setCurrentPos(FOCUS, focus_current); // focus_current currently 0
     EEPROM.write(2, focus_current);
     firstTime = true;
   }
