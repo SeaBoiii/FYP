@@ -326,6 +326,7 @@ void setup() {
     
     // set to maximum right
     int maxZoom = calibrate(ZOOM, calizoom_right, MOTOR_STEPS, 0, AQUA);
+    moveMotor(ZOOM, 0); // returns back to 0
     zoom_range = maxZoom - minZoom;
     updateScreen(500);
     EEPROM.write(1, zoom_range);
@@ -349,7 +350,8 @@ void setup() {
 
     // set to maximum right
     int maxFocus = calibrate(FOCUS, califocus_right, MOTOR_STEPS, 0, DEEPPINK);
-    focus_range = maxFocus - minFocus;
+    moveMotor(FOCUS, 0); // returns back to 0
+    focus_range = maxFocus - minFocus; 
     updateScreen(500);
     EEPROM.write(0, focus_range);
 
