@@ -248,7 +248,7 @@ void setup() {
   tft.setTextSize(2);
 
   // This costs 2% (for aesthetic)
-  for(int i=0; i<10; i++) { // just to know if initialised properly
+  for(int i=0; i<5; i++) { // just to know if initialised properly
     tft.stroke(random(0, 255), random(0, 255), random(0, 255));
     tft.text("MOTOR ICM",6,80);
     delay(200);
@@ -458,6 +458,7 @@ void loop() {
           break;
         }
       }
+      break;
     }
 
     /* Zoom Movement */
@@ -492,11 +493,11 @@ void loop() {
         }
         default: {
           max_option = menu(4, zoom_menu, option, 4);
-          sscreen =
-          getUpdate(sscreen);
+          sscreen = getUpdate(sscreen);
           break;
         }
       }
+      break;
     }
 
     /* ZoomFocus Movements */
@@ -516,13 +517,13 @@ void loop() {
         }
         case 2: { // zoom to max, focus to min
           countdownMenu();
-          goMultiDist(string_22, zoom_range, 0, CORAL);
+          goMultiDist(string_39, zoom_range, 0, CORAL);
           sscreen = resetScreen(sscreen);
           break;
         }
         case 3: { // zoom to min, focus to max
           countdownMenu();
-          goMultiDist(string_39, 0, focus_range, CADETBLUE);
+          goMultiDist(string_40, 0, focus_range, CADETBLUE);
           sscreen = resetScreen(sscreen);
           break;
         }
@@ -538,7 +539,7 @@ void loop() {
           
           delay(500);
           countdownMenu();
-          goMultiDist(string_40, zoom_desired, focus_desired, LIME);
+          goMultiDist(string_22, zoom_desired, focus_desired, LIME);
           sscreen = resetScreen(sscreen);
           break;
         }
@@ -553,6 +554,7 @@ void loop() {
           break;
         }
       }
+      break;
     }
     
     /* Fixed Patterns */ //Todo
@@ -571,6 +573,7 @@ void loop() {
           sscreen = getUpdate(sscreen);
           break;
       }
+      break;
     }
 
     /* Custom Patterns */ //Todo
