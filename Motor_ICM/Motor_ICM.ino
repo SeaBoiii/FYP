@@ -86,12 +86,8 @@ const char string_6[] PROGMEM = "Focus Recalibration";
 const char string_7[] PROGMEM = "RESET all values";
 
 const char string_12[] PROGMEM = "|---- Settings -----|";
-const char string_13[] PROGMEM = "Zoom/Focus Position";
+const char string_13[] PROGMEM = "Swap Motor Position";
 const char string_14[] PROGMEM = "Camera Shutter Speed";
-
-const char string_15[] PROGMEM = "|----Positioning----|";
-const char string_16[] PROGMEM = "Zoom at the back";
-const char string_17[] PROGMEM = "Zoom at the front";
 
 const char shutter_menu[] PROGMEM = "|---Shutter Speed---|";
 
@@ -141,7 +137,6 @@ const char string_38[] PROGMEM = "to desired Outcome";
 const char *const main_menu[] PROGMEM = {mm_0, mm_1, mm_2, mm_3, mm_4, mm_5, mm_6, mm_7, mm_8};
 const char *const recalibration_menu[] PROGMEM {string_4, string_5, string_6, string_7, back};
 const char *const settings_menu[] PROGMEM = {string_12, string_13, string_14, back};
-const char *const positioning_menu[] PROGMEM = {string_15, string_16, string_17, back};
 const char *const focus_menu[] PROGMEM = {string_19, string_20, string_21, string_22, back};
 const char *const zoom_menu[] PROGMEM = {string_23, string_24, string_25, string_26, back};
 const char *const zoomfocus_menu[] PROGMEM = {string_27, string_28, string_29, string_39, string_40, string_30, back};
@@ -290,7 +285,7 @@ void setup() {
   // ** sets up shutter speed **
   if (shutter_speed == 255) {  
     shutter_speed = 1;
-    hotbar(shutter_menu, shutter_speed, 40, 0, false, 0, 1);
+    hotbar(shutter_menu, shutter_speed, 40, 0, false, 0, 1, GOLDENROD);
     do {
       hotbar(shutter_menu, shutter_speed, 40, 0, false, 0, 1, GOLDENROD, true);
       shutter_speed = getLeftRight(40, shutter_speed,1, 0);
@@ -379,28 +374,13 @@ void loop() {
     /* Camera Settings */
     case 0: {
       switch (sscreen) {
-        case 0: // ** orientation menu **
-          switch(ssscreen) {
-            case 0: // zoom at the back
-              orientation = 0;
-              ssscreen = -1;
-              break;
-            case 1: // zoom at the front
-              orientation = 1;
-              ssscreen = -1;
-              break;
-            case 2: // back
-              ssscreen = -1;
-              sscreen = -1;
-              EEPROM.write(4,orientation);
-              break;
-            default:
-              max_option = menu(3, positioning_menu, option, 1);
-              ssscreen = getUpdate(ssscreen);
-              break;
-          }
+        case 0: {// ** orientation menu **
+          orientation = orientation ? 0 : 1;
+          EEPROM.write(4,orientation);
+          //sscreen = resetScreen(sscreen);
+          sscreen = -1;
           break;
-   
+        }
         case 1: // ** shutter menu **
           option = 0;
           hotbar(shutter_menu, shutter_speed, 40, option, true);
