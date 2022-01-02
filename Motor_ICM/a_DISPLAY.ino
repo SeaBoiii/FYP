@@ -27,7 +27,7 @@ int menu(int array_size, const char *const string_table[], int option_selected, 
   int rect_y = 9;
   
   if (header != 0) {
-    if (header > 1) {
+    if (header > 0) {
       tft.setTextColor(AQUA);
       tft.print(F("Shutter Speed: "));
       tft.setTextColor(WHITE);
