@@ -279,95 +279,17 @@ void setup() {
   } else if (zoom_current != 255) {
     setCurrentPos(ZOOM, zoom_current * MS_STEP);
   }
-  
-  // ****** Setup Menu ******
-  // Only run through if ranges are invalid
-  // if range == 255
-
-  // ** sets up shutter speed **
-  if (shutter_speed == 255) {  
-    shutter_speed = 1;
-    hotbar(shutter_menu, shutter_speed, 40, 0, false, 0, 1, GOLDENROD);
-    do {
-      hotbar(shutter_menu, shutter_speed, 40, 0, false, 0, 1, GOLDENROD, true);
-      shutter_speed = getLeftRight(40, shutter_speed,1, 0);
-    } while(digitalRead(SET));
-    EEPROM.write(5, shutter_speed);
-    updateScreen(500);
-    firstTime = true;
-  }
-
-  // ** gets the motor orientation **
-  if (orientation == 255 || zoom_range == 255 || focus_range == 255) {
-    int choice = 0;
-    do {
-      orientation = choice ? 1 : 0;
-      menu(2, positioning_menu, choice, -1);
-      choice = getUpDown(2, choice, 0);
-    } while (digitalRead(SET));
-    updateScreen(500);
-    EEPROM.write(4, orientation); 
-    firstTime = true;
-  }
-  
-  // ** calibrate zoom ** 
-  if (zoom_range == 255) {
-    zoom_current = 0;
-    setAccel(ZOOM, CALI_ACCEL);
-    setCurrentPos(ZOOM, 0);
-
-    // set to minimum left
-    int minZoom = calibrate(ZOOM, calizoom_left, 50, -50, AQUA);
-    setCurrentPos(ZOOM, 0); // set to 0
-    updateScreen(500);
-    
-    // set to maximum right
-    int maxZoom = calibrate(ZOOM, calizoom_right, MOTOR_STEPS, 0, AQUA);
-    moveMotor(ZOOM, 0); // returns back to 0
-    zoom_range = maxZoom - minZoom;
-    updateScreen(500);
-    EEPROM.write(1, zoom_range);
-
-    // minimum becomes absolute min pos
-    EEPROM.write(3, zoom_current);
-    firstTime = true;
-  }
-
-  // ** calibrate focus **
   if (focus_range == 255) {
-    focus_current = 0;
-    setAccel(FOCUS, CALI_ACCEL);
-    setCurrentPos(FOCUS, 0);
-
-    // set to minimum left
-    int minFocus = calibrate(FOCUS, califocus_left, 50, -50, DEEPPINK);
-    setCurrentPos(FOCUS, 0); // set to 0
-    updateScreen(500);
-
-    // set to maximum right
-    int maxFocus = calibrate(FOCUS, califocus_right, MOTOR_STEPS, 0, DEEPPINK);
-    moveMotor(FOCUS, 0); // returns back to 0
-    focus_range = maxFocus - minFocus; 
-    updateScreen(500);
-    EEPROM.write(0, focus_range);
-
-    // minimum becomes absolute min pos
-    EEPROM.write(2, focus_current);
-    firstTime = true;
+    focus_range = 0;
   }
-
-  // ** set image position (KIV)**
-  if (firstTime) {
-    setAccel(ZOOM, CALI_ACCEL);
-    setAccel(FOCUS, CALI_ACCEL);
-    
-    zoom_current = chooseDist(ZOOM, 3, zoom_adjust, false, AQUA);
-    EEPROM.write(3, zoom_current);
-    updateScreen(500);
-    focus_current = chooseDist(FOCUS, 3, focus_adjust, false, DEEPPINK);
-    EEPROM.write(2, focus_current);
-    updateScreen(500);
-    firstTime = false;
+  if (zoom_range == 255) {
+    zoom_range = 0;
+  }
+  if (orientation == 255) {
+    orientation = 0;
+  }
+  if (shutter_speed == 255) {
+    shutter_speed = 1;
   }
 }
 
@@ -466,8 +388,6 @@ void loop() {
           EEPROM.write(1,255);
           EEPROM.write(2,255);
           EEPROM.write(3,255);
-          EEPROM.write(4,255);
-          EEPROM.write(5,255);
           resetFunc();
           break; 
         }
