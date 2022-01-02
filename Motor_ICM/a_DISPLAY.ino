@@ -244,6 +244,30 @@ void hotbar(char title[], int current, int max_range, int current_option=0, bool
         tft.setCursor(17,149);
         tft.println(F(": Press to set"));
         break;
+      case 4: { // for zoom calibration
+        tft.drawChar(2,115,RIGHT_ARROW,WHITE,BLACK,2);
+        tft.setCursor(17,119);
+        tft.println(": to tele lens");
+        tft.drawChar(2,130,LEFT_ARROW,WHITE,BLACK,2);
+        tft.setCursor(17,134);
+        tft.println(": to widest lens");
+        tft.drawChar(2,145,SELECT,WHITE,BLACK,2);
+        tft.setCursor(17,149);
+        tft.println(F(": Press to set"));
+        break;
+      }
+      case 5: { // for focus calibration
+        tft.drawChar(2,115,RIGHT_ARROW,WHITE,BLACK,2);
+        tft.setCursor(17,119);
+        tft.println(": to infinity");
+        tft.drawChar(2,130,LEFT_ARROW,WHITE,BLACK,2);
+        tft.setCursor(17,134);
+        tft.println(": to min focal len");
+        tft.drawChar(2,145,SELECT,WHITE,BLACK,2);
+        tft.setCursor(17,149);
+        tft.println(F(": Press to set"));
+        break;
+      }
       default:
       break;
     }
@@ -270,9 +294,9 @@ void updateScreen(float delay_ms=0) {
 /* --- Calibrate Screen ---
  * String_table will determine if zoom/focus
  */
-void caliMenu(const char *const string_table[], int current_step, int max_steps=200, uint16_t color=WHITE, bool updateBar=false) {
+void caliMenu(int type, const char *const string_table[], int current_step, int max_steps=200, uint16_t color=WHITE, bool updateBar=false) {
   if (!updateMenu) return;
-  hotbar(NULL, current_step, max_steps, 0, false, false, 1, color, updateBar);
+  hotbar(NULL, current_step, max_steps, 0, false, 0, type?4:5, color, updateBar);
   int i = 0;
   tft.setCursor(0,0);
   tft.setTextColor(color);

@@ -192,7 +192,7 @@ bool firstTime = false;
 // Function Declaration
 int menu(int array_size, const char *const string_table[], int option_selected, int header=0, int footer=2, uint16_t color=DEEPPINK);
 void hotbar(char title[], int current, int max_range, int current_option=0, bool haveBack=false, int header=0, int footer=3, uint16_t color=WHITE, bool updateBar=false);
-void caliMenu(const char *const string_table[], int current_step, int max_steps=200, uint16_t color=WHITE, bool updateBar=false);
+void caliMenu(int type, const char *const string_table[], int current_step, int max_steps=200, uint16_t color=WHITE, bool updateBar=false);
 void moveMotorMenu(int count, const char *const string_table[], int current_step, int max_steps, uint16_t color=WHITE, bool updateBar=false);
 void updateScreen(float delay_ms=0);
 int getUpDown(int option, int current_option, int delay_ms=0);
@@ -333,24 +333,24 @@ void loop() {
       switch(sscreen) {
         // ** zoom calibration **
         case 0: {
-          setCurrentPos(ZOOM, zoom_current * MS_STEP);
-          setAccel(ZOOM, CALI_ACCEL);
-
-          moveMotor(ZOOM, zoom_range);
-          zoom_current = zoom_range;
-          zoom_current = calibrate(ZOOM, calizoom_right, MOTOR_STEPS, 0);
-          int maxZoom = zoom_current;
-          updateScreen(500);
-
-          moveMotor(ZOOM, 0);
           zoom_current = 0;
-          zoom_current = calibrate(ZOOM, calizoom_left, maxZoom, maxZoom-MOTOR_STEPS);
-          zoom_range = maxZoom - zoom_current;
-          updateScreen();
-          EEPROM.write(1, zoom_range);
+          moveMotor(ZOOM, zoom_current);
+          setAccel(ZOOM, CALI_ACCEL);
+          setCurrentPos(ZOOM, 0);
+      
+          // set to minimum left
+          int minZoom = calibrate(ZOOM, calizoom_left, 50, -50, AQUA);
+          setCurrentPos(ZOOM, 0); // set to 0
+          updateScreen(500);
           
-          zoom_current = 0; // minimum becomes absolute min pos
-          setCurrentPos(ZOOM, zoom_current);
+          // set to maximum right
+          int maxZoom = calibrate(ZOOM, calizoom_right, MOTOR_STEPS, 0, AQUA);
+          moveMotor(ZOOM, 0); // returns back to 0
+          zoom_range = maxZoom - minZoom;
+          updateScreen(500);
+          EEPROM.write(1, zoom_range);
+      
+          // minimum becomes absolute min pos
           EEPROM.write(3, zoom_current);
           sscreen = resetScreen(sscreen);
           break;
@@ -358,24 +358,24 @@ void loop() {
         
         // ** focus calibration **
         case 1: {
-          setCurrentPos(FOCUS, focus_current * MS_STEP);
-          setAccel(FOCUS, CALI_ACCEL);
-
-          moveMotor(FOCUS, focus_range);
-          focus_current = focus_range;
-          focus_current = calibrate(FOCUS, califocus_right, MOTOR_STEPS, 0);
-          int maxFocus = focus_current;
-          updateScreen(500);
-
-          moveMotor(FOCUS, 0);
           focus_current = 0;
-          focus_current = calibrate(FOCUS, califocus_left, maxFocus, maxFocus-MOTOR_STEPS);
-          focus_range = maxFocus - focus_current;
-          updateScreen();
+          moveMotor(FOCUS, focus_current);
+          setAccel(FOCUS, CALI_ACCEL);
+          setCurrentPos(FOCUS, 0);
+      
+          // set to minimum left
+          int minFocus = calibrate(FOCUS, califocus_left, 50, -50, DEEPPINK);
+          setCurrentPos(FOCUS, 0); // set to 0
+          updateScreen(500);
+      
+          // set to maximum right
+          int maxFocus = calibrate(FOCUS, califocus_right, MOTOR_STEPS, 0, DEEPPINK);
+          moveMotor(FOCUS, 0); // returns back to 0
+          focus_range = maxFocus - minFocus; 
+          updateScreen(500);
           EEPROM.write(0, focus_range);
-          
-          focus_current = 0; // minimum becomes absolute min pos
-          setCurrentPos(ZOOM, focus_current);
+      
+          // minimum becomes absolute min pos
           EEPROM.write(2, focus_current);
           sscreen = resetScreen(sscreen);
           break;
