@@ -92,19 +92,17 @@ const char string_14[] PROGMEM = "Camera Shutter Speed";
 const char shutter_menu[] PROGMEM = "|Shutter Speed(in s)|";
 
 const char string_19[] PROGMEM = "|--Focus Movements--|";
-const char string_20[] PROGMEM = "Focus to Max";
-const char string_21[] PROGMEM = "Focus to Min";
-const char string_22[] PROGMEM = "Focus to a Value";
+const char string_20[] PROGMEM = "Move to infinity";
+const char string_21[] PROGMEM = "Move to min distance";
+const char string_22[] PROGMEM = "Move to a Value";
 
 const char string_23[] PROGMEM = "|--Zoom Movements --|";
-const char string_24[] PROGMEM = "Zoom to Max";
-const char string_25[] PROGMEM = "Zoom to Min";
-const char string_26[] PROGMEM = "Zoom to a Value";
+const char string_24[] PROGMEM = "Move to tele";
+const char string_25[] PROGMEM = "Move to widest";
 
 const char string_27[] PROGMEM = "|Zoom&Focus Movement|";
-const char string_28[] PROGMEM = "ZoomFocus to Max";
-const char string_29[] PROGMEM = "ZoomFocus to Min";
-const char string_30[] PROGMEM = "ZoomFocus to a Value";
+const char string_28[] PROGMEM = "Move to Max";
+const char string_29[] PROGMEM = "Move to Min";
 const char string_39[] PROGMEM = "Zoom[MAX]&Focus[MIN]";
 const char string_40[] PROGMEM = "Zoom[MIN]&Focus[MAX]";
 
@@ -130,8 +128,8 @@ const char counttext_5[] PROGMEM = "SNAP!";
 
 const char adjust_zoom[] PROGMEM = "|--- Adjust Zoom ---|";
 const char adjust_focus[] PROGMEM = "|---Adjust Focus ---|";
-const char string_36[] PROGMEM = "Adjust [ZOOM] lens";
-const char string_36_1[] PROGMEM = "Adjust [FOCUS] lens";
+const char string_36[] PROGMEM = "Adjust [ZOOM] ring";
+const char string_36_1[] PROGMEM = "Adjust [FOCUS] ring";
 const char string_37[] PROGMEM = "to the desired POV";
 const char string_38[] PROGMEM = "to desired Outcome";
 
@@ -140,8 +138,8 @@ const char *const main_menu[] PROGMEM = {mm_0, mm_1, mm_2, mm_3, mm_4, mm_5, mm_
 const char *const recalibration_menu[] PROGMEM = {string_4, string_5, string_6, string_7, back};
 const char *const settings_menu[] PROGMEM = {string_12, string_13, string_14, back};
 const char *const focus_menu[] PROGMEM = {string_19, string_20, string_21, string_22, back};
-const char *const zoom_menu[] PROGMEM = {string_23, string_24, string_25, string_26, back};
-const char *const zoomfocus_menu[] PROGMEM = {string_27, string_28, string_29, string_39, string_40, string_30, back};
+const char *const zoom_menu[] PROGMEM = {string_23, string_24, string_25, string_22, back};
+const char *const zoomfocus_menu[] PROGMEM = {string_27, string_28, string_29, string_39, string_40, string_22, back};
 const char *const presets_menu[] PROGMEM = {string_31, string_32, string_33, string_34, string_35, back};
 const char *const calizoom_left[] PROGMEM = {cali_zoom, string_cali, zoom_left};
 const char *const calizoom_right[] PROGMEM = {cali_zoom, string_cali, zoom_right};
@@ -151,8 +149,8 @@ const char *const countdown[] PROGMEM = {counttext_1, counttext_2, counttext_3, 
 const char *const zoom_adjust[] PROGMEM = {adjust_zoom, string_36, string_37};
 const char *const focus_adjust[] PROGMEM = {adjust_focus, string_36_1, string_37};
 const char *const focus_dist[] PROGMEM = {string_22, string_36, string_38};
-const char *const zoom_dist[] PROGMEM = {string_26, string_36, string_38};
-const char *const zoomfocus_dist[] PROGMEM = {string_30, string_36, string_38};
+const char *const zoom_dist[] PROGMEM = {string_22, string_36, string_38};
+const char *const zoomfocus_dist[] PROGMEM = {string_22, string_36, string_38};
 
 // Object Declaration
 /* Motor Objects */
@@ -483,7 +481,7 @@ void loop() {
           updateScreen();
           delay(500);
           countdownMenu();
-          goDist(ZOOM, string_26, pos_desired, YELLOWGREEN);
+          goDist(ZOOM, string_22, pos_desired, YELLOWGREEN);
           sscreen = resetScreen(sscreen);
           break;
         }
@@ -518,7 +516,7 @@ void loop() {
         }
         case 2: { // zoom to max, focus to min
           countdownMenu();
-          goMultiDist(string_30, zoom_range, 0, CORAL);
+          goMultiDist(string_22, zoom_range, 0, CORAL);
           sscreen = resetScreen(sscreen);
           break;
         }
