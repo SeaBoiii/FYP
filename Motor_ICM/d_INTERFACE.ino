@@ -8,9 +8,9 @@
 int calibrate(int type, const char *const string_table[], int upper_limit, int lower_limit, uint16_t color=WHITE) {
   int pos_current;
   pos_current = type ? zoom_current : focus_current;
-  caliMenu(string_table, pos_current, upper_limit, color);
+  caliMenu(type, string_table, pos_current, upper_limit, color);
   do {
-    caliMenu(string_table, pos_current, upper_limit, color, true);
+    caliMenu(type, string_table, pos_current, upper_limit, color, true);
     pos_current = getLeftRight(upper_limit, pos_current, lower_limit, 0);
     Serial.print("Pos current: ");
     Serial.println(pos_current);
