@@ -132,7 +132,7 @@ const char adjust_zoom[] PROGMEM = "|--- Adjust Zoom ---|";
 const char adjust_focus[] PROGMEM = "|---Adjust Focus ---|";
 const char string_36[] PROGMEM = "Adjust [ZOOM] lens";
 const char string_36_1[] PROGMEM = "Adjust [FOCUS] lens";
-const char string_37[] PROGMEM = "to the desired Image";
+const char string_37[] PROGMEM = "to the desired POV";
 const char string_38[] PROGMEM = "to desired Outcome";
 
 /* String Table */
@@ -409,6 +409,9 @@ void loop() {
     case 2: {
       setAccel(ZOOM, CALI_ACCEL);
       setAccel(FOCUS, CALI_ACCEL);
+      zoom_current = 0;
+      focus_current = 0;
+      moveMultiMotor(zoom_current, focus_current);
       
       zoom_current = chooseDist(ZOOM, 3, zoom_adjust, false, AQUA);
       EEPROM.write(3, zoom_current);
