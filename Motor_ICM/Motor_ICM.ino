@@ -119,7 +119,7 @@ const char cali_focus[] PROGMEM = "|--Calibrate Focus--|";
 const char string_cali[] PROGMEM = "Move the joystick to \n";
 const char zoom_left[] PROGMEM = "the widest lens";
 const char zoom_right[] PROGMEM = "the tele lens";
-const char focus_left[] PROGMEM = "the min. distance";
+const char focus_left[] PROGMEM = "min. focal length";
 const char focus_right[] PROGMEM = "   infinity";
 
 const char counttext_1[] PROGMEM = "Get Ready!";
