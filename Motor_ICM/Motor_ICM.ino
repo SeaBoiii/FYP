@@ -89,7 +89,7 @@ const char string_12[] PROGMEM = "|---- Settings -----|";
 const char string_13[] PROGMEM = "Swap Motor Position";
 const char string_14[] PROGMEM = "Camera Shutter Speed";
 
-const char shutter_menu[] PROGMEM = "|---Shutter Speed---|";
+const char shutter_menu[] PROGMEM = "|Shutter Speed(in s)|";
 
 const char string_19[] PROGMEM = "|--Focus Movements--|";
 const char string_20[] PROGMEM = "Focus to Max";
