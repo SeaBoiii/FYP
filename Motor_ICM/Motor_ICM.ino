@@ -382,14 +382,13 @@ void loop() {
           break;
         }
         case 1: // ** shutter menu **
-          option = 0;
-          hotbar(shutter_menu, shutter_speed, 40, option, true);
+          hotbar(shutter_menu, shutter_speed, 40, 0, false, 0, 1, GOLDENROD);
           do {
-            hotbar(shutter_menu, shutter_speed, 40, option, true, 0, 3, GOLDENROD, true);
-            option = getUpDown(2, option, 0);
-            if (!option) shutter_speed = getLeftRight(40, shutter_speed,1, 0);
-          } while(!(!digitalRead(SET) && option));
+            hotbar(shutter_menu, shutter_speed, 40, 0, false, 0, 1, GOLDENROD, true);
+            shutter_speed = getLeftRight(40, shutter_speed,1, 0);
+          } while(digitalRead(SET));
           EEPROM.write(5, shutter_speed);
+          updateScreen(500);
           sscreen = resetScreen(sscreen);
           break;
         
