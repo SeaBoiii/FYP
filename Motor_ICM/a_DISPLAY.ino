@@ -143,7 +143,6 @@ int menu(int array_size, const char *const string_table[], int option_selected, 
  *  bool header - Header for the hotbar [false] 
  *  int footer - Type of footer to display [1]
  */
-
 void hotbar(char title[], int current, int max_range, int current_option=0, bool haveBack=false, int header=0, int footer=3, uint16_t color=WHITE, bool updateBar=false) {
   if (!updateMenu) return;
   updateMenu = false;
@@ -276,7 +275,11 @@ void hotbar(char title[], int current, int max_range, int current_option=0, bool
   return;
 }
 
-/* Reset Screen */
+/* --- Reset Screen ---
+ * Sets option to 0
+ * updateMenu to true
+ * screen to -1
+ */
 int resetScreen(int s) {
   tft.background(0,0,0);
   s = -1;
@@ -285,6 +288,12 @@ int resetScreen(int s) {
   return s;
 }
 
+/* --- Updates Screen ---
+ * Updates the screen by:
+ * - Reset background to BLACK
+ * - updateMenu to true
+ * - variable delay (important when includes joystick readings)
+ */
 void updateScreen(float delay_ms=0) {
   delay(delay_ms);
   tft.background(0,0,0);
@@ -374,6 +383,10 @@ void countdownMenu() {
   updateScreen();
 }
 
+/*
+ * What is being displayed when motor is moving
+ * !! Currently a work in progress !!
+ */
 void printMoveSteps(int type, char title[], uint16_t color, bool goBack) {
   tft.setCursor(0,0);
   tft.setTextColor(AQUA);
