@@ -1,9 +1,7 @@
 // ******** MOTOR CONTROL Functions **********
 
 /* 
- *  Calc RPM 
- * - Based on calculations made
- *   100 RPM = 12.5 steps/s
+ *  -- Calc RPM --
  *   
  * Calculate RPM by ratio
  * May not be needed since the speed
@@ -22,6 +20,9 @@ float calcAccel(int steps, float seconds) {
   return (float)max_speed / seconds;
 }
 
+/*
+ * to MilliSeconds converter
+ */
 long toMS(float seconds) {
   return seconds * 1000;
 }

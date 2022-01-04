@@ -1,6 +1,7 @@
 // ICM Buddy for DSLR Cameras
 // Uses 2 NEMA motors, 1 TFT 1.8 Screen and a joystick
 
+// Library Used
 #include <AccelStepper.h>
 #include <MultiStepper.h>
 #include <TFT.h>
@@ -185,7 +186,6 @@ int screen = -1;    // main screen
 int sscreen = -1;   // sub screen
 int ssscreen = -1;
 int max_option = 0;
-bool firstTime = false;
 
 // Function Declaration
 int menu(int array_size, const char *const string_table[], int option_selected, int header=0, int footer=2, uint16_t color=DEEPPINK);
@@ -202,7 +202,7 @@ int chooseDist(int type, int count, const char *const string_table[], bool goBac
 void goDist(int type, char title[], int pos_desired, uint16_t color=WHITE, float shutter_spd = shutter_speed/2, bool goBack=true);
 void goMultiDist(char title[], int zoom_desired, int focus_desired, uint16_t color=WHITE, float shutter_spd = shutter_speed/2, bool goBack=true);
 void(* resetFunc) (void) = 0;
-void nikonTime() {
+void nikonTime() { // Controls the shutter of a Nikon camera
   digitalWrite(PRIME, LOW);   // close focus (half-pressed shutter)
   digitalWrite(SHUTTER, LOW); // close shutter (fully pressed)
   delay(1000);
@@ -210,6 +210,9 @@ void nikonTime() {
   digitalWrite(SHUTTER, HIGH);
 }
 
+/* 
+ * ~ SETUP ~
+ */
 void setup() {
   Serial.begin(9600);
 
@@ -259,7 +262,7 @@ void setup() {
 
   // ***** EEPROM Read *****
   // reads the stored memory
-  // if empty (==255), setting default values to 0
+  
   focus_range = EEPROM.read(0);
   zoom_range = EEPROM.read(1);
   focus_current = EEPROM.read(2);
@@ -267,6 +270,9 @@ void setup() {
   orientation = EEPROM.read(4);
   shutter_speed = EEPROM.read(5);
 
+  // ***** Default Values *****
+  // if empty (==255), setting default values to 0
+  // for current positions -> Move the motor to stored current 
   if (focus_current == 255) {
     focus_current = 0;
   } else if (focus_current != 255) {
@@ -291,6 +297,9 @@ void setup() {
   }
 }
 
+/*
+ * ~ LOOP ~
+ */
 void loop() {
   switch(screen) {
     /* Camera Settings */
@@ -589,11 +598,4 @@ void loop() {
       break;
   }
   option = getUpDown(max_option, option, 0);
-  /* debug
-  Serial.print("Screen: ");
-  Serial.println(screen);
-  Serial.print("SScreen: ");
-  Serial.println(sscreen);
-  Serial.print("SSScreen: ");
-  Serial.println(ssscreen); */
 }
