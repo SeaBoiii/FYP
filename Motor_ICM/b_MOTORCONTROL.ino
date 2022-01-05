@@ -99,7 +99,7 @@ void moveMotor(int type, int pos_desired, int shutter_spd=0) {
   Serial.println(stepper->currentPosition());
   if (shutter_spd != 0) {
     stepper->setAcceleration(calcAccel(abs(steps_to_move), (float)shutter_spd));
-  }
+  } 
   // if +ve, move clockwise
   // else -ve, move anti-clockwise
   //if (steps_to_move == 0) return;
@@ -110,6 +110,9 @@ void moveMotor(int type, int pos_desired, int shutter_spd=0) {
   //delay(shutter_spd);
   while (stepper->distanceToGo() != 0) {
     stepper->run();
+    if(shutter_spd != 0) {
+      delay(toMS((float)shutter_spd/abs(steps_to_move)));
+    }
   }
 }
 
