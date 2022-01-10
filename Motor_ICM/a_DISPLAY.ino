@@ -32,6 +32,10 @@ int menu(int array_size, const char *const string_table[], int option_selected, 
       tft.print(F("Shutter Speed: "));
       tft.setTextColor(WHITE);
       tft.println(shutter_speed);
+      tft.setTextColor(AQUA);
+      tft.print(F("Motor Time: "));
+      tft.setTextColor(WHITE);
+      tft.println(motor_time);
     }
     switch (header) {
       case -1:
