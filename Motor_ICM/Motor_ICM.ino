@@ -81,9 +81,9 @@ const char mm_6[] PROGMEM = "ZoomFocus Movements";
 const char mm_7[] PROGMEM = "Fixed Patterns";
 const char mm_8[] PROGMEM = "Customise Patterns";
 
-const char string_4[] PROGMEM = "|---Recalibration---|";
-const char string_5[] PROGMEM = "Zoom Recalibration";
-const char string_6[] PROGMEM = "Focus Recalibration";
+const char string_4[] PROGMEM = "|---Calibration---|";
+const char string_5[] PROGMEM = "Zoom Calibration";
+const char string_6[] PROGMEM = "Focus Calibration";
 const char string_7[] PROGMEM = "RESET all values";
 
 const char string_12[] PROGMEM = "|---- Settings -----|";
@@ -139,8 +139,6 @@ const char string_38[] PROGMEM = "to desired Outcome";
 /* String Table */
 const char *const main_menu[] PROGMEM = {mm_0, mm_1, mm_2, mm_3, mm_4, mm_5, mm_6, mm_7, mm_8};
 const char *const recalibration_menu[] PROGMEM = {string_4, string_5, string_6, string_7, back};
-const char *const settings_menu[] PROGMEM = {string_12, string_13, string_14, back};
-const char *const focus_menu[] PROGMEM = {string_19, string_20, string_21, string_22, back};
 const char *const zoom_menu[] PROGMEM = {string_23, string_24, string_25, string_22, back};
 const char *const settings_menu[] PROGMEM = {string_12, string_13, string_14, string_15, back};
 const char *const zoomfocus_menu[] PROGMEM = {string_27, string_28, string_29, string_39, string_40, string_22, back};

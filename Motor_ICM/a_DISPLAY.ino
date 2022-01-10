@@ -422,7 +422,7 @@ void printMoveSteps(int type, char title[], uint16_t color, bool goBack) {
     tft.setTextColor(RED);
     tft.print(F("PREVIOUS "));
     tft.setTextColor(WHITE);
-    tft.println(F("location"));
+    tft.println(F("POV location"));
   } else {
     tft.println(F("Moving to "));
     tft.setTextColor(LIGHTSKYBLUE);
