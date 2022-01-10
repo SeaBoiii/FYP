@@ -88,9 +88,11 @@ const char string_7[] PROGMEM = "RESET all values";
 
 const char string_12[] PROGMEM = "|---- Settings -----|";
 const char string_13[] PROGMEM = "Swap Motor Position";
-const char string_14[] PROGMEM = "Camera Shutter Speed";
+const char string_14[] PROGMEM = "Camera Shutter Time";
+const char string_15[] PROGMEM = "Motor Movement Time";
 
-const char shutter_menu[] PROGMEM = "|Shutter Speed(in s)|";
+const char shutter_menu[] PROGMEM = "|Shutter Time(in s)|";
+const char motor_time_menu[] PROGMEM = "Motor Move Time(in s)";
 
 const char string_19[] PROGMEM = "|--Focus Movements--|";
 const char string_20[] PROGMEM = "Move to infinity";
@@ -140,6 +142,7 @@ const char *const recalibration_menu[] PROGMEM = {string_4, string_5, string_6, 
 const char *const settings_menu[] PROGMEM = {string_12, string_13, string_14, back};
 const char *const focus_menu[] PROGMEM = {string_19, string_20, string_21, string_22, back};
 const char *const zoom_menu[] PROGMEM = {string_23, string_24, string_25, string_22, back};
+const char *const settings_menu[] PROGMEM = {string_12, string_13, string_14, string_15, back};
 const char *const zoomfocus_menu[] PROGMEM = {string_27, string_28, string_29, string_39, string_40, string_22, back};
 const char *const presets_menu[] PROGMEM = {string_31, string_32, string_33, string_34, string_35, back};
 const char *const calizoom_left[] PROGMEM = {cali_zoom, string_cali, zoom_left};
@@ -178,6 +181,7 @@ int focus_current;  // address 2
 int zoom_current;   // address 3
 int orientation;    // address 4
 int shutter_speed;  // address 5
+int motor_time;     // address 6
 
 // Global Variables
 int option = 0;
@@ -269,6 +273,7 @@ void setup() {
   zoom_current = EEPROM.read(3);
   orientation = EEPROM.read(4);
   shutter_speed = EEPROM.read(5);
+  motor_time = EEPROM.read(6);
 
   // ***** Default Values *****
   // if empty (==255), setting default values to 0
@@ -295,6 +300,9 @@ void setup() {
   if (shutter_speed == 255) {
     shutter_speed = 1;
   }
+  if (motor_time == 255) {
+    motor_time = 1;
+  }
 }
 
 /*
@@ -312,7 +320,7 @@ void loop() {
           sscreen = -1;
           break;
         }
-        case 1: // ** shutter menu **
+        case 1: // ** set shutter time **
           hotbar(shutter_menu, shutter_speed, 40, 0, false, 0, 1, GOLDENROD);
           do {
             hotbar(shutter_menu, shutter_speed, 40, 0, false, 0, 1, GOLDENROD, true);
@@ -322,14 +330,24 @@ void loop() {
           updateScreen(500);
           sscreen = resetScreen(sscreen);
           break;
-        
-        case 2: // ** back **
+        case 2: { // ** set motor movement time **
+          hotbar(motor_time_menu, motor_time, shutter_speed, 0, false, 0, 1, GOLDENROD);
+          do {
+            hotbar(motor_time_menu, motor_time, shutter_speed, 0, false, 0, 1, GOLDENROD, true);
+            motor_time = getLeftRight(shutter_speed, motor_time, 1);
+          } while(digitalRead(SET));
+          EEPROM.write(6, motor_time);
+          updateScreen(500);
+          sscreen = resetScreen(sscreen);
+          break;
+        }
+        case 3: // ** back **
           screen = -1;
           sscreen = -1;
           break;
 
         default: // [settings menu]
-          max_option = menu(3, settings_menu, option, 1);
+          max_option = menu(4, settings_menu, option, 1);
           sscreen = getUpdate(sscreen);
       }
       break;
