@@ -81,9 +81,9 @@ const char mm_6[] PROGMEM = "ZoomFocus Movements";
 const char mm_7[] PROGMEM = "Fixed Patterns";
 const char mm_8[] PROGMEM = "Customise Patterns";
 
-const char string_4[] PROGMEM = "|---Recalibration---|";
-const char string_5[] PROGMEM = "Zoom Recalibration";
-const char string_6[] PROGMEM = "Focus Recalibration";
+const char string_4[] PROGMEM = "|---Calibration---|";
+const char string_5[] PROGMEM = "Zoom Calibration";
+const char string_6[] PROGMEM = "Focus Calibration";
 const char string_7[] PROGMEM = "RESET all values";
 
 const char string_12[] PROGMEM = "|---- Settings -----|";
@@ -139,8 +139,6 @@ const char string_38[] PROGMEM = "to desired Outcome";
 /* String Table */
 const char *const main_menu[] PROGMEM = {mm_0, mm_1, mm_2, mm_3, mm_4, mm_5, mm_6, mm_7, mm_8};
 const char *const recalibration_menu[] PROGMEM = {string_4, string_5, string_6, string_7, back};
-const char *const settings_menu[] PROGMEM = {string_12, string_13, string_14, back};
-const char *const focus_menu[] PROGMEM = {string_19, string_20, string_21, string_22, back};
 const char *const zoom_menu[] PROGMEM = {string_23, string_24, string_25, string_22, back};
 const char *const settings_menu[] PROGMEM = {string_12, string_13, string_14, string_15, back};
 const char *const zoomfocus_menu[] PROGMEM = {string_27, string_28, string_29, string_39, string_40, string_22, back};
@@ -160,8 +158,6 @@ const char *const zoomfocus_dist[] PROGMEM = {string_22, string_36, string_38};
 /* Motor Objects */
 AccelStepper rear_motor(AccelStepper::DRIVER, rear_STEP, rear_DIR);
 AccelStepper front_motor(AccelStepper::DRIVER, front_STEP, front_DIR);
-
-MultiStepper steppers;
 
 /* Display Object */
 TFT tft(CS, DC, RST);
@@ -203,8 +199,8 @@ void moveMotor(int type, int pos_desired, int shutter_spd=0);
 void moveMultiMotor(float zoom_value, float focus_value, float shutter_spd=0);
 int calibrate(int type, const char *const string_table[], int upper_limit, int lower_limit, uint16_t color=WHITE);
 int chooseDist(int type, int count, const char *const string_table[], bool goBack=false, uint16_t color=WHITE);
-void goDist(int type, char title[], int pos_desired, uint16_t color=WHITE, float shutter_spd = shutter_speed/2, bool goBack=true);
-void goMultiDist(char title[], int zoom_desired, int focus_desired, uint16_t color=WHITE, float shutter_spd = shutter_speed/2, bool goBack=true);
+void goDist(int type, char title[], int pos_desired, uint16_t color=WHITE, bool goBack=true, float shutter_spd=motor_time);
+void goMultiDist(char title[], int zoom_desired, int focus_desired, uint16_t color=WHITE, bool goBack=true, float shutter_spd=motor_time);
 void(* resetFunc) (void) = 0;
 void nikonTime() { // Controls the shutter of a Nikon camera
   digitalWrite(PRIME, LOW);   // close focus (half-pressed shutter)
@@ -242,9 +238,6 @@ void setup() {
   // motor using accelstepper lib
   rear_motor.setMaxSpeed(RPM);
   front_motor.setMaxSpeed(RPM);
-
-  steppers.addStepper(rear_motor);
-  steppers.addStepper(front_motor);
   
   // ***** Display *****
   // able to call out similar functions
@@ -423,7 +416,7 @@ void loop() {
           sscreen = -1;
           break;
         default:
-          max_option = menu(4, recalibration_menu, option, 2);
+          max_option = menu(4, recalibration_menu, option, -2);
           sscreen = getUpdate(sscreen);
           break;
       }
@@ -432,11 +425,14 @@ void loop() {
     
     /* POV Calibration */
     case 2: {
+      updateScreen();
       setAccel(ZOOM, CALI_ACCEL);
       setAccel(FOCUS, CALI_ACCEL);
       zoom_current = 0;
       focus_current = 0;
-      moveMultiMotor(zoom_current, focus_current);
+      moveMotor(FOCUS, focus_current);
+      moveMotor(ZOOM, zoom_current);
+      //moveMultiMotor(zoom_current, focus_current);
       
       zoom_current = chooseDist(ZOOM, 3, zoom_adjust, false, AQUA);
       EEPROM.write(3, zoom_current);
@@ -452,7 +448,7 @@ void loop() {
     /* Focus Movement */
     case 3: {
       switch(sscreen) { 
-        case 0: { // focus to max
+        case 0: { // focus to infinity
           countdownMenu();
           goDist(FOCUS, string_20, focus_range, SNOW);
           sscreen = resetScreen(sscreen);

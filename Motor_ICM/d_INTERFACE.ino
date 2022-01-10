@@ -50,10 +50,9 @@ int chooseDist(int type, int count, const char *const string_table[], bool goBac
   return pos_current;
 }
 
-void goDist(int type, char title[], int pos_desired, uint16_t color=WHITE, float shutter_spd = motor_time, bool goBack=true) {
-  int pos_current, upper_limit;
+void goDist(int type, char title[], int pos_desired, uint16_t color=WHITE, bool goBack=true, float shutter_spd=motor_time) {
+  int pos_current;
   pos_current = type ? zoom_current : focus_current;
-  upper_limit = type ? zoom_range : focus_range;
 
   printMoveSteps(type, title, color, false); 
   nikonTime();
@@ -69,8 +68,11 @@ void goDist(int type, char title[], int pos_desired, uint16_t color=WHITE, float
   updateScreen();
 }
 
-void goMultiDist(char title[], int zoom_desired, int focus_desired, uint16_t color=WHITE, float shutter_spd = motor_time, bool goBack=true) {
-  printMoveSteps(NULL, title, color, false);
+void goMultiDist(char title[], int zoom_desired, int focus_desired, uint16_t color=WHITE, bool goBack=true, float shutter_spd=motor_time) {
+  int prev_zoom, prev_focus;
+  prev_zoom = zoom_current;
+  prev_focus = focus_current;
+  printMoveSteps(3, title, color, false);
   nikonTime();
   moveMultiMotor(zoom_desired, focus_desired, shutter_spd);
   nikonTime();
@@ -78,8 +80,9 @@ void goMultiDist(char title[], int zoom_desired, int focus_desired, uint16_t col
 
   // returns to original spot
   if (goBack) {
-    printMoveSteps(NULL, title, color, true);
-    moveMultiMotor(zoom_current, focus_current, shutter_spd);
+    printMoveSteps(3, title, color, true);
+    moveMultiMotor(prev_zoom, prev_focus, 3);
+    //moveMultiMotor(prev_zoom, prev_focus);
   }
   updateScreen();
 }

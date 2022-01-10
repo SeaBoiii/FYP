@@ -8,7 +8,7 @@
  * in AccelMotor is in steps/s
  */
 float calcRPM(int steps, float seconds) {
-  return (steps * MS_STEP)/seconds;
+  return (float)(steps * MS_STEP)/seconds;
 }
 
 /*
@@ -93,21 +93,19 @@ void moveMotor(int type, int pos_desired, int shutter_spd=0) {
   }
   
   int steps_to_move = (pos_desired - pos_current) * MS_STEP;
+  /* DEBUG
   Serial.print("Steps to move: ");
   Serial.println(steps_to_move);
   Serial.print("Current Position: ");
-  Serial.println(stepper->currentPosition());
+  Serial.println(stepper->currentPosition()); */
   if (shutter_spd != 0) {
     stepper->setAcceleration(calcAccel(abs(steps_to_move), (float)shutter_spd));
   } 
   // if +ve, move clockwise
   // else -ve, move anti-clockwise
-  //if (steps_to_move == 0) return;
-  //stepper->moveTo((steps_to_move > 0) ? pos_desired * MS_STEP : -pos_desired * MS_STEP);
   stepper->moveTo(pos_desired * MS_STEP);
   
   //blocking statement
-  //delay(shutter_spd);
   while (stepper->distanceToGo() != 0) {
     stepper->run();
     if(shutter_spd != 0) {
@@ -148,6 +146,8 @@ void setCurrentPos(int type, float value) {
  * MultiStepper methods
  * Functions available: moveTo & runSpeedToPosition
  * To not move a motor, put '-1' in the value
+ * !!BEWARE!! Using multistepper motor, the speed cannot be adjusted. Hence, using this method is definitely not possible.
+ * However, there is still a possibility in doing this using a single loop and wait till both are done.
  */
 void moveMultiMotor(float zoom_value, float focus_value, float shutter_spd=0) {
   long positions[2]; // 0: rear motor, 1: front_motor
@@ -166,18 +166,34 @@ void moveMultiMotor(float zoom_value, float focus_value, float shutter_spd=0) {
     positions[1] = orientation ? zoom_value : focus_value;
   }
 
-  positions[0] = positions[0] * MS_STEP; // Add the microstep 
-  positions[1] = positions[1] * MS_STEP;
-  steppers.moveTo(positions);
-  
   //adjust speed accordingly
   if (!shutter_spd) {
-    float zoom_RPM = calcRPM(zoom_value, shutter_spd);
-    float focus_RPM = calcRPM(focus_value, shutter_spd);
-    rear_motor.setSpeed(orientation ? focus_RPM : zoom_RPM);
-    front_motor.setSpeed(orientation ? zoom_RPM : focus_RPM);
+    float zoom_RPM = 0;
+    float focus_RPM = 0;
+    if(zoom_value != -1) {
+      zoom_RPM = calcAccel(abs(zoom_value-zoom_current) * MS_STEP, (float)shutter_spd);
+    }
+    if (focus_value != -1) {
+      focus_RPM = calcAccel(abs(focus_value-focus_current) * MS_STEP, (float)shutter_spd);
+    }
+    rear_motor.setAcceleration(orientation ? focus_RPM : zoom_RPM);
+    front_motor.setAcceleration(orientation ? zoom_RPM : focus_RPM);
   }
 
-  steppers.runSpeedToPosition(); // Blocks until all are in position
+  rear_motor.moveTo(positions[0] * MS_STEP);
+  front_motor.moveTo(positions[1] * MS_STEP);
   
+  while (rear_motor.distanceToGo() != 0 || front_motor.distanceToGo() != 0) {
+    rear_motor.run();
+    front_motor.run();
+  } 
+
+  if (zoom_value == -1) {
+    focus_current = focus_value;
+  } else if (focus_value == -1) {
+    zoom_current = zoom_value;
+  } else {
+    focus_current = focus_value;
+    zoom_current = zoom_value;
+  }
 }

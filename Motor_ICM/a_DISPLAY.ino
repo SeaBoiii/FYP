@@ -32,6 +32,10 @@ int menu(int array_size, const char *const string_table[], int option_selected, 
       tft.print(F("Shutter Speed: "));
       tft.setTextColor(WHITE);
       tft.println(shutter_speed);
+      tft.setTextColor(AQUA);
+      tft.print(F("Motor Time: "));
+      tft.setTextColor(WHITE);
+      tft.println(motor_time);
     }
     switch (header) {
       case -1:
@@ -46,6 +50,7 @@ int menu(int array_size, const char *const string_table[], int option_selected, 
         tft.println(orientation ? "Focus" : "Zoom ");
         break;
       }
+      case -2:
       case 2: {
         tft.setTextColor(AQUA);
         tft.print(F("Focus Range: "));
@@ -84,7 +89,7 @@ int menu(int array_size, const char *const string_table[], int option_selected, 
       }
     }
     tft.println(); 
-    rect_y =42;
+    rect_y =52;
   }
 
   tft.setTextColor(color);
@@ -393,7 +398,22 @@ void printMoveSteps(int type, char title[], uint16_t color, bool goBack) {
   tft.print(F("Shutter Speed: "));
   tft.setTextColor(WHITE);
   tft.println(shutter_speed);
-  if (type != NULL) {
+  tft.setTextColor(AQUA);
+  tft.print(F("Motor Time: "));
+  tft.setTextColor(WHITE);
+  tft.println(motor_time);
+  if (type == NULL) {
+    // nothing
+  } else if (type == 3) {
+    tft.setTextColor(AQUA);
+    tft.print(F("Focus Range: "));
+    tft.setTextColor(WHITE);
+    tft.println(focus_range);
+    tft.setTextColor(AQUA);
+    tft.print(F("Zoom Range: "));
+    tft.setTextColor(WHITE);
+    tft.println(zoom_range);
+  } else {
     tft.setTextColor(AQUA);
     tft.print(type ? "Zoom" : "Focus");
     tft.print(F(" Range: "));
@@ -417,7 +437,7 @@ void printMoveSteps(int type, char title[], uint16_t color, bool goBack) {
     tft.setTextColor(RED);
     tft.print(F("PREVIOUS "));
     tft.setTextColor(WHITE);
-    tft.println(F("location"));
+    tft.println(F("POV location"));
   } else {
     tft.println(F("Moving to "));
     tft.setTextColor(LIGHTSKYBLUE);
