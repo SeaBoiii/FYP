@@ -398,7 +398,22 @@ void printMoveSteps(int type, char title[], uint16_t color, bool goBack) {
   tft.print(F("Shutter Speed: "));
   tft.setTextColor(WHITE);
   tft.println(shutter_speed);
-  if (type != NULL) {
+  tft.setTextColor(AQUA);
+  tft.print(F("Motor Time: "));
+  tft.setTextColor(WHITE);
+  tft.println(motor_time);
+  if (type == NULL) {
+    // nothing
+  } else if (type == 3) {
+    tft.setTextColor(AQUA);
+    tft.print(F("Focus Range: "));
+    tft.setTextColor(WHITE);
+    tft.println(focus_range);
+    tft.setTextColor(AQUA);
+    tft.print(F("Zoom Range: "));
+    tft.setTextColor(WHITE);
+    tft.println(zoom_range);
+  } else {
     tft.setTextColor(AQUA);
     tft.print(type ? "Zoom" : "Focus");
     tft.print(F(" Range: "));
