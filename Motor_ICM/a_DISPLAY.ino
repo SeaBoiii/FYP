@@ -50,6 +50,7 @@ int menu(int array_size, const char *const string_table[], int option_selected, 
         tft.println(orientation ? "Focus" : "Zoom ");
         break;
       }
+      case -2:
       case 2: {
         tft.setTextColor(AQUA);
         tft.print(F("Focus Range: "));
@@ -88,7 +89,7 @@ int menu(int array_size, const char *const string_table[], int option_selected, 
       }
     }
     tft.println(); 
-    rect_y =42;
+    rect_y =52;
   }
 
   tft.setTextColor(color);
