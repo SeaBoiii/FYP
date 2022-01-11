@@ -176,13 +176,16 @@ TFT tft(CS, DC, RST);
  *  - orientation     (Orientation of motors)
  *  - shutter_speed   (Shutter speed)
  */
-int focus_range;    // address 0
-int zoom_range;     // address 1
-int focus_current;  // address 2
-int zoom_current;   // address 3
-int orientation;    // address 4
-int shutter_speed;  // address 5
-int motor_time;     // address 6
+int focus_range;        // address 0
+int zoom_range;         // address 1
+int focus_current;      // address 2
+int zoom_current;       // address 3
+int orientation;        // address 4
+int shutter_speed;      // address 5
+int motor_time;         // address 6
+int custom_itemcount1;  // address 8
+int custom_itemcount2;  // address 9
+int custom_itemcount3;  // address 10
 
 // Global Variables
 int option = 0;
