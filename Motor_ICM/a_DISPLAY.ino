@@ -405,19 +405,19 @@ void printMoveSteps(int type, char title[], uint16_t color, int goBack) {
   if (type == NULL) {
     // nothing
   } else if (type == 3) {
-    tft.setTextColor(AQUA);
+    tft.setTextColor(AQUA, BLACK);
     tft.print(F("Focus Range: "));
-    tft.setTextColor(WHITE);
+    tft.setTextColor(WHITE, BLACK);
     tft.println(focus_range);
-    tft.setTextColor(AQUA);
+    tft.setTextColor(AQUA, BLACK);
     tft.print(F("Zoom Range: "));
-    tft.setTextColor(WHITE);
+    tft.setTextColor(WHITE, BLACK);
     tft.println(zoom_range);
   } else {
-    tft.setTextColor(AQUA);
+    tft.setTextColor(AQUA, BLACK);
     tft.print(type ? "Zoom" : "Focus");
     tft.print(F(" Range: "));
-    tft.setTextColor(WHITE);
+    tft.setTextColor(WHITE, BLACK);
     tft.println(type ? zoom_range : focus_range);
   }
   tft.println();
@@ -435,26 +435,27 @@ void printMoveSteps(int type, char title[], uint16_t color, int goBack) {
   switch(goBack) {
     case 0: {
       tft.println(F("Moving to "));
-      tft.setTextColor(LIGHTSKYBLUE);
+      tft.setTextColor(LIGHTSKYBLUE, BLACK);
       tft.print(F("DESIRED "));
-      tft.setTextColor(WHITE);
+      tft.setTextColor(WHITE, BLACK);
       tft.println(F("location"));
       break;
     }
     case 1: {
       tft.println(F("Returning to "));
-      tft.setTextColor(RED);
+      tft.setTextColor(RED, BLACK);
       tft.print(F("PREVIOUS "));
-      tft.setTextColor(WHITE);
+      tft.setTextColor(WHITE, BLACK);
       tft.println(F("POV location"));
       break;
     }
     case 2: {
       tft.println(F("Moving to "));
-      tft.setTextColor(LIME);
+      tft.setTextColor(LIME, BLACK);
       tft.print(F("STARTING "));
-      tft.setTextColor(WHITE);
+      tft.setTextColor(WHITE, BLACK);
       tft.println(F("position"));
+      break;
     }
     default: break;
   }
