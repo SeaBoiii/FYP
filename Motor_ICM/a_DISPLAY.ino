@@ -376,7 +376,7 @@ void countdownMenu() {
   tft.println("\n\n\nExposing camera to\nenvironment for...");
   tft.setTextSize(3);
   tft.setTextColor(AQUA);
-  for (int i=shutter_speed/2; i>0; i--) {
+  for (int i=(shutter_speed-motor_time); i>0; i--) {
     tft.setTextColor(AQUA,BLACK);
     tft.setCursor(20,120);
     tft.print(i);
@@ -392,7 +392,7 @@ void countdownMenu() {
  * What is being displayed when motor is moving
  * !! Currently a work in progress !!
  */
-void printMoveSteps(int type, char title[], uint16_t color, bool goBack) {
+void printMoveSteps(int type, char title[], uint16_t color, int goBack) {
   tft.setCursor(0,0);
   tft.setTextColor(AQUA);
   tft.print(F("Shutter Speed: "));
@@ -405,19 +405,19 @@ void printMoveSteps(int type, char title[], uint16_t color, bool goBack) {
   if (type == NULL) {
     // nothing
   } else if (type == 3) {
-    tft.setTextColor(AQUA);
+    tft.setTextColor(AQUA, BLACK);
     tft.print(F("Focus Range: "));
-    tft.setTextColor(WHITE);
+    tft.setTextColor(WHITE, BLACK);
     tft.println(focus_range);
-    tft.setTextColor(AQUA);
+    tft.setTextColor(AQUA, BLACK);
     tft.print(F("Zoom Range: "));
-    tft.setTextColor(WHITE);
+    tft.setTextColor(WHITE, BLACK);
     tft.println(zoom_range);
   } else {
-    tft.setTextColor(AQUA);
+    tft.setTextColor(AQUA, BLACK);
     tft.print(type ? "Zoom" : "Focus");
     tft.print(F(" Range: "));
-    tft.setTextColor(WHITE);
+    tft.setTextColor(WHITE, BLACK);
     tft.println(type ? zoom_range : focus_range);
   }
   tft.println();
@@ -432,17 +432,31 @@ void printMoveSteps(int type, char title[], uint16_t color, bool goBack) {
   tft.line(0, 75, tft.width(), 75);
   tft.setCursor(0, 85);
   tft.setTextColor(WHITE);
-  if (goBack) {
-    tft.println(F("Returning to "));
-    tft.setTextColor(RED);
-    tft.print(F("PREVIOUS "));
-    tft.setTextColor(WHITE);
-    tft.println(F("POV location"));
-  } else {
-    tft.println(F("Moving to "));
-    tft.setTextColor(LIGHTSKYBLUE);
-    tft.println(F("DESIRED "));
-    tft.setTextColor(WHITE);
-    tft.println(F("location"));
+  switch(goBack) {
+    case 0: {
+      tft.println(F("Moving to "));
+      tft.setTextColor(LIGHTSKYBLUE, BLACK);
+      tft.print(F("DESIRED "));
+      tft.setTextColor(WHITE, BLACK);
+      tft.println(F("location"));
+      break;
+    }
+    case 1: {
+      tft.println(F("Returning to "));
+      tft.setTextColor(RED, BLACK);
+      tft.print(F("PREVIOUS "));
+      tft.setTextColor(WHITE, BLACK);
+      tft.println(F("POV location"));
+      break;
+    }
+    case 2: {
+      tft.println(F("Moving to "));
+      tft.setTextColor(LIME, BLACK);
+      tft.print(F("STARTING "));
+      tft.setTextColor(WHITE, BLACK);
+      tft.println(F("position"));
+      break;
+    }
+    default: break;
   }
 }
