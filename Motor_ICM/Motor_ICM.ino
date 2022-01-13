@@ -3,7 +3,6 @@
 
 // Library Used
 #include <AccelStepper.h>
-#include <MultiStepper.h>
 #include <TFT.h>
 #include <SPI.h>
 #include <avr/pgmspace.h>
@@ -155,7 +154,7 @@ const char *const califocus_right[] PROGMEM = {cali_focus, string_cali, focus_ri
 const char *const countdown[] PROGMEM = {counttext_1, counttext_2, counttext_3, counttext_4, counttext_5};
 const char *const zoom_adjust[] PROGMEM = {adjust_zoom, string_36, string_37};
 const char *const focus_adjust[] PROGMEM = {adjust_focus, string_36_1, string_37};
-const char *const focus_dist[] PROGMEM = {string_22, string_36, string_38};
+const char *const focus_dist[] PROGMEM = {string_22, string_36_1, string_38};
 const char *const zoom_dist[] PROGMEM = {string_22, string_36, string_38};
 const char *const zoomfocus_dist[] PROGMEM = {string_22, string_36, string_38};
 
@@ -192,7 +191,7 @@ int option = 0;
 int updateMenu = true;
 int screen = -1;    // main screen
 int sscreen = -1;   // sub screen
-int ssscreen = -1;
+int ssscreen = -1;  // super sub screen
 int max_option = 0;
 
 // Function Declaration
@@ -361,7 +360,6 @@ void loop() {
         case 0: {
           zoom_current = 0;
           moveMotor(ZOOM, zoom_current);
-          setAccel(ZOOM, CALI_ACCEL);
           setCurrentPos(ZOOM, 0);
       
           // set to minimum left
@@ -386,7 +384,6 @@ void loop() {
         case 1: {
           focus_current = 0;
           moveMotor(FOCUS, focus_current);
-          setAccel(FOCUS, CALI_ACCEL);
           setCurrentPos(FOCUS, 0);
       
           // set to minimum left
@@ -434,8 +431,6 @@ void loop() {
     /* POV Calibration */
     case 2: {
       updateScreen();
-      setAccel(ZOOM, CALI_ACCEL);
-      setAccel(FOCUS, CALI_ACCEL);
       zoom_current = 0;
       focus_current = 0;
       moveMotor(FOCUS, focus_current);
@@ -650,7 +645,7 @@ void loop() {
           break;
         }
         case 3: { // Sine Wave Effect
-          coundownMenu();
+          countdownMenu();
           goDist(ZOOM, string_35, zoom_range, CORAL, false, motor_time/4);
           goDist(FOCUS, string_35, focus_range, CORAL, false, motor_time/4);
           goDist(ZOOM, string_35, 0, CORAL, false, motor_time/4);

@@ -103,6 +103,9 @@ void moveMotor(int type, int pos_desired, int shutter_spd=0) {
   if (shutter_spd != 0) {
     stepper->setAcceleration(calcAccel(abs(steps_to_move), (float)shutter_spd));
   } 
+  if (shutter_spd == 0) {
+    stepper->setAcceleration(CALI_ACCEL);
+  }
   // if +ve, move clockwise
   // else -ve, move anti-clockwise
   stepper->moveTo(pos_desired * MS_STEP);
