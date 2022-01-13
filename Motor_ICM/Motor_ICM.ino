@@ -536,15 +536,17 @@ void loop() {
         }
         case 3: { // focus to infinity & back
           countdownMenu();
+          int previous_pos = focus_current;
           goDist(FOCUS, string_41, focus_range, AZURE, false, motor_time/2);
-          goDist(FOCUS, string_41, focus_current, AZURE, false, motor_time/2);
+          goDist(FOCUS, string_41, previous_pos, AZURE, false, motor_time/2);
           sscreen = resetScreen(sscreen);
           break;
         }
         case 4: { // focus to min & back
           countdownMenu();
+          int previous_pos = focus_current;
           goDist(FOCUS, string_42, 0, CORAL, false, motor_time/2);
-          goDist(FOCUS, string_42, focus_current, CORAL, false, motor_time/2);
+          goDist(FOCUS, string_42, previous_pos, CORAL, false, motor_time/2);
           sscreen = resetScreen(sscreen);
           break;
         }
@@ -589,15 +591,17 @@ void loop() {
         }
         case 3: { // zoom to max & back
           countdownMenu();
+          int previous_pos = zoom_current;
           goDist(ZOOM, string_43, zoom_range, AZURE, false, motor_time/2);
-          goDist(ZOOM, string_43, zoom_current, AZURE, false, motor_time/2);
+          goDist(ZOOM, string_43, previous_pos, AZURE, false, motor_time/2);
           sscreen = resetScreen(sscreen);
           break;
         }
         case 4: { // zoom to min & back
           countdownMenu();
+          int previous_pos = zoom_current;
           goDist(ZOOM, string_44, 0, CORAL, false, motor_time/2);
-          goDist(ZOOM, string_44, zoom_current, CORAL, false, motor_time/2);
+          goDist(ZOOM, string_44, previous_pos, CORAL, false, motor_time/2);
           sscreen = resetScreen(sscreen);
         }
         case 5: { // back
@@ -671,49 +675,61 @@ void loop() {
       break;
     }
     
-    /* Fixed Patterns */ //Todo
+    /* Fixed Patterns */
     case 6: {
       switch (sscreen) {
         case 0: { // Bokeh Effect (S: Focus Max, Zoom Current. F: Focus Current, Zoom Widest)
-          printMoveSteps(NULL, string_32, CADETBLUE, 3); // setting lens to starting position
+          int previous_pos = focus_current;
+          printMoveSteps(NULL, string_32, CADETBLUE, 2); // setting lens to starting position
           moveMotor(FOCUS, focus_range);
+          focus_current = focus_range;
           updateScreen(2000);
           countdownMenu();
-          goDist(FOCUS, string_32, focus_current, VIOLET, false, motor_time/2);
+          goDist(FOCUS, string_32, previous_pos, VIOLET, false, motor_time/2);
           goDist(ZOOM, string_32, 0, VIOLET, true, motor_time/2);
           sscreen = resetScreen(sscreen);
           break;
         }
         case 1: { // Firework Effect (Focus Max, then min, then return to original)
-          printMoveSteps(NULL, string_33, CADETBLUE, 3); // setting lens to starting position
+          int previous_pos = focus_current;
+          printMoveSteps(NULL, string_33, CADETBLUE, 2); // setting lens to starting position
           moveMotor(FOCUS, focus_range);
+          focus_current = focus_range;
           updateScreen(2000);
           countdownMenu();
           goDist(FOCUS, string_33, 0, AZURE, false, ((float)3/4)*motor_time);
-          goDist(FOCUS, string_33, focus_current, AZURE, false, ((float)1/4)*motor_time);
+          goDist(FOCUS, string_33, previous_pos, AZURE, false, ((float)1/4)*motor_time);
           sscreen = resetScreen(sscreen);
           break;
         }
-        case 2: { // Zoom Blur Effect
-          printMoveSteps(NULL, string_33, CADETBLUE, 3); // setting lens to starting position
+        case 2: { // Zoom Blur Effect (Focus & Zoom Max then back to original)
+          int previous_zoom = zoom_current;
+          int previous_focus = focus_current;
+          printMoveSteps(NULL, string_33, CADETBLUE, 2); // setting lens to starting position
           moveMotor(FOCUS, focus_range); // will use multi motor if the timings issues are solved
           moveMotor(ZOOM, zoom_range);
+          zoom_current = zoom_range;
+          focus_current = focus_range;
           updateScreen(2000);
           countdownMenu();
-          goDist(ZOOM, string_34, zoom_current, LIME, false, motor_time/2);
-          goDist(FOCUS, string_34, focus_current, LIME, false, motor_time/2);
+          goDist(ZOOM, string_34, previous_zoom, LIME, false, motor_time/2);
+          goDist(FOCUS, string_34, previous_focus, LIME, false, motor_time/2);
           sscreen = resetScreen(sscreen);
           break;
         }
         case 3: { // Sine Wave Effect
           countdownMenu();
+          int previous_zoom = zoom_current;
+          int previous_focus = focus_current;
           goDist(ZOOM, string_35, zoom_range, CORAL, false, motor_time/4);
           goDist(FOCUS, string_35, focus_range, CORAL, false, motor_time/4);
           goDist(ZOOM, string_35, 0, CORAL, false, motor_time/4);
           goDist(FOCUS, string_35, 0, CORAL, false, motor_time/4);
           printMoveSteps(NULL, string_35, CADETBLUE, 1); // return to initial position
-          moveMotor(FOCUS, focus_current); 
-          moveMotor(ZOOM, zoom_current);
+          moveMotor(FOCUS, previous_focus); 
+          moveMotor(ZOOM, previous_zoom);
+          zoom_current = previous_zoom;
+          focus_current = previous_focus;
           sscreen = resetScreen(sscreen);
           break;
         }
@@ -736,6 +752,8 @@ void loop() {
           switch (ssscreen) {
             case 0: { // Execute Sequence
               splitStr(custom_buf1, custom_1, custom_itemcount1);
+              EEPROM.write(3, zoom_current);
+              EEPROM.write(4, focus_current);
               ssscreen = resetScreen(ssscreen);
               break;
             }
@@ -771,6 +789,8 @@ void loop() {
           switch (ssscreen) {
             case 0: { // Execute Sequence
               splitStr(custom_buf2, custom_2, custom_itemcount2);
+              EEPROM.write(3, zoom_current);
+              EEPROM.write(4, focus_current);
               ssscreen = resetScreen(ssscreen);
               break;
             }
@@ -805,6 +825,8 @@ void loop() {
           switch (ssscreen) {
             case 0: { // Execute Sequence
               splitStr(custom_buf3, custom_3, custom_itemcount3);
+              EEPROM.write(3, zoom_current);
+              EEPROM.write(4, focus_current);
               ssscreen = resetScreen(ssscreen);
               break;
             }

@@ -49,9 +49,13 @@ void checkSerial() {
 } */
 
 void splitStr(char* data, char title[], int custom_itemcount) {
+  char int_buf[25];
+  strcpy(int_buf, data);
+  Serial.println(int_buf);
   char* parameter;
-  parameter = strtok(data, " ,");
+  parameter = strtok(int_buf, " ,");
   while (parameter != NULL) {
+    Serial.println(parameter);
     setMotor(parameter, title, custom_itemcount);
     parameter = strtok(NULL, " ,");
   }
@@ -61,19 +65,24 @@ void setMotor(char* data, char title[], int custom_itemcount) {
   bool goBack = false;
   if ((data[1] == 'G' || data[1] == 'g')) {
     goBack = true;
+    Serial.println("goBack = true");
   }
   
   if ((data[0] == 'F') || (data[0] == 'f')) {
-    int steps = strtol(data+1, NULL, 10);
+    int steps = strtol(data+2, NULL, 10);
     // set focus motor steps to steps
     //moveMotor(FOCUS, steps, motor_time/custom_itemcount);
-    goDist(FOCUS, title, steps, SNOW, goBack, motor_time/custom_itemcount);
+    Serial.print("Focus moving to: ");
+    Serial.println(steps);
+    goDist(FOCUS, title, steps, SNOW, goBack, motor_time/custom_itemcount); 
   }
 
   if ((data[0] == 'Z') || (data[0] == 'z')) {
-    int steps = strtol(data+1, NULL, 10);
+    int steps = strtol(data+2, NULL, 10);
     // set zoom motor steps to steps
     //moveMotor(ZOOM, steps, motor_time/custom_itemcount);
+    Serial.print("Zoom moving to: ");
+    Serial.println(steps);
     goDist(ZOOM, title, steps, AZURE, goBack, motor_time/custom_itemcount);
   }
 }
