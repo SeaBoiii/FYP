@@ -30,8 +30,8 @@ long toMS(float seconds) {
 /*
  * Using Serial to Movement
  * - Not implemented fully
- * - Z/F R/L Steps
- * - e.g. ZR300 = zoom right 300 steps
+ * - Z/F Steps
+ * - e.g. Z300 = zoom to pos 300
  */
 void checkSerial() {
   if (Serial.available() > 0) {
@@ -47,24 +47,26 @@ void checkSerial() {
   }
 }
 
-void splitStr(char* data) {
+void splitStr(char* data, int custom_itemcount) {
   char* parameter;
   parameter = strtok(data, " ,");
   while (parameter != NULL) {
-    setMotor(parameter);
+    setMotor(parameter, custom_itemcount);
     parameter = strtok(NULL, " ,");
   }
 }
 
-void setMotor(char* data) {
+void setMotor(char* data, int custom_itemcount) {
   if ((data[0] == 'F') || (data[0] == 'f')) {
     int steps = strtol(data+1, NULL, 10);
     // set focus motor steps to steps
+    moveMotor(FOCUS, steps, motor_time/custom_itemcount);
   }
 
-  if ((data[0] == 'F') || (data[0] == 'f')) {
+  if ((data[0] == 'Z') || (data[0] == 'z')) {
     int steps = strtol(data+1, NULL, 10);
     // set zoom motor steps to steps
+    moveMotor(ZOOM, steps, motor_time/custom_itemcount);
   }
 }
 
@@ -101,6 +103,9 @@ void moveMotor(int type, int pos_desired, int shutter_spd=0) {
   if (shutter_spd != 0) {
     stepper->setAcceleration(calcAccel(abs(steps_to_move), (float)shutter_spd));
   } 
+  if (shutter_spd == 0) {
+    stepper->setAcceleration(CALI_ACCEL);
+  }
   // if +ve, move clockwise
   // else -ve, move anti-clockwise
   stepper->moveTo(pos_desired * MS_STEP);
