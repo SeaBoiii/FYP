@@ -47,9 +47,9 @@ int getLeftRight(int range, int current, int low_limit=0, int delay_ms=0) {
  * Clears the screen,
  * resets option
  */
-int getUpdate(int s) {
+int getUpdate(int s, int offset=0) {
   if (!digitalRead(SET)) {
-    s = option;
+    s = option+offset;
     option = 0;
     tft.background(0,0,0);
     updateMenu = true;

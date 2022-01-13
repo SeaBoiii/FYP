@@ -28,11 +28,12 @@ long toMS(float seconds) {
 }
 
 /*
- * Using Serial to Movement
+ * Using Character Array to Movement
  * - Not implemented fully
  * - Z/F Steps
  * - e.g. Z300 = zoom to pos 300
  */
+ /*
 void checkSerial() {
   if (Serial.available() > 0) {
     int i = 0;
@@ -45,28 +46,35 @@ void checkSerial() {
     buffer[i]='\0';
     splitStr(buffer);
   }
-}
+} */
 
-void splitStr(char* data, int custom_itemcount) {
+void splitStr(char* data, char title[], int custom_itemcount) {
   char* parameter;
   parameter = strtok(data, " ,");
   while (parameter != NULL) {
-    setMotor(parameter, custom_itemcount);
+    setMotor(parameter, title, custom_itemcount);
     parameter = strtok(NULL, " ,");
   }
 }
 
-void setMotor(char* data, int custom_itemcount) {
+void setMotor(char* data, char title[], int custom_itemcount) {
+  bool goBack = false;
+  if ((data[1] == 'G' || data[1] == 'g')) {
+    goBack = true;
+  }
+  
   if ((data[0] == 'F') || (data[0] == 'f')) {
     int steps = strtol(data+1, NULL, 10);
     // set focus motor steps to steps
-    moveMotor(FOCUS, steps, motor_time/custom_itemcount);
+    //moveMotor(FOCUS, steps, motor_time/custom_itemcount);
+    goDist(FOCUS, title, steps, SNOW, goBack, motor_time/custom_itemcount);
   }
 
   if ((data[0] == 'Z') || (data[0] == 'z')) {
     int steps = strtol(data+1, NULL, 10);
     // set zoom motor steps to steps
-    moveMotor(ZOOM, steps, motor_time/custom_itemcount);
+    //moveMotor(ZOOM, steps, motor_time/custom_itemcount);
+    goDist(ZOOM, title, steps, AZURE, goBack, motor_time/custom_itemcount);
   }
 }
 

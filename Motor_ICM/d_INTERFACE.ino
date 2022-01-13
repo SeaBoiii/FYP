@@ -86,3 +86,86 @@ void goMultiDist(char title[], int zoom_desired, int focus_desired, uint16_t col
   }
   updateScreen();
 }
+
+int writeStringToMemory(int addrOffset, const char strToWrite[]) {
+  int len = strlen(strToWrite);
+  EEPROM.write(addrOffset, len);
+
+  for (int i=0; i<len; i++) {
+    EEPROM.write(addrOffset+1+i, strToWrite[i]);
+  }
+
+  return addrOffset+1+len;
+}
+
+int readStringFromMemory(int addrOffset, char* strToRead) {
+  int newStrLen = EEPROM.read(addrOffset);
+
+  for (int i=0; i<newStrLen; i++) {
+    strToRead[i] = EEPROM.read(addrOffset+1+i);
+  }
+  strToRead[newStrLen] = '\0';
+  return addrOffset+1+newStrLen;
+}
+
+int createCustom(char* buf) {
+  int itemcount=0;
+  buf[0] = '\0';
+  const char *zoom = "Z";
+  const char *focus = "F";
+  const char *goBackT = "G";
+  const char *goBackF = "N";
+  do {
+    int position_acquired;
+    do { // Choosing Zoom or Focus
+      max_option = menu(3, lens_selection_menu, option);
+      option = getUpDown(max_option, option, 0);
+    } while (digitalRead(SET));
+    delay(500);
+    if (option == 2) {
+      return itemcount;
+    }
+    strcat(buf, option ? focus : zoom);
+    Serial.println(buf);
+    updateScreen();
+    if (option) {
+      position_acquired = chooseDist(FOCUS, 3, focus_dist, false, YELLOWGREEN); 
+    } else {
+      position_acquired = chooseDist(ZOOM, 3, zoom_dist, false, YELLOWGREEN);
+    }
+
+    bool goBack=false;
+    int selection=-1;
+    option = 0;
+    updateScreen();
+    do { // choosing goBack, add another, back
+      if (selection == 0) {
+        goBack = goBack ? false : true;
+        selection = resetScreen(selection);
+      } else if (selection == 2) { // back
+        strcat(buf, goBack ? goBackT : goBackF);
+        char cstr[5];
+        itoa(position_acquired, cstr, 10);
+        strcat(buf, cstr);
+        Serial.println(buf);
+        return itemcount++;
+      } else {
+        goBack ? menu(3, new_selection_truemenu, option) : menu(3, new_selection_falsemenu, option);
+        selection = getUpdate(selection);
+      }
+      option = getUpDown(max_option, option, 0);
+    } while(selection != 1);
+    strcat(buf, goBack ? goBackT : goBackF);
+    char cstr[5];
+    itoa(position_acquired, cstr, 10);
+    strcat(buf, cstr);
+    itemcount++;
+    if (itemcount == 4) {
+      break;
+    }
+    strcat(buf, ",");
+    Serial.println(buf);
+  } while(true);
+  
+  return itemcount;
+} 
