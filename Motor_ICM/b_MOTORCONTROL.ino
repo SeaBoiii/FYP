@@ -172,43 +172,64 @@ void setCurrentPos(int type, float value) {
  * However, there is still a possibility in doing this using a single loop and wait till both are done.
  */
 void moveMultiMotor(float zoom_value, float focus_value, float shutter_spd=0) {
-  long positions[2]; // 0: rear motor, 1: front_motor
+  int rear_position;
+  int front_position;
+
+  long startmillis = millis();
+  Serial.print("Start Time: ");
+  Serial.println(startmillis);
   
   if (zoom_value == -1) {
-    positions[0] = orientation ? focus_value : zoom_current;
-    positions[1] = orientation ? zoom_current : focus_value;
+    rear_position = orientation ? focus_value : zoom_current;
+    front_position = orientation ? zoom_current : focus_value;
   } else if (focus_value == -1) {
-    positions[0] = orientation ? focus_current : zoom_value;
-    positions[1] = orientation ? zoom_value : focus_current;
+    rear_position = orientation ? focus_current : zoom_value;
+    front_position = orientation ? zoom_value : focus_current;
   } else if (focus_value == -1 && zoom_value == -1) {
-    positions[0] = orientation ? focus_current : zoom_current;
-    positions[1] = orientation ? zoom_current : focus_current;
+    rear_position = orientation ? focus_current : zoom_current;
+    front_position = orientation ? zoom_current : focus_current;
   } else {
-    positions[0] = orientation ? focus_value : zoom_value;
-    positions[1] = orientation ? zoom_value : focus_value;
+    rear_position = orientation ? focus_value : zoom_value;
+    front_position = orientation ? zoom_value : focus_value;
   }
 
+  int focus_steps = abs(focus_value-focus_current) * MS_STEP;
+  int zoom_steps = abs(zoom_value-zoom_current) * MS_STEP;
+  int average_steps = (focus_steps+zoom_steps)/2;
+
   //adjust speed accordingly
-  if (!shutter_spd) {
+  if (shutter_spd != 0) {
     float zoom_RPM = 0;
     float focus_RPM = 0;
     if(zoom_value != -1) {
-      zoom_RPM = calcAccel(abs(zoom_value-zoom_current) * MS_STEP, (float)shutter_spd);
+      zoom_RPM = calcAccel(zoom_steps, (float)shutter_spd);
     }
     if (focus_value != -1) {
-      focus_RPM = calcAccel(abs(focus_value-focus_current) * MS_STEP, (float)shutter_spd);
+      focus_RPM = calcAccel(focus_steps, (float)shutter_spd);
     }
     rear_motor.setAcceleration(orientation ? focus_RPM : zoom_RPM);
     front_motor.setAcceleration(orientation ? zoom_RPM : focus_RPM);
+  } else if (shutter_spd == 0) {
+    rear_motor.setAcceleration(CALI_ACCEL);
+    front_motor.setAcceleration(CALI_ACCEL);
   }
 
-  rear_motor.moveTo(positions[0] * MS_STEP);
-  front_motor.moveTo(positions[1] * MS_STEP);
-  
+  rear_motor.moveTo(rear_position * MS_STEP);
+  front_motor.moveTo(front_position * MS_STEP);
+
   while (rear_motor.distanceToGo() != 0 || front_motor.distanceToGo() != 0) {
     rear_motor.run();
     front_motor.run();
+    if (shutter_speed != 0) {
+      delay(toMS((float)shutter_spd/average_steps));
+    }
   } 
+
+  long endmillis = millis();
+  Serial.print("End Time: ");
+  Serial.println(endmillis);
+  Serial.print("Time Taken: ");
+  Serial.println(endmillis-startmillis);
 
   if (zoom_value == -1) {
     focus_current = focus_value;
