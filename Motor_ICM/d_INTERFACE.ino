@@ -58,12 +58,14 @@ void goDist(int type, char title[], int pos_desired, uint16_t color=WHITE, bool 
   nikonTime();
   moveMotor(type, pos_desired, shutter_spd);
   nikonTime();
-  updateScreen(4000);
 
   // returns to original spot
   if (goBack) {
+    updateScreen(4000);
     printMoveSteps(type, title, color, true);
     moveMotor(type, pos_current);
+  } else {
+    type ? zoom_current = pos_desired : focus_current = pos_desired;
   }
   updateScreen();
 }
