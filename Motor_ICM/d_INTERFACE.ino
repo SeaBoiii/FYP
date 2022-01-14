@@ -83,7 +83,7 @@ void goMultiDist(char title[], int zoom_desired, int focus_desired, uint16_t col
   // returns to original spot
   if (goBack) {
     printMoveSteps(3, title, color, true);
-    moveMultiMotor(prev_zoom, prev_focus, 3);
+    moveMultiMotor(prev_zoom, prev_focus);
     //moveMultiMotor(prev_zoom, prev_focus);
   }
   updateScreen();
