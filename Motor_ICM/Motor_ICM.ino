@@ -761,7 +761,6 @@ void loop() {
               custom_itemcount1 = createCustom(custom_buf1);
               if (custom_itemcount1 > 0) {
                 writeStringToMemory(25, custom_buf1);
-                Serial.println(custom_buf1);
               }
               EEPROM.write(8, custom_itemcount1);
               ssscreen = resetScreen(ssscreen);

@@ -12,8 +12,6 @@ int calibrate(int type, const char *const string_table[], int upper_limit, int l
   do {
     caliMenu(type, string_table, pos_current, upper_limit, color, true);
     pos_current = getLeftRight(upper_limit, pos_current, lower_limit, 0);
-    Serial.print("Pos current: ");
-    Serial.println(pos_current);
     moveMotor(type, pos_current);
   } while(digitalRead(SET));
   
@@ -128,7 +126,6 @@ int createCustom(char* buf) {
       return itemcount;
     }
     strcat(buf, option ? focus : zoom);
-    Serial.println(buf);
     updateScreen();
     if (option) {
       position_acquired = chooseDist(FOCUS, 3, focus_dist, false, YELLOWGREEN); 
@@ -149,7 +146,6 @@ int createCustom(char* buf) {
         char cstr[5];
         itoa(position_acquired, cstr, 10);
         strcat(buf, cstr);
-        Serial.println(buf);
         return itemcount++;
       } else {
         goBack ? menu(3, new_selection_truemenu, option) : menu(3, new_selection_falsemenu, option);
@@ -166,7 +162,6 @@ int createCustom(char* buf) {
       break;
     }
     strcat(buf, ",");
-    Serial.println(buf);
   } while(true);
   
   return itemcount;
