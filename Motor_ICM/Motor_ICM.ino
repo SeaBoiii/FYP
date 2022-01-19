@@ -106,8 +106,8 @@ const char string_43[] PROGMEM = "To tele & back";
 const char string_44[] PROGMEM = "To widest & back";
 
 const char string_27[] PROGMEM = "|Zoom&Focus Movement|";
-const char string_28[] PROGMEM = "Move to Max";
-const char string_29[] PROGMEM = "Move to Min";
+const char string_28[] PROGMEM = "Move to Max [BOTH]";
+const char string_29[] PROGMEM = "Move to Min [BOTH]";
 const char string_39[] PROGMEM = "Zoom[MAX]&Focus[MIN]";
 const char string_40[] PROGMEM = "Zoom[MIN]&Focus[MAX]";
 
