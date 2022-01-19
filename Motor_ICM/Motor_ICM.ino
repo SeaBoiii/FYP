@@ -36,8 +36,7 @@
 #define SET   A0 
 
 /* Camera Control Pins */
-#define PRIME A6
-#define SHUTTER A7
+#define SHUTTER A5
 
 // Strings
 /* Colour Strings */
@@ -107,8 +106,8 @@ const char string_43[] PROGMEM = "To tele & back";
 const char string_44[] PROGMEM = "To widest & back";
 
 const char string_27[] PROGMEM = "|Zoom&Focus Movement|";
-const char string_28[] PROGMEM = "Move to Max";
-const char string_29[] PROGMEM = "Move to Min";
+const char string_28[] PROGMEM = "Move to Max [BOTH]";
+const char string_29[] PROGMEM = "Move to Min [BOTH]";
 const char string_39[] PROGMEM = "Zoom[MAX]&Focus[MIN]";
 const char string_40[] PROGMEM = "Zoom[MIN]&Focus[MAX]";
 
@@ -244,11 +243,10 @@ void goDist(int type, char title[], int pos_desired, uint16_t color=WHITE, bool 
 void goMultiDist(char title[], int zoom_desired, int focus_desired, uint16_t color=WHITE, bool goBack=true, float shutter_spd=motor_time);
 void(* resetFunc) (void) = 0;
 void nikonTime() { // Controls the shutter of a Nikon camera
-  digitalWrite(PRIME, LOW);   // close focus (half-pressed shutter)
   digitalWrite(SHUTTER, LOW); // close shutter (fully pressed)
-  delay(1000);
-  digitalWrite(PRIME, HIGH);  // return to open for both
+  delay(20);
   digitalWrite(SHUTTER, HIGH);
+  delay(20);
 }
 
 /* 
@@ -260,10 +258,9 @@ void setup() {
   // **** Camera Controls ****
   // set the pins to output pins 
   // Using a Nikon D7100 shutter release
-  // & a dual relay module
+  // and an optocoupler
   // Currently in Time mode (2 presses)
   // HIGH = Open Position, LOW = Close
-  pinMode(PRIME, OUTPUT);
   pinMode(SHUTTER, OUTPUT);
   
   // ***** Joystick *****
@@ -377,8 +374,8 @@ void loop() {
         case 0: {// ** orientation menu **
           orientation = orientation ? 0 : 1;
           EEPROM.write(4,orientation);
-          //sscreen = resetScreen(sscreen);
-          sscreen = -1;
+          sscreen = resetScreen(sscreen);
+          //sscreen = -1;
           break;
         }
         case 1: // ** set shutter time **
