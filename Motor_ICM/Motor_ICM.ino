@@ -36,8 +36,7 @@
 #define SET   A0 
 
 /* Camera Control Pins */
-#define PRIME A6
-#define SHUTTER A7
+#define SHUTTER A5
 
 // Strings
 /* Colour Strings */
@@ -244,11 +243,10 @@ void goDist(int type, char title[], int pos_desired, uint16_t color=WHITE, bool 
 void goMultiDist(char title[], int zoom_desired, int focus_desired, uint16_t color=WHITE, bool goBack=true, float shutter_spd=motor_time);
 void(* resetFunc) (void) = 0;
 void nikonTime() { // Controls the shutter of a Nikon camera
-  digitalWrite(PRIME, LOW);   // close focus (half-pressed shutter)
   digitalWrite(SHUTTER, LOW); // close shutter (fully pressed)
-  delay(1000);
-  digitalWrite(PRIME, HIGH);  // return to open for both
+  delay(20);
   digitalWrite(SHUTTER, HIGH);
+  delay(20);
 }
 
 /* 
@@ -260,10 +258,9 @@ void setup() {
   // **** Camera Controls ****
   // set the pins to output pins 
   // Using a Nikon D7100 shutter release
-  // & a dual relay module
+  // and an optocoupler
   // Currently in Time mode (2 presses)
   // HIGH = Open Position, LOW = Close
-  pinMode(PRIME, OUTPUT);
   pinMode(SHUTTER, OUTPUT);
   
   // ***** Joystick *****
