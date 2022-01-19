@@ -374,8 +374,8 @@ void loop() {
         case 0: {// ** orientation menu **
           orientation = orientation ? 0 : 1;
           EEPROM.write(4,orientation);
-          //sscreen = resetScreen(sscreen);
-          sscreen = -1;
+          sscreen = resetScreen(sscreen);
+          //sscreen = -1;
           break;
         }
         case 1: // ** set shutter time **
