@@ -165,7 +165,7 @@ void setCurrentPos(int type, float value) {
  * !!BEWARE!! Using multistepper motor, the speed cannot be adjusted. Hence, using this method is definitely not possible.
  * However, there is still a possibility in doing this using a single loop and wait till both are done.
  */
-void moveMultiMotor(float zoom_value, float focus_value, float shutter_spd=0) {
+void moveMultiMotor(int zoom_value, int focus_value, float shutter_spd=0) {
   int rear_position;
   int front_position;
   

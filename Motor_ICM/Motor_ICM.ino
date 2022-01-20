@@ -124,6 +124,7 @@ const char string_32[] PROGMEM = "Bokeh Effect";
 const char string_33[] PROGMEM = "Firework Effect";
 const char string_34[] PROGMEM = "Zoom Blur Effect";
 const char string_35[] PROGMEM = "Sine Wave Effect";
+const char string_50[] PROGMEM = "ZigZagger Out Effect";
 
 const char cali_zoom[] PROGMEM = "|--Calibrate Zoom --|";
 const char cali_focus[] PROGMEM = "|--Calibrate Focus--|";
@@ -170,7 +171,7 @@ const char *const settings_menu[] PROGMEM = {string_12, string_13, string_14, st
 const char *const focus_menu[] PROGMEM = {string_19, string_20, string_21, string_22, string_41, string_42, string_45, back};
 const char *const zoom_menu[] PROGMEM = {string_23, string_24, string_25, string_22, string_43, string_44, back};
 const char *const zoomfocus_menu[] PROGMEM = {string_27, string_28, string_29, string_39, string_40, string_22, string_46, string_47, string_48, string_49, back};
-const char *const presets_menu[] PROGMEM = {string_31, string_32, string_33, string_34, string_35, back};
+const char *const presets_menu[] PROGMEM = {string_31, string_32, string_33, string_34, string_35, string_50, back};
 const char *const calizoom_left[] PROGMEM = {cali_zoom, string_cali, zoom_left};
 const char *const calizoom_right[] PROGMEM = {cali_zoom, string_cali, zoom_right};
 const char *const califocus_left[] PROGMEM = {cali_focus, string_cali, focus_left};
@@ -244,7 +245,7 @@ int getUpdate(int s, int offset=0);
 int getUpDown(int option, int current_option, int delay_ms=0);
 int getLeftRight(int range, int current, int low_limit=0, int delay_ms=0);
 void moveMotor(int type, int pos_desired, int shutter_spd=0);
-void moveMultiMotor(float zoom_value, float focus_value, float shutter_spd=0);
+void moveMultiMotor(int zoom_value, int focus_value, float shutter_spd=0);
 int calibrate(int type, const char *const string_table[], int upper_limit, int lower_limit, uint16_t color=WHITE);
 int chooseDist(int type, int count, const char *const string_table[], bool goBack=false, uint16_t color=WHITE);
 void goDist(int type, char title[], int pos_desired, uint16_t color=WHITE, bool goBack=true, float shutter_spd=motor_time, bool lastSequence=true);
@@ -810,12 +811,27 @@ void loop() {
           sscreen = resetScreen(sscreen);
           break;
         }
-        case 4: // back
+        case 4: { // The Zigzagger Out Effect
+          int previous_pos = zoom_current;
+          int minus = zoom_current/4;
+          countdownMenu();
+          for (int i=0; i<3; i++) {
+            goDist(ZOOM, string_50, zoom_current-minus, CORAL, false, motor_time/7, false);
+            goDist(ZOOM, string_50, zoom_current+(minus/2), CORAL, false, motor_time/7, false);
+          }
+          goDist(ZOOM, string_50, 0, CORAL, false, motor_time/7);
+          printMoveSteps(NULL, string_35, CADETBLUE, 1); // return to initial position
+          moveMotor(ZOOM, previous_pos);
+          zoom_current = previous_pos;
+          sscreen = resetScreen(sscreen);
+          break;
+        }
+        case 5: // back
           screen = -1;
           sscreen = -1;
           break;
         default:
-          max_option = menu(5, presets_menu, option, 0);
+          max_option = menu(6, presets_menu, option, 0);
           sscreen = getUpdate(sscreen);
           break;
       }
