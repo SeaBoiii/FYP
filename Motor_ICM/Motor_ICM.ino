@@ -101,6 +101,7 @@ const char string_21[] PROGMEM = "Move to min distance";
 const char string_22[] PROGMEM = "Move to a Value";
 const char string_41[] PROGMEM = "To infinity & back";
 const char string_42[] PROGMEM = "To min. & back";
+const char string_45[] PROGMEM = "To Max, POV, & min.";
 
 const char string_23[] PROGMEM = "|--Zoom Movements --|";
 const char string_24[] PROGMEM = "Move to tele";
@@ -162,7 +163,7 @@ const char new_sequence_3[] PROGMEM = "Add new sequence";
 const char *const main_menu[] PROGMEM = {mm_0, mm_1, mm_2, mm_3, mm_4, mm_5, mm_6, mm_7, mm_8};
 const char *const recalibration_menu[] PROGMEM = {string_4, string_5, string_6, string_7, back};
 const char *const settings_menu[] PROGMEM = {string_12, string_13, string_14, string_15, back};
-const char *const focus_menu[] PROGMEM = {string_19, string_20, string_21, string_22, string_41, string_42, back};
+const char *const focus_menu[] PROGMEM = {string_19, string_20, string_21, string_22, string_41, string_42, string_45, back};
 const char *const zoom_menu[] PROGMEM = {string_23, string_24, string_25, string_22, string_43, string_44, back};
 const char *const zoomfocus_menu[] PROGMEM = {string_27, string_28, string_29, string_39, string_40, string_22, back};
 const char *const presets_menu[] PROGMEM = {string_31, string_32, string_33, string_34, string_35, back};
@@ -566,13 +567,25 @@ void loop() {
           sscreen = resetScreen(sscreen);
           break;
         }
-        case 5: { // back
+        case 5: { // MAX-POV-MIN
+          int previous_pos = focus_current;
+          printMoveSteps(NULL, string_32, CADETBLUE, 2); // setting lens to starting position
+          moveMotor(FOCUS, focus_range);
+          focus_current = focus_range;
+          countdownMenu();
+          goDist(FOCUS, string_45, previous_pos, LIME, false, motor_time/3, false);
+          delay(toMS(motor_time/3));
+          goDist(FOCUS, string_45, 0, LIME, true, motor_time/3);
+          sscreen = resetScreen(sscreen);
+          break;
+        }
+        case 6: { // back
           screen = -1;
           sscreen = -1;
           break;
         }
         default: {
-          max_option = menu(6, focus_menu, option, 3);
+          max_option = menu(7, focus_menu, option, 0);
           sscreen = getUpdate(sscreen);
           break;
         }
@@ -626,7 +639,7 @@ void loop() {
           break;
         }
         default: {
-          max_option = menu(6, zoom_menu, option, 4);
+          max_option = menu(6, zoom_menu, option, 0);
           sscreen = getUpdate(sscreen);
           break;
         }
@@ -683,7 +696,7 @@ void loop() {
           break;
         }
         default: {
-          max_option = menu(6, zoomfocus_menu, option, 2);
+          max_option = menu(6, zoomfocus_menu, option, 0);
           sscreen = getUpdate(sscreen);
           break;
         }
@@ -754,7 +767,7 @@ void loop() {
           sscreen = -1;
           break;
         default:
-          max_option = menu(5, presets_menu, option, 2);
+          max_option = menu(5, presets_menu, option, 0);
           sscreen = getUpdate(sscreen);
           break;
       }

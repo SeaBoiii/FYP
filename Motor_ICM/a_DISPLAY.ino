@@ -355,6 +355,7 @@ void moveMotorMenu(int count, const char *const string_table[], int current_step
 void countdownMenu() {
   if (shutter_speed == 0) {
     updateScreen();
+    buzz();
     return;
   }
   int i=0;
