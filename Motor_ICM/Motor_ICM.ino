@@ -242,8 +242,8 @@ void moveMotor(int type, int pos_desired, int shutter_spd=0);
 void moveMultiMotor(float zoom_value, float focus_value, float shutter_spd=0);
 int calibrate(int type, const char *const string_table[], int upper_limit, int lower_limit, uint16_t color=WHITE);
 int chooseDist(int type, int count, const char *const string_table[], bool goBack=false, uint16_t color=WHITE);
-void goDist(int type, char title[], int pos_desired, uint16_t color=WHITE, bool goBack=true, float shutter_spd=motor_time);
-void goMultiDist(char title[], int zoom_desired, int focus_desired, uint16_t color=WHITE, bool goBack=true, float shutter_spd=motor_time);
+void goDist(int type, char title[], int pos_desired, uint16_t color=WHITE, bool goBack=true, float shutter_spd=motor_time, bool lastSequence=true);
+void goMultiDist(char title[], int zoom_desired, int focus_desired, uint16_t color=WHITE, bool goBack=true, float shutter_spd=motor_time, bool lastSequence=true);
 void(* resetFunc) (void) = 0;
 
 /* Shutter Function */
@@ -268,7 +268,7 @@ void setup() {
   Serial.begin(9600);
 
   // **** Buzzer ****
-  pinMode(BUZZZER, OUTPUT);
+  pinMode(BUZZER, OUTPUT);
 
   // **** Camera Controls ****
   // set the pins to output pins 
@@ -549,7 +549,7 @@ void loop() {
         case 3: { // focus to infinity & back
           countdownMenu();
           int previous_pos = focus_current;
-          goDist(FOCUS, string_41, focus_range, AZURE, false, motor_time/2);
+          goDist(FOCUS, string_41, focus_range, AZURE, false, motor_time/2, false);
           goDist(FOCUS, string_41, previous_pos, AZURE, false, motor_time/2);
           sscreen = resetScreen(sscreen);
           break;
@@ -557,7 +557,7 @@ void loop() {
         case 4: { // focus to min & back
           countdownMenu();
           int previous_pos = focus_current;
-          goDist(FOCUS, string_42, 0, CORAL, false, motor_time/2);
+          goDist(FOCUS, string_42, 0, CORAL, false, motor_time/2, false);
           goDist(FOCUS, string_42, previous_pos, CORAL, false, motor_time/2);
           sscreen = resetScreen(sscreen);
           break;
@@ -604,7 +604,7 @@ void loop() {
         case 3: { // zoom to max & back
           countdownMenu();
           int previous_pos = zoom_current;
-          goDist(ZOOM, string_43, zoom_range, AZURE, false, motor_time/2);
+          goDist(ZOOM, string_43, zoom_range, AZURE, false, motor_time/2, false);
           goDist(ZOOM, string_43, previous_pos, AZURE, false, motor_time/2);
           sscreen = resetScreen(sscreen);
           break;
@@ -612,7 +612,7 @@ void loop() {
         case 4: { // zoom to min & back
           countdownMenu();
           int previous_pos = zoom_current;
-          goDist(ZOOM, string_44, 0, CORAL, false, motor_time/2);
+          goDist(ZOOM, string_44, 0, CORAL, false, motor_time/2, false);
           goDist(ZOOM, string_44, previous_pos, CORAL, false, motor_time/2);
           sscreen = resetScreen(sscreen);
         }
@@ -697,7 +697,7 @@ void loop() {
           focus_current = focus_range;
           updateScreen(2000);
           countdownMenu();
-          goDist(FOCUS, string_32, previous_pos, VIOLET, false, motor_time/2);
+          goDist(FOCUS, string_32, previous_pos, VIOLET, false, motor_time/2, false);
           goDist(ZOOM, string_32, 0, VIOLET, true, motor_time/2);
           sscreen = resetScreen(sscreen);
           break;
@@ -709,7 +709,7 @@ void loop() {
           focus_current = focus_range;
           updateScreen(2000);
           countdownMenu();
-          goDist(FOCUS, string_33, 0, AZURE, false, ((float)3/4)*motor_time);
+          goDist(FOCUS, string_33, 0, AZURE, false, ((float)3/4)*motor_time, false);
           goDist(FOCUS, string_33, previous_pos, AZURE, false, ((float)1/4)*motor_time);
           sscreen = resetScreen(sscreen);
           break;
@@ -724,7 +724,7 @@ void loop() {
           focus_current = focus_range;
           updateScreen(2000);
           countdownMenu();
-          goDist(ZOOM, string_34, previous_zoom, LIME, false, motor_time/2);
+          goDist(ZOOM, string_34, previous_zoom, LIME, false, motor_time/2, false);
           goDist(FOCUS, string_34, previous_focus, LIME, false, motor_time/2);
           sscreen = resetScreen(sscreen);
           break;
@@ -733,9 +733,9 @@ void loop() {
           countdownMenu();
           int previous_zoom = zoom_current;
           int previous_focus = focus_current;
-          goDist(ZOOM, string_35, zoom_range, CORAL, false, motor_time/4);
-          goDist(FOCUS, string_35, focus_range, CORAL, false, motor_time/4);
-          goDist(ZOOM, string_35, 0, CORAL, false, motor_time/4);
+          goDist(ZOOM, string_35, zoom_range, CORAL, false, motor_time/4, false);
+          goDist(FOCUS, string_35, focus_range, CORAL, false, motor_time/4, false);
+          goDist(ZOOM, string_35, 0, CORAL, false, motor_time/4,false);
           goDist(FOCUS, string_35, 0, CORAL, false, motor_time/4);
           printMoveSteps(NULL, string_35, CADETBLUE, 1); // return to initial position
           moveMotor(FOCUS, previous_focus); 
@@ -763,6 +763,7 @@ void loop() {
         case 0: { // Custom Profile 1
           switch (ssscreen) {
             case 0: { // Execute Sequence
+              countdownMenu();
               splitStr(custom_buf1, custom_1, custom_itemcount1);
               EEPROM.write(3, zoom_current);
               EEPROM.write(4, focus_current);
@@ -799,6 +800,7 @@ void loop() {
         case 1: { // Custom Profile 2
           switch (ssscreen) {
             case 0: { // Execute Sequence
+              countdownMenu();
               splitStr(custom_buf2, custom_2, custom_itemcount2);
               EEPROM.write(3, zoom_current);
               EEPROM.write(4, focus_current);
@@ -835,6 +837,7 @@ void loop() {
         case 2: { // Custom Profile 3
           switch (ssscreen) {
             case 0: { // Execute Sequence
+              countdownMenu();
               splitStr(custom_buf3, custom_3, custom_itemcount3);
               EEPROM.write(3, zoom_current);
               EEPROM.write(4, focus_current);

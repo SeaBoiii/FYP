@@ -385,6 +385,7 @@ void countdownMenu() {
   }
   tft.setTextColor(WHITE);
   tft.setTextSize(1);
+  nikonTime();
   updateScreen();
 }
 
