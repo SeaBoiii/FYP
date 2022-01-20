@@ -114,6 +114,10 @@ const char string_28[] PROGMEM = "Move to Max [BOTH]";
 const char string_29[] PROGMEM = "Move to Min [BOTH]";
 const char string_39[] PROGMEM = "Zoom[MAX]&Focus[MIN]";
 const char string_40[] PROGMEM = "Zoom[MIN]&Focus[MAX]";
+const char string_46[] PROGMEM = "to Max[BOTH] & back";
+const char string_47[] PROGMEM = "to Min[BOTH] & back";
+const char string_48[] PROGMEM = "Z[MAX]F[MIN] & back";
+const char string_49[] PROGMEM = "Z[MIN]F[MAX] & back";
 
 const char string_31[] PROGMEM = "|----- Presets -----|";
 const char string_32[] PROGMEM = "Bokeh Effect";
@@ -165,7 +169,7 @@ const char *const recalibration_menu[] PROGMEM = {string_4, string_5, string_6, 
 const char *const settings_menu[] PROGMEM = {string_12, string_13, string_14, string_15, back};
 const char *const focus_menu[] PROGMEM = {string_19, string_20, string_21, string_22, string_41, string_42, string_45, back};
 const char *const zoom_menu[] PROGMEM = {string_23, string_24, string_25, string_22, string_43, string_44, back};
-const char *const zoomfocus_menu[] PROGMEM = {string_27, string_28, string_29, string_39, string_40, string_22, back};
+const char *const zoomfocus_menu[] PROGMEM = {string_27, string_28, string_29, string_39, string_40, string_22, string_46, string_47, string_48, string_49, back};
 const char *const presets_menu[] PROGMEM = {string_31, string_32, string_33, string_34, string_35, back};
 const char *const calizoom_left[] PROGMEM = {cali_zoom, string_cali, zoom_left};
 const char *const calizoom_right[] PROGMEM = {cali_zoom, string_cali, zoom_right};
@@ -690,13 +694,57 @@ void loop() {
           sscreen = resetScreen(sscreen);
           break;
         }
-        case 5: { // back
+        case 5: { // ZF[MAX] & back
+          int previous_zoom, previous_focus;
+          previous_zoom = zoom_current;
+          previous_focus = focus_current;
+
+          countdownMenu();
+          goMultiDist(string_46, zoom_range, focus_range, VIOLET, false, motor_time/2, false);
+          goMultiDist(string_46, previous_zoom, previous_focus, VIOLET, false, motor_time/2);
+          sscreen = resetScreen(sscreen);
+          break;
+        }
+        case 6: { // ZF[MIN] & back
+          int previous_zoom, previous_focus;
+          previous_zoom = zoom_current;
+          previous_focus = focus_current;
+
+          countdownMenu();
+          goMultiDist(string_47, 0, 0, CORAL, false, motor_time/2, false);
+          goMultiDist(string_47, previous_zoom, previous_focus, CORAL, false, motor_time/2);
+          sscreen = resetScreen(sscreen);
+          break;
+        }
+        case 7: { // Z[MAX]F[MIN] & back
+          int previous_zoom, previous_focus;
+          previous_zoom = zoom_current;
+          previous_focus = focus_current;
+
+          countdownMenu();
+          goMultiDist(string_48, zoom_range, 0, AZURE, false, motor_time/2, false);
+          goMultiDist(string_48, previous_zoom, previous_focus, AZURE, false, motor_time/2);
+          sscreen = resetScreen(sscreen);
+          break;
+        }
+        case 8: { // Z[MIN]F[MAX] & back
+          int previous_zoom, previous_focus;
+          previous_zoom = zoom_current;
+          previous_focus = focus_current;
+
+          countdownMenu();
+          goMultiDist(string_49, 0, focus_range, LIME, false, motor_time/2, false);
+          goMultiDist(string_49, previous_zoom, previous_focus, LIME, false, motor_time/2);
+          sscreen = resetScreen(sscreen);
+          break;
+        }
+        case 9: { // back
           screen = -1;
           sscreen = -1;
           break;
         }
         default: {
-          max_option = menu(6, zoomfocus_menu, option, 0);
+          max_option = menu(10, zoomfocus_menu, option, 0, 0);
           sscreen = getUpdate(sscreen);
           break;
         }
