@@ -101,7 +101,7 @@ const char string_21[] PROGMEM = "Move to min distance";
 const char string_22[] PROGMEM = "Move to a Value";
 const char string_41[] PROGMEM = "To infinity & back";
 const char string_42[] PROGMEM = "To min. & back";
-const char string_45[] PROGMEM = "To Max, POV, & min.";
+const char string_45[] PROGMEM = "From inf. to POV-min";
 
 const char string_23[] PROGMEM = "|--Zoom Movements --|";
 const char string_24[] PROGMEM = "Move to tele";
