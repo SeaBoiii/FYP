@@ -48,14 +48,16 @@ int chooseDist(int type, int count, const char *const string_table[], bool goBac
   return pos_current;
 }
 
-void goDist(int type, char title[], int pos_desired, uint16_t color=WHITE, bool goBack=true, float shutter_spd=motor_time) {
+void goDist(int type, char title[], int pos_desired, uint16_t color=WHITE, bool goBack=true, float shutter_spd=motor_time, bool lastSequence=true) {
   int pos_current;
   pos_current = type ? zoom_current : focus_current;
-
+  
   printMoveSteps(type, title, color, false); 
-  nikonTime();
   moveMotor(type, pos_desired, shutter_spd);
-  nikonTime();
+  if (lastSequence) {
+    nikonTime();
+    buzz();
+  }
 
   // returns to original spot
   if (goBack) {
@@ -68,18 +70,21 @@ void goDist(int type, char title[], int pos_desired, uint16_t color=WHITE, bool 
   updateScreen();
 }
 
-void goMultiDist(char title[], int zoom_desired, int focus_desired, uint16_t color=WHITE, bool goBack=true, float shutter_spd=motor_time) {
+void goMultiDist(char title[], int zoom_desired, int focus_desired, uint16_t color=WHITE, bool goBack=true, float shutter_spd=motor_time, bool lastSequence=true) {
   int prev_zoom, prev_focus;
   prev_zoom = zoom_current;
   prev_focus = focus_current;
+  
   printMoveSteps(3, title, color, false);
-  nikonTime();
   moveMultiMotor(zoom_desired, focus_desired, shutter_spd);
-  nikonTime();
-  updateScreen(2000);
+  if (lastSequence) {
+    nikonTime();
+    buzz();
+  }
 
   // returns to original spot
   if (goBack) {
+    updateScreen(4000);
     printMoveSteps(3, title, color, true);
     moveMultiMotor(prev_zoom, prev_focus);
     //moveMultiMotor(prev_zoom, prev_focus);
@@ -115,6 +120,8 @@ int createCustom(char* buf) {
   const char *focus = "F";
   const char *goBackT = "G";
   const char *goBackF = "N";
+  const char *lastSequenceT = "L";
+  const char *lastSequenceF = "S";
   do {
     int position_acquired;
     do { // Choosing Zoom or Focus
@@ -143,6 +150,7 @@ int createCustom(char* buf) {
         selection = resetScreen(selection);
       } else if (selection == 2) { // back
         strcat(buf, goBack ? goBackT : goBackF);
+        strcat(buf, lastSequenceT);
         char cstr[5];
         itoa(position_acquired, cstr, 10);
         strcat(buf, cstr);
@@ -154,6 +162,7 @@ int createCustom(char* buf) {
       option = getUpDown(max_option, option, 0);
     } while(selection != 1);
     strcat(buf, goBack ? goBackT : goBackF);
+    strcat(buf, lastSequenceF);
     char cstr[5];
     itoa(position_acquired, cstr, 10);
     strcat(buf, cstr);
