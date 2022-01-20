@@ -56,6 +56,7 @@ void goDist(int type, char title[], int pos_desired, uint16_t color=WHITE, bool 
   nikonTime();
   moveMotor(type, pos_desired, shutter_spd);
   nikonTime();
+  buzz();
 
   // returns to original spot
   if (goBack) {
@@ -77,6 +78,7 @@ void goMultiDist(char title[], int zoom_desired, int focus_desired, uint16_t col
   moveMultiMotor(zoom_desired, focus_desired, shutter_spd);
   nikonTime();
   updateScreen(2000);
+  buzz();
 
   // returns to original spot
   if (goBack) {

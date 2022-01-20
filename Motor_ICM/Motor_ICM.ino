@@ -38,6 +38,9 @@
 /* Camera Control Pins */
 #define SHUTTER A5
 
+/* Buzzer Signal Pin */
+#define BUZZER 2
+
 // Strings
 /* Colour Strings */
 #define WHITE     0xFFFF
@@ -242,6 +245,8 @@ int chooseDist(int type, int count, const char *const string_table[], bool goBac
 void goDist(int type, char title[], int pos_desired, uint16_t color=WHITE, bool goBack=true, float shutter_spd=motor_time);
 void goMultiDist(char title[], int zoom_desired, int focus_desired, uint16_t color=WHITE, bool goBack=true, float shutter_spd=motor_time);
 void(* resetFunc) (void) = 0;
+
+/* Shutter Function */
 void nikonTime() { // Controls the shutter of a Nikon camera
   digitalWrite(SHUTTER, LOW); // close shutter (fully pressed)
   delay(20);
@@ -249,11 +254,21 @@ void nikonTime() { // Controls the shutter of a Nikon camera
   delay(20);
 }
 
+/* Buzzer Function */
+void buzz(int delay_ms=500, int freq=1000) {
+  tone(BUZZER, freq);   // Send freq(Hz) sound signal...
+  delay(delay_ms);      // ...for delay_ms
+  noTone(BUZZER);       // Stop sound...
+}
+
 /* 
  * ~ SETUP ~
  */
 void setup() {
   Serial.begin(9600);
+
+  // **** Buzzer ****
+  pinMode(BUZZZER, OUTPUT);
 
   // **** Camera Controls ****
   // set the pins to output pins 
