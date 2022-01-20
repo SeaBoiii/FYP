@@ -757,7 +757,7 @@ void loop() {
       break;
     }
 
-    /* Custom Patterns */ //Todo
+    /* Custom Patterns */
     case 7: {
       switch (sscreen) {
         case 0: { // Custom Profile 1

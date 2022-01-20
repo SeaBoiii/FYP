@@ -120,6 +120,8 @@ int createCustom(char* buf) {
   const char *focus = "F";
   const char *goBackT = "G";
   const char *goBackF = "N";
+  const char *lastSequenceT = "L";
+  const char *lastSequenceF = "S";
   do {
     int position_acquired;
     do { // Choosing Zoom or Focus
@@ -148,6 +150,7 @@ int createCustom(char* buf) {
         selection = resetScreen(selection);
       } else if (selection == 2) { // back
         strcat(buf, goBack ? goBackT : goBackF);
+        strcat(buf, lastSequenceT);
         char cstr[5];
         itoa(position_acquired, cstr, 10);
         strcat(buf, cstr);
@@ -159,6 +162,7 @@ int createCustom(char* buf) {
       option = getUpDown(max_option, option, 0);
     } while(selection != 1);
     strcat(buf, goBack ? goBackT : goBackF);
+    strcat(buf, lastSequenceF);
     char cstr[5];
     itoa(position_acquired, cstr, 10);
     strcat(buf, cstr);

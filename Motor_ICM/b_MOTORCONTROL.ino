@@ -64,19 +64,24 @@ void setMotor(char* data, char title[], int custom_itemcount) {
   if ((data[1] == 'G' || data[1] == 'g')) {
     goBack = true;
   }
+
+  bool lastSequence = false;
+  if ((data[2] == 'L' || data[2] == 'l')) {
+    lastSequence = true;
+  }
   
   if ((data[0] == 'F') || (data[0] == 'f')) {
-    int steps = strtol(data+2, NULL, 10);
+    int steps = strtol(data+3, NULL, 10);
     // set focus motor steps to steps
     //moveMotor(FOCUS, steps, motor_time/custom_itemcount);
-    goDist(FOCUS, title, steps, SNOW, goBack, motor_time/custom_itemcount); 
+    goDist(FOCUS, title, steps, SNOW, goBack, motor_time/custom_itemcount, lastSequence); 
   }
 
   if ((data[0] == 'Z') || (data[0] == 'z')) {
-    int steps = strtol(data+2, NULL, 10);
+    int steps = strtol(data+3, NULL, 10);
     // set zoom motor steps to steps
     //moveMotor(ZOOM, steps, motor_time/custom_itemcount);
-    goDist(ZOOM, title, steps, AZURE, goBack, motor_time/custom_itemcount);
+    goDist(ZOOM, title, steps, AZURE, goBack, motor_time/custom_itemcount, lastSequence);
   }
 }
 
