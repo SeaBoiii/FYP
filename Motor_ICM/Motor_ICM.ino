@@ -101,6 +101,7 @@ const char string_21[] PROGMEM = "Move to min distance";
 const char string_22[] PROGMEM = "Move to a Value";
 const char string_41[] PROGMEM = "To infinity & back";
 const char string_42[] PROGMEM = "To min. & back";
+const char string_45[] PROGMEM = "From inf. to POV-min";
 
 const char string_23[] PROGMEM = "|--Zoom Movements --|";
 const char string_24[] PROGMEM = "Move to tele";
@@ -113,12 +114,17 @@ const char string_28[] PROGMEM = "Move to Max [BOTH]";
 const char string_29[] PROGMEM = "Move to Min [BOTH]";
 const char string_39[] PROGMEM = "Zoom[MAX]&Focus[MIN]";
 const char string_40[] PROGMEM = "Zoom[MIN]&Focus[MAX]";
+const char string_46[] PROGMEM = "to Max[BOTH] & back";
+const char string_47[] PROGMEM = "to Min[BOTH] & back";
+const char string_48[] PROGMEM = "Z[MAX]F[MIN] & back";
+const char string_49[] PROGMEM = "Z[MIN]F[MAX] & back";
 
 const char string_31[] PROGMEM = "|----- Presets -----|";
 const char string_32[] PROGMEM = "Bokeh Effect";
 const char string_33[] PROGMEM = "Firework Effect";
 const char string_34[] PROGMEM = "Zoom Blur Effect";
 const char string_35[] PROGMEM = "Sine Wave Effect";
+const char string_50[] PROGMEM = "ZigZagger Out Effect";
 
 const char cali_zoom[] PROGMEM = "|--Calibrate Zoom --|";
 const char cali_focus[] PROGMEM = "|--Calibrate Focus--|";
@@ -162,10 +168,10 @@ const char new_sequence_3[] PROGMEM = "Add new sequence";
 const char *const main_menu[] PROGMEM = {mm_0, mm_1, mm_2, mm_3, mm_4, mm_5, mm_6, mm_7, mm_8};
 const char *const recalibration_menu[] PROGMEM = {string_4, string_5, string_6, string_7, back};
 const char *const settings_menu[] PROGMEM = {string_12, string_13, string_14, string_15, back};
-const char *const focus_menu[] PROGMEM = {string_19, string_20, string_21, string_22, string_41, string_42, back};
+const char *const focus_menu[] PROGMEM = {string_19, string_20, string_21, string_22, string_41, string_42, string_45, back};
 const char *const zoom_menu[] PROGMEM = {string_23, string_24, string_25, string_22, string_43, string_44, back};
-const char *const zoomfocus_menu[] PROGMEM = {string_27, string_28, string_29, string_39, string_40, string_22, back};
-const char *const presets_menu[] PROGMEM = {string_31, string_32, string_33, string_34, string_35, back};
+const char *const zoomfocus_menu[] PROGMEM = {string_27, string_28, string_29, string_39, string_40, string_22, string_46, string_47, string_48, string_49, back};
+const char *const presets_menu[] PROGMEM = {string_31, string_32, string_33, string_34, string_35, string_50, back};
 const char *const calizoom_left[] PROGMEM = {cali_zoom, string_cali, zoom_left};
 const char *const calizoom_right[] PROGMEM = {cali_zoom, string_cali, zoom_right};
 const char *const califocus_left[] PROGMEM = {cali_focus, string_cali, focus_left};
@@ -239,7 +245,7 @@ int getUpdate(int s, int offset=0);
 int getUpDown(int option, int current_option, int delay_ms=0);
 int getLeftRight(int range, int current, int low_limit=0, int delay_ms=0);
 void moveMotor(int type, int pos_desired, int shutter_spd=0);
-void moveMultiMotor(float zoom_value, float focus_value, float shutter_spd=0);
+void moveMultiMotor(int zoom_value, int focus_value, float shutter_spd=0);
 int calibrate(int type, const char *const string_table[], int upper_limit, int lower_limit, uint16_t color=WHITE);
 int chooseDist(int type, int count, const char *const string_table[], bool goBack=false, uint16_t color=WHITE);
 void goDist(int type, char title[], int pos_desired, uint16_t color=WHITE, bool goBack=true, float shutter_spd=motor_time, bool lastSequence=true);
@@ -566,13 +572,25 @@ void loop() {
           sscreen = resetScreen(sscreen);
           break;
         }
-        case 5: { // back
+        case 5: { // MAX-POV-MIN
+          int previous_pos = focus_current;
+          printMoveSteps(NULL, string_32, CADETBLUE, 2); // setting lens to starting position
+          moveMotor(FOCUS, focus_range);
+          focus_current = focus_range;
+          countdownMenu();
+          goDist(FOCUS, string_45, previous_pos, LIME, false, motor_time/3, false);
+          delay(toMS(motor_time/3));
+          goDist(FOCUS, string_45, 0, LIME, true, motor_time/3);
+          sscreen = resetScreen(sscreen);
+          break;
+        }
+        case 6: { // back
           screen = -1;
           sscreen = -1;
           break;
         }
         default: {
-          max_option = menu(6, focus_menu, option, 3);
+          max_option = menu(7, focus_menu, option, 0);
           sscreen = getUpdate(sscreen);
           break;
         }
@@ -626,7 +644,7 @@ void loop() {
           break;
         }
         default: {
-          max_option = menu(6, zoom_menu, option, 4);
+          max_option = menu(6, zoom_menu, option, 0);
           sscreen = getUpdate(sscreen);
           break;
         }
@@ -677,13 +695,57 @@ void loop() {
           sscreen = resetScreen(sscreen);
           break;
         }
-        case 5: { // back
+        case 5: { // ZF[MAX] & back
+          int previous_zoom, previous_focus;
+          previous_zoom = zoom_current;
+          previous_focus = focus_current;
+
+          countdownMenu();
+          goMultiDist(string_46, zoom_range, focus_range, VIOLET, false, motor_time/2, false);
+          goMultiDist(string_46, previous_zoom, previous_focus, VIOLET, false, motor_time/2);
+          sscreen = resetScreen(sscreen);
+          break;
+        }
+        case 6: { // ZF[MIN] & back
+          int previous_zoom, previous_focus;
+          previous_zoom = zoom_current;
+          previous_focus = focus_current;
+
+          countdownMenu();
+          goMultiDist(string_47, 0, 0, CORAL, false, motor_time/2, false);
+          goMultiDist(string_47, previous_zoom, previous_focus, CORAL, false, motor_time/2);
+          sscreen = resetScreen(sscreen);
+          break;
+        }
+        case 7: { // Z[MAX]F[MIN] & back
+          int previous_zoom, previous_focus;
+          previous_zoom = zoom_current;
+          previous_focus = focus_current;
+
+          countdownMenu();
+          goMultiDist(string_48, zoom_range, 0, AZURE, false, motor_time/2, false);
+          goMultiDist(string_48, previous_zoom, previous_focus, AZURE, false, motor_time/2);
+          sscreen = resetScreen(sscreen);
+          break;
+        }
+        case 8: { // Z[MIN]F[MAX] & back
+          int previous_zoom, previous_focus;
+          previous_zoom = zoom_current;
+          previous_focus = focus_current;
+
+          countdownMenu();
+          goMultiDist(string_49, 0, focus_range, LIME, false, motor_time/2, false);
+          goMultiDist(string_49, previous_zoom, previous_focus, LIME, false, motor_time/2);
+          sscreen = resetScreen(sscreen);
+          break;
+        }
+        case 9: { // back
           screen = -1;
           sscreen = -1;
           break;
         }
         default: {
-          max_option = menu(6, zoomfocus_menu, option, 2);
+          max_option = menu(10, zoomfocus_menu, option, 0, 0);
           sscreen = getUpdate(sscreen);
           break;
         }
@@ -749,12 +811,27 @@ void loop() {
           sscreen = resetScreen(sscreen);
           break;
         }
-        case 4: // back
+        case 4: { // The Zigzagger Out Effect
+          int previous_pos = zoom_current;
+          int minus = zoom_current/4;
+          countdownMenu();
+          for (int i=0; i<3; i++) {
+            goDist(ZOOM, string_50, zoom_current-minus, CORAL, false, motor_time/7, false);
+            goDist(ZOOM, string_50, zoom_current+(minus/2), CORAL, false, motor_time/7, false);
+          }
+          goDist(ZOOM, string_50, 0, CORAL, false, motor_time/7);
+          printMoveSteps(NULL, string_35, CADETBLUE, 1); // return to initial position
+          moveMotor(ZOOM, previous_pos);
+          zoom_current = previous_pos;
+          sscreen = resetScreen(sscreen);
+          break;
+        }
+        case 5: // back
           screen = -1;
           sscreen = -1;
           break;
         default:
-          max_option = menu(5, presets_menu, option, 2);
+          max_option = menu(6, presets_menu, option, 0);
           sscreen = getUpdate(sscreen);
           break;
       }
