@@ -77,11 +77,11 @@ void goMultiDist(char title[], int zoom_desired, int focus_desired, uint16_t col
   nikonTime();
   moveMultiMotor(zoom_desired, focus_desired, shutter_spd);
   nikonTime();
-  updateScreen(2000);
   buzz();
 
   // returns to original spot
   if (goBack) {
+    updateScreen(4000);
     printMoveSteps(3, title, color, true);
     moveMultiMotor(prev_zoom, prev_focus);
     //moveMultiMotor(prev_zoom, prev_focus);
