@@ -289,7 +289,7 @@ int resetScreen(int s) {
   tft.background(0,0,0);
   s = -1;
   updateMenu = true;
-  option = 0;
+  //option = 0;
   return s;
 }
 
