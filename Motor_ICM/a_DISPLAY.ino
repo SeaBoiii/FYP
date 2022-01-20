@@ -353,25 +353,30 @@ void moveMotorMenu(int count, const char *const string_table[], int current_step
  * countdown menu
  */
 void countdownMenu() {
+  if (shutter_speed == 0) {
+    updateScreen();
+    return;
+  }
   int i=0;
   strcpy_P(buffer, (char *)pgm_read_word(&(countdown[i])));
   tft.setCursor(0,0);
   tft.println(buffer);
-  //delay(2000);
+  delay(2000);
   for (i=1; i<4; i++) {
     tft.setTextSize(4);
     tft.setCursor(70,0);
     tft.setTextColor(RED,BLACK);
     strcpy_P(buffer, (char *)pgm_read_word(&(countdown[i])));
     tft.println(buffer);
-    //delay(1000);
+    delay(1000);
   }
   tft.setTextSize(2);
   strcpy_P(buffer, (char *)pgm_read_word(&(countdown[i])));
   tft.println(buffer);
   tft.setTextSize(1);
 
-  //delay(500);
+  delay(100);
+  nikonTime();
   tft.setTextColor(WHITE);
   tft.println("\n\n\nExposing camera to\nenvironment for...");
   tft.setTextSize(3);
@@ -381,11 +386,10 @@ void countdownMenu() {
     tft.setCursor(20,120);
     tft.print(i);
     tft.print("s  ");
-    //delay(1000);
+    delay(1000);
   }
   tft.setTextColor(WHITE);
   tft.setTextSize(1);
-  nikonTime();
   updateScreen();
 }
 

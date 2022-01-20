@@ -397,17 +397,21 @@ void loop() {
           hotbar(shutter_menu, shutter_speed, 40, 0, false, 0, 1, GOLDENROD);
           do {
             hotbar(shutter_menu, shutter_speed, 40, 0, false, 0, 1, GOLDENROD, true);
-            shutter_speed = getLeftRight(40, shutter_speed,1, 0);
+            shutter_speed = getLeftRight(40, shutter_speed, 0, 0);
           } while(digitalRead(SET));
           EEPROM.write(5, shutter_speed);
           updateScreen(500);
           sscreen = resetScreen(sscreen);
           break;
         case 2: { // ** set motor movement time **
-          hotbar(motor_time_menu, motor_time, shutter_speed, 0, false, 0, 1, GOLDENROD);
+          int shutter_time = 40;
+          if (shutter_speed != 0) {
+            shutter_time = shutter_speed;
+          }
+          hotbar(motor_time_menu, motor_time, shutter_time, 0, false, 0, 1, GOLDENROD);
           do {
-            hotbar(motor_time_menu, motor_time, shutter_speed, 0, false, 0, 1, GOLDENROD, true);
-            motor_time = getLeftRight(shutter_speed, motor_time, 1);
+            hotbar(motor_time_menu, motor_time, shutter_time, 0, false, 0, 1, GOLDENROD, true);
+            motor_time = getLeftRight(shutter_time, motor_time, 1);
           } while(digitalRead(SET));
           EEPROM.write(6, motor_time);
           updateScreen(500);
