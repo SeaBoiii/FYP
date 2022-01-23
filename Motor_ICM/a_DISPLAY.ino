@@ -29,7 +29,7 @@ int menu(int array_size, const char *const string_table[], int option_selected, 
   if (header != 0) {
     if (header > 0) {
       tft.setTextColor(AQUA);
-      tft.print(F("Shutter Speed: "));
+      tft.print(F("Shutter Time: "));
       tft.setTextColor(WHITE);
       tft.println(shutter_speed);
       tft.setTextColor(AQUA);
@@ -359,21 +359,18 @@ void countdownMenu() {
     return;
   }
   int i=0;
-  strcpy_P(buffer, (char *)pgm_read_word(&(countdown[i])));
   tft.setCursor(0,0);
-  tft.println(buffer);
+  tft.println("Get Ready!");
   delay(2000);
-  for (i=1; i<4; i++) {
+  for (i=3; i>0; i--) {
     tft.setTextSize(4);
     tft.setCursor(70,0);
     tft.setTextColor(RED,BLACK);
-    strcpy_P(buffer, (char *)pgm_read_word(&(countdown[i])));
-    tft.println(buffer);
+    tft.println(i);
     delay(1000);
   }
   tft.setTextSize(2);
-  strcpy_P(buffer, (char *)pgm_read_word(&(countdown[i])));
-  tft.println(buffer);
+  tft.println("SNAP!");
   tft.setTextSize(1);
 
   delay(100);
