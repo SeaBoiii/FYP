@@ -149,8 +149,6 @@ const char string_38[] PROGMEM = "to desired Outcome";
 
 const char custom_0[] PROGMEM = "|-CustomisedPattern-|";
 const char custom_1[] PROGMEM = "Custom Pattern 1";
-const char custom_2[] PROGMEM = "Custom Pattern 2";
-const char custom_3[] PROGMEM = "Custom Pattern 3";
 
 const char create_0[] PROGMEM = "Execute Pattern";
 const char create_1[] PROGMEM = "Create New Pattern";
@@ -182,13 +180,9 @@ const char *const focus_adjust[] PROGMEM = {adjust_focus, string_36_1, string_37
 const char *const focus_dist[] PROGMEM = {string_22, string_36_1, string_38};
 const char *const zoom_dist[] PROGMEM = {string_22, string_36, string_38};
 const char *const zoomfocus_dist[] PROGMEM = {string_22, string_36, string_38};
-const char *const custom_menu[] PROGMEM = {custom_0, custom_1, custom_2, custom_3, back};
+const char *const custom_menu[] PROGMEM = {custom_0, custom_1, back};
 const char *const custom1_emptymenu[] PROGMEM = {custom_1, create_1, back};
 const char *const custom1_menu[] PROGMEM = {custom_1, create_0, create_1, back};
-const char *const custom2_emptymenu[] PROGMEM = {custom_2, create_1, back};
-const char *const custom2_menu[] PROGMEM = {custom_2, create_0, create_1, back};
-const char *const custom3_emptymenu[] PROGMEM = {custom_3, create_1, back};
-const char *const custom3_menu[] PROGMEM = {custom_3, create_0, create_1, back};
 const char *const lens_selection_menu[] PROGMEM = {choose_motor_0, choose_motor_1, choose_motor_2, back};
 const char *const new_selection_truemenu[] PROGMEM = {new_sequence_0, new_sequence_2, new_sequence_3, back};
 const char *const new_selection_falsemenu[] PROGMEM = {new_sequence_0, new_sequence_1, new_sequence_3, back};
@@ -518,7 +512,6 @@ void loop() {
       focus_current = 0;
       moveMotor(FOCUS, focus_current);
       moveMotor(ZOOM, zoom_current);
-      //moveMultiMotor(zoom_current, focus_current);
       
       zoom_current = chooseDist(ZOOM, 3, zoom_adjust, false, AQUA);
       EEPROM.write(3, zoom_current);
@@ -878,87 +871,13 @@ void loop() {
           }
           break;
         }
-        case 1: { // Custom Profile 2
-          switch (ssscreen) {
-            case 0: { // Execute Sequence
-              countdownMenu();
-              splitStr(custom_buf2, custom_2, custom_itemcount2);
-              EEPROM.write(3, zoom_current);
-              EEPROM.write(4, focus_current);
-              ssscreen = resetScreen(ssscreen);
-              break;
-            }
-            case 1: { // Create new Sequence
-              custom_itemcount2 = createCustom(custom_buf2);
-              if (custom_itemcount2 > 0) {    
-                writeStringToMemory(50, custom_buf2);
-              }
-              EEPROM.write(9, custom_itemcount2);
-              ssscreen = resetScreen(ssscreen);
-              break;
-            }
-            case 2: { // Back
-              sscreen = -1;
-              ssscreen = -1;
-              break;
-            }
-            default: {
-              if (custom_itemcount2 == 0) { // no pattern stored
-                max_option = menu(2, custom2_emptymenu, option); 
-                ssscreen = getUpdate(ssscreen, 1);
-              } else { // pattern stored, 3 options
-                max_option = menu(3, custom2_menu, option);
-                ssscreen = getUpdate(ssscreen);
-              }
-              break;
-            }
-          }
-          break;
-        }
-        case 2: { // Custom Profile 3
-          switch (ssscreen) {
-            case 0: { // Execute Sequence
-              countdownMenu();
-              splitStr(custom_buf3, custom_3, custom_itemcount3);
-              EEPROM.write(3, zoom_current);
-              EEPROM.write(4, focus_current);
-              ssscreen = resetScreen(ssscreen);
-              break;
-            }
-            case 1: { // Create new Sequence
-              custom_itemcount3 = createCustom(custom_buf3);
-              if (custom_itemcount3 > 0) {
-                writeStringToMemory(75, custom_buf3);
-              }
-              EEPROM.write(10, custom_itemcount3);
-              ssscreen = resetScreen(ssscreen);
-              break;
-            }
-            case 2: { // Back
-              sscreen = -1;
-              ssscreen = -1;
-              break;
-            }
-            default: {
-              if (custom_itemcount3 == 0) { // no pattern stored
-                max_option = menu(2, custom3_emptymenu, option); 
-                ssscreen = getUpdate(ssscreen, 1);
-              } else { // pattern stored, 3 options
-                max_option = menu(3, custom3_menu, option);
-                ssscreen = getUpdate(ssscreen);
-              }
-              break;
-            }
-          }
-          break;
-        }
-        case 3: { // back
+        case 1: { // back
           screen = -1;
           sscreen = -1;
           break;
-        }
+        } 
         default: {
-          max_option = menu(4, custom_menu, option, 2);
+          max_option = menu(2, custom_menu, option, 2);
           sscreen = getUpdate(sscreen);
           break;
         }
