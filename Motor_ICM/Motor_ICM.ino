@@ -134,12 +134,6 @@ const char zoom_right[] PROGMEM = "the tele lens";
 const char focus_left[] PROGMEM = "min. focal length";
 const char focus_right[] PROGMEM = "   infinity";
 
-const char counttext_1[] PROGMEM = "Get Ready!";
-const char counttext_2[] PROGMEM = "3";
-const char counttext_3[] PROGMEM = "2";
-const char counttext_4[] PROGMEM = "1";
-const char counttext_5[] PROGMEM = "SNAP!";
-
 const char adjust_zoom[] PROGMEM = "|--- Adjust Zoom ---|";
 const char adjust_focus[] PROGMEM = "|---Adjust Focus ---|";
 const char string_36[] PROGMEM = "Adjust [ZOOM] ring";
@@ -148,8 +142,6 @@ const char string_37[] PROGMEM = "to the desired POV";
 const char string_38[] PROGMEM = "to desired Outcome";
 
 const char custom_0[] PROGMEM = "|-CustomisedPattern-|";
-const char custom_1[] PROGMEM = "Custom Pattern 1";
-
 const char create_0[] PROGMEM = "Execute Pattern";
 const char create_1[] PROGMEM = "Create New Pattern";
 
@@ -174,15 +166,13 @@ const char *const calizoom_left[] PROGMEM = {cali_zoom, string_cali, zoom_left};
 const char *const calizoom_right[] PROGMEM = {cali_zoom, string_cali, zoom_right};
 const char *const califocus_left[] PROGMEM = {cali_focus, string_cali, focus_left};
 const char *const califocus_right[] PROGMEM = {cali_focus, string_cali, focus_right};
-const char *const countdown[] PROGMEM = {counttext_1, counttext_2, counttext_3, counttext_4, counttext_5};
 const char *const zoom_adjust[] PROGMEM = {adjust_zoom, string_36, string_37};
 const char *const focus_adjust[] PROGMEM = {adjust_focus, string_36_1, string_37};
 const char *const focus_dist[] PROGMEM = {string_22, string_36_1, string_38};
 const char *const zoom_dist[] PROGMEM = {string_22, string_36, string_38};
 const char *const zoomfocus_dist[] PROGMEM = {string_22, string_36, string_38};
-const char *const custom_menu[] PROGMEM = {custom_0, custom_1, back};
-const char *const custom1_emptymenu[] PROGMEM = {custom_1, create_1, back};
-const char *const custom1_menu[] PROGMEM = {custom_1, create_0, create_1, back};
+const char *const custom1_emptymenu[] PROGMEM = {custom_0, create_1, back};
+const char *const custom1_menu[] PROGMEM = {custom_0, create_0, create_1, back};
 const char *const lens_selection_menu[] PROGMEM = {choose_motor_0, choose_motor_1, choose_motor_2, back};
 const char *const new_selection_truemenu[] PROGMEM = {new_sequence_0, new_sequence_2, new_sequence_3, back};
 const char *const new_selection_falsemenu[] PROGMEM = {new_sequence_0, new_sequence_1, new_sequence_3, back};
@@ -226,7 +216,6 @@ int option = 0;
 int updateMenu = true;
 int screen = -1;    // main screen
 int sscreen = -1;   // sub screen
-int ssscreen = -1;  // super sub screen
 int max_option = 0;
 
 // Function Declaration
@@ -235,7 +224,7 @@ void hotbar(char title[], int current, int max_range, int current_option=0, bool
 void caliMenu(int type, const char *const string_table[], int current_step, int max_steps=200, uint16_t color=WHITE, bool updateBar=false);
 void moveMotorMenu(int count, const char *const string_table[], int current_step, int max_steps, uint16_t color=WHITE, bool updateBar=false);
 void updateScreen(float delay_ms=0);
-int getUpdate(int s, int offset=0);
+int getUpdate(int s, int offset=0, bool reset=true);
 int getUpDown(int option, int current_option, int delay_ms=0);
 int getLeftRight(int range, int current, int low_limit=0, int delay_ms=0);
 void moveMotor(int type, int pos_desired, int shutter_spd=0);
@@ -389,8 +378,8 @@ void loop() {
         case 0: {// ** orientation menu **
           orientation = orientation ? 0 : 1;
           EEPROM.write(4,orientation);
-          sscreen = resetScreen(sscreen);
-          //sscreen = -1;
+          sscreen = -1;
+          updateScreen(100);
           break;
         }
         case 1: // ** set shutter time **
@@ -580,11 +569,12 @@ void loop() {
         case 6: { // back
           screen = -1;
           sscreen = -1;
+          option = 0;
           break;
         }
         default: {
           max_option = menu(7, focus_menu, option, 0);
-          sscreen = getUpdate(sscreen);
+          sscreen = getUpdate(sscreen, 0, false);
           break;
         }
       }
@@ -634,11 +624,12 @@ void loop() {
         case 5: { // back
           screen = -1;
           sscreen = -1;
+          option = 0;
           break;
         }
         default: {
           max_option = menu(6, zoom_menu, option, 0);
-          sscreen = getUpdate(sscreen);
+          sscreen = getUpdate(sscreen, 0, false);
           break;
         }
       }
@@ -735,11 +726,12 @@ void loop() {
         case 9: { // back
           screen = -1;
           sscreen = -1;
+          option = 0;
           break;
         }
         default: {
           max_option = menu(10, zoomfocus_menu, option, 0, 0);
-          sscreen = getUpdate(sscreen);
+          sscreen = getUpdate(sscreen, 0, false);
           break;
         }
       }
@@ -796,6 +788,7 @@ void loop() {
           goDist(FOCUS, string_35, focus_range, CORAL, false, motor_time/4, false);
           goDist(ZOOM, string_35, 0, CORAL, false, motor_time/4,false);
           goDist(FOCUS, string_35, 0, CORAL, false, motor_time/4);
+          delay(500);
           printMoveSteps(NULL, string_35, CADETBLUE, 1); // return to initial position
           moveMotor(FOCUS, previous_focus); 
           moveMotor(ZOOM, previous_zoom);
@@ -806,13 +799,14 @@ void loop() {
         }
         case 4: { // The Zigzagger Out Effect
           int previous_pos = zoom_current;
-          int minus = zoom_current/4;
+          int plus = (zoom_range-zoom_current)/4;
           countdownMenu();
           for (int i=0; i<3; i++) {
-            goDist(ZOOM, string_50, zoom_current-minus, CORAL, false, motor_time/7, false);
-            goDist(ZOOM, string_50, zoom_current+(minus/2), CORAL, false, motor_time/7, false);
+            goDist(ZOOM, string_50, zoom_current+plus, CORAL, false, motor_time/7, false);
+            goDist(ZOOM, string_50, zoom_current-(plus/2), CORAL, false, motor_time/7, false);
           }
-          goDist(ZOOM, string_50, 0, CORAL, false, motor_time/7);
+          goDist(ZOOM, string_50, zoom_range, CORAL, false, motor_time/7);
+          delay(500);
           printMoveSteps(NULL, string_35, CADETBLUE, 1); // return to initial position
           moveMotor(ZOOM, previous_pos);
           zoom_current = previous_pos;
@@ -822,10 +816,11 @@ void loop() {
         case 5: // back
           screen = -1;
           sscreen = -1;
+          option = 0;
           break;
         default:
           max_option = menu(6, presets_menu, option, 0);
-          sscreen = getUpdate(sscreen);
+          sscreen = getUpdate(sscreen, 0, false);
           break;
       }
       break;
@@ -834,51 +829,37 @@ void loop() {
     /* Custom Patterns */
     case 7: {
       switch (sscreen) {
-        case 0: { // Custom Profile 1
-          switch (ssscreen) {
-            case 0: { // Execute Sequence
-              countdownMenu();
-              splitStr(custom_buf1, custom_1, custom_itemcount1);
-              EEPROM.write(3, zoom_current);
-              EEPROM.write(4, focus_current);
-              ssscreen = resetScreen(ssscreen);
-              break;
-            }
-            case 1: { // Create new Sequence
-              custom_itemcount1 = createCustom(custom_buf1);
-              if (custom_itemcount1 > 0) {
-                writeStringToMemory(25, custom_buf1);
-              }
-              EEPROM.write(8, custom_itemcount1);
-              ssscreen = resetScreen(ssscreen);
-              break;
-            }
-            case 2: { // Back
-              sscreen = -1;
-              ssscreen = -1;
-              break;
-            }
-            default: {
-              if (custom_itemcount1 == 0) { // no pattern stored
-                max_option = menu(2, custom1_emptymenu, option); 
-                ssscreen = getUpdate(ssscreen, 1);
-              } else { // pattern stored, 3 options
-                max_option = menu(3, custom1_menu, option);
-                ssscreen = getUpdate(ssscreen);
-              }
-              break;
-            }
-          }
+        case 0: { // Execute Sequence
+          countdownMenu();
+          splitStr(custom_buf1, custom_0, custom_itemcount1);
+          EEPROM.write(3, zoom_current);
+          EEPROM.write(4, focus_current);
+          sscreen = resetScreen(sscreen);
           break;
         }
-        case 1: { // back
+        case 1: { // Create new Sequence
+          custom_itemcount1 = createCustom(custom_buf1);
+          if (custom_itemcount1 > 0) {
+            writeStringToMemory(25, custom_buf1);
+          }
+          EEPROM.write(8, custom_itemcount1);
+          sscreen = resetScreen(sscreen);
+          break;
+        }
+        case 2: { // Back
           screen = -1;
           sscreen = -1;
+          option = 0;
           break;
-        } 
+        }
         default: {
-          max_option = menu(2, custom_menu, option, 2);
-          sscreen = getUpdate(sscreen);
+          if (custom_itemcount1 == 0) { // no pattern stored
+            max_option = menu(2, custom1_emptymenu, option); 
+            sscreen = getUpdate(sscreen, 1);
+          } else { // pattern stored, 3 options
+            max_option = menu(3, custom1_menu, option);
+            sscreen = getUpdate(sscreen);
+          }
           break;
         }
       }
