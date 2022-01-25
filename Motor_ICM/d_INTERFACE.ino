@@ -118,10 +118,10 @@ int createCustom(char* buf) {
   buf[0] = '\0';
   const char *zoom = "Z";
   const char *focus = "F";
-  const char *goBackT = "G";
-  const char *goBackF = "N";
-  const char *lastSequenceT = "L";
-  const char *lastSequenceF = "S";
+  const char *goBackT = "T";
+  const char *goBackF = "F";
+  const char *lastSequenceT = "T";
+  const char *lastSequenceF = "F";
   do {
     int position_acquired;
     do { // Choosing Zoom or Focus
@@ -167,7 +167,7 @@ int createCustom(char* buf) {
     itoa(position_acquired, cstr, 10);
     strcat(buf, cstr);
     itemcount++;
-    if (itemcount == 4) {
+    if (itemcount == 8) {
       break;
     }
     strcat(buf, ",");

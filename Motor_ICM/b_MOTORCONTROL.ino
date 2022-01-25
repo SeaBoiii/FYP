@@ -33,21 +33,6 @@ long toMS(float seconds) {
  * - Z/F Steps
  * - e.g. Z300 = zoom to pos 300
  */
- /*
-void checkSerial() {
-  if (Serial.available() > 0) {
-    int i = 0;
-    delay(100);
-    int numStr = Serial.available();
-    if (numStr > 49) numStr = 49;
-    while (numStr--) {
-      buffer[i++] = Serial.read();
-    }
-    buffer[i]='\0';
-    splitStr(buffer);
-  }
-} */
-
 void splitStr(char* data, char title[], int custom_itemcount) {
   char int_buf[25];
   strcpy(int_buf, data);
@@ -61,12 +46,12 @@ void splitStr(char* data, char title[], int custom_itemcount) {
 
 void setMotor(char* data, char title[], int custom_itemcount) {
   bool goBack = false;
-  if ((data[1] == 'G' || data[1] == 'g')) {
+  if ((data[1] == 'T' || data[1] == 't')) {
     goBack = true;
   }
 
   bool lastSequence = false;
-  if ((data[2] == 'L' || data[2] == 'l')) {
+  if ((data[2] == 'T' || data[2] == 't')) {
     lastSequence = true;
   }
   
