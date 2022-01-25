@@ -1,11 +1,32 @@
-// ******** DISPLAY Functions **********
-/* ----- MENU ------
+/* ******** DISPLAY Functions **********
+ * 
+ * Functions targeted primarily to the display
+ * Libraries used:
+ * - TFT.h
+ * - Adafruit GFX Library
+ * 
+ * Functions available:
+ * menu() - Creates a menu template
+ * hotbar() - Creates a hotbar template
+ * resetScreen() - Resets the current screen to the previous
+ * updateScreen() - Updates the current screen
+ * caliMenu() - Creates a menu used during calibration
+ * moveMotorMenu() - Creates a menu used when choosing specific values
+ * countdownMenu() - An easy 3, 2, 1, GO! display
+ * printMoveSteps() - Displays information of the current status of the program
+ * 
+ */
+
+
+/** 
+ * ----- MENU ------
  * Creates a menu using a string array 
  * Display which option is being selected
  * 
- * [Top of screen]
+ * [Top of screen]            {Configurable}
  * Shutter Speed: __
- * Rear Motor: ____ Front Motor: ____
+ * Front Motor: ____
+ * Rear Motor: _____ 
  * 
  * [Middle of screen]
  * |----< Menu Name >----|
@@ -17,6 +38,14 @@
  * < > Move the lens          {Will be dependent on the menu}
  * ^v  Select the options
  *  o  Select current option
+ *  
+ * @param array_size        Maximum choices that the menu should have.
+ * @param string_table[]    Character array of strings to be displayed.
+ * @param option_selected   Current selected option.
+ * @param header            Values from -2 to 4, to display varying headers. 
+ * @param footer            Values from 0 to 2, to display varying footers.
+ * @param color             uint16_t colors can be used for display.
+ * @return int              The maximum choices of the menu.
  */
 
 int menu(int array_size, const char *const string_table[], int option_selected, int header=0, int footer=2, uint16_t color=DEEPPINK) {
@@ -140,13 +169,13 @@ int menu(int array_size, const char *const string_table[], int option_selected, 
 }
 
 /* --- Hotbar Screen ---
- *  Creates a template for a bar type screen
- *  Calculates the necessary parameters:
- *  char title - The title of the screen
- *  int current - Current value
- *  int max_range - The maximum range of the bar
- *  bool header - Header for the hotbar [false] 
- *  int footer - Type of footer to display [1]
+ * Creates a template for a bar type screen
+ * 
+ * char title - The title of the screen
+ * int current - Current value
+ * int max_range - The maximum range of the bar
+ * bool header - Header for the hotbar [false] 
+ * int footer - Type of footer to display [1]
  */
 void hotbar(char title[], int current, int max_range, int current_option=0, bool haveBack=false, int header=0, int footer=3, uint16_t color=WHITE, bool updateBar=false) {
   if (!updateMenu) return;
