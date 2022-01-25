@@ -168,14 +168,19 @@ int menu(int array_size, const char *const string_table[], int option_selected, 
   return total_num;
 }
 
-/* --- Hotbar Screen ---
+/** 
+ * --- Hotbar Screen ---
  * Creates a template for a bar type screen
  * 
- * char title - The title of the screen
- * int current - Current value
- * int max_range - The maximum range of the bar
- * bool header - Header for the hotbar [false] 
- * int footer - Type of footer to display [1]
+ * @param title           Title of the hotbar/screen.
+ * @param current         Current value.
+ * @param max_range       Maximum range allowed. (Always start from 0)
+ * @param current_option  Current option selected. (Only used if `haveBack` is true)
+ * @param haveBack        Insert a back button if needed.
+ * @param header          Values from -2 to 4, to display varying headers. 
+ * @param footer          Values from 0 to 2, to display varying footers.
+ * @param color           uint16_t colors can be used for display.
+ * @param updateBar       Only updates certain areas of the hotbar. (Save Time)
  */
 void hotbar(char title[], int current, int max_range, int current_option=0, bool haveBack=false, int header=0, int footer=3, uint16_t color=WHITE, bool updateBar=false) {
   if (!updateMenu) return;
@@ -309,10 +314,14 @@ void hotbar(char title[], int current, int max_range, int current_option=0, bool
   return;
 }
 
-/* --- Reset Screen ---
- * Sets option to 0
- * updateMenu to true
- * screen to -1
+/** 
+ * --- Reset Screen ---
+ * Sets option to 0,
+ * updateMenu to true,
+ * returns to previous screen.
+ * 
+ * @param s     Current screen of the display.
+ * @return int  returns -1 to the previous screen.
  */
 int resetScreen(int s) {
   tft.background(0,0,0);
@@ -322,11 +331,14 @@ int resetScreen(int s) {
   return s;
 }
 
-/* --- Updates Screen ---
+/** 
+ * --- Updates Screen ---
  * Updates the screen by:
  * - Reset background to BLACK
  * - updateMenu to true
  * - variable delay (important when includes joystick readings)
+ * 
+ * @param delay_ms  Configurable delay to be set. (Defaults to 0ms)
  */
 void updateScreen(float delay_ms=0) {
   delay(delay_ms);
@@ -334,8 +346,17 @@ void updateScreen(float delay_ms=0) {
   updateMenu = true;
 }
 
-/* --- Calibrate Screen ---
- * String_table will determine if zoom/focus
+/** 
+ * --- Calibrate Screen ---
+ * Calibration screen that is used during motor calibration.
+ * Calls `hotbar` function.
+ * 
+ * @param type          Motor currently selected.
+ * @param string_table  Character array of strings to be displayed.
+ * @param current_step  Current step/position of the motor.
+ * @param max_steps     Maximum steps allowed for the motor to take. (Defaults to 200 steps)
+ * @param color         uint16_t colors can be used for display.
+ * @param updateBar     Only updates certain areas of the hotbar. (Save Time)
  */
 void caliMenu(int type, const char *const string_table[], int current_step, int max_steps=200, uint16_t color=WHITE, bool updateBar=false) {
   if (!updateMenu) return;
@@ -357,8 +378,18 @@ void caliMenu(int type, const char *const string_table[], int current_step, int 
   return;
 }
 
-/* --- Move Motor Screen ---
- * Similar to cali Menu 
+/** 
+ * --- Move Motor Screen ---
+ * Similarly to cali Menu ...
+ * ... move motor menu is only used when getting a specific distance required.
+ * Calls `hotbar` function.
+ * 
+ * @param count         Maximum strings to be printed.
+ * @param string_table  Character array of strings to be displayed.
+ * @param current_step  Current step/position of the motor.
+ * @param max_steps     Maximum steps allowed for the motor to take.
+ * @param color         uint16_t colors can be used for display.
+ * @param updateBar     Only updates certain areas of the hotbar. (Save Time)
  */
 void moveMotorMenu(int count, const char *const string_table[], int current_step, int max_steps, uint16_t color=WHITE, bool updateBar=false) {
   if (!updateMenu) return;
@@ -377,9 +408,10 @@ void moveMotorMenu(int count, const char *const string_table[], int current_step
   tft.setTextColor(WHITE);
 }
 
-/*
- * A simple way to print a
- * countdown menu
+/**
+ * ---- Countdown Screen ----
+ * A simple way to print a ...
+ * ... countdown menu
  */
 void countdownMenu() {
   if (shutter_speed == 0) {
@@ -421,8 +453,19 @@ void countdownMenu() {
 }
 
 /*
- * What is being displayed when motor is moving
- * !! Currently a work in progress !!
+ * ---- Moving Motor Screen ----
+ * Displays when motor is currently moving.
+ * `shutter_speed` will be displayed.
+ * `motor_time` will be displayed.
+ * Other headers will be displayed. (if needed)
+ * Displays the current state of the sequence.
+ * 
+ * @param type    Motor currently selected. (Can be null)
+ * @param title   Title of the screen.
+ * @param color   uint16_t colors can be used for display.
+ * @param goBack  Only updates certain areas of the hotbar. (Save Time)
+ * 
+ * @warning Currently a work in progress.
  */
 void printMoveSteps(int type, char title[], uint16_t color, int goBack) {
   tft.setCursor(0,0);
