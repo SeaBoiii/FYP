@@ -1,5 +1,17 @@
-// ICM Buddy for DSLR Cameras
-// Uses 2 NEMA motors, 1 TFT 1.8 Screen and a joystick
+/*
+ * ICM BUDDY for DSLR Cameras
+ * 
+ * Hardwares used in this project:
+ * - 2 Nema 17 Motor (Single Shafts)
+ * - 1 TFT 1.8 Screen (Requires 5 220 ohm resistors)
+ * - 1 Joystick
+ * - 2 Stepper Drivers (I am using a DRV8825)
+ * 
+ * Additional Hardwares:
+ * - Buzzer
+ * - Shutter/Flash Remote Camera Switch
+ * - Limit Switches
+ */
 
 // Library Used
 #include <AccelStepper.h>
@@ -203,13 +215,9 @@ int orientation;        // address 4
 int shutter_speed;      // address 5
 int motor_time;         // address 6
 int custom_itemcount1;  // address 8
-int custom_itemcount2;  // address 9
-int custom_itemcount3;  // address 10
 
 // Custom Pattern Variables
 char custom_buf1[24];
-char custom_buf2[24];
-char custom_buf3[24];
 
 // Global Variables
 int option = 0;
@@ -310,8 +318,6 @@ void setup() {
   shutter_speed = EEPROM.read(5);
   motor_time = EEPROM.read(6);
   custom_itemcount1 = EEPROM.read(8);
-  custom_itemcount2 = EEPROM.read(9);
-  custom_itemcount3 = EEPROM.read(10);
 
   // ***** Default Values *****
   // if empty (==255), setting default values to 0
@@ -346,24 +352,9 @@ void setup() {
   if (custom_itemcount1 == 255) {
     custom_itemcount1 = 0;
   }
-  if (custom_itemcount2 == 255) {
-    custom_itemcount2 = 0;
-  }
-  if (custom_itemcount3 == 255) {
-    custom_itemcount3 = 0;
-  }
-
   if (custom_itemcount1 > 0) {
     readStringFromMemory(25, custom_buf1);
     Serial.println(custom_buf1);
-  }
-  if (custom_itemcount2 > 0) {
-    readStringFromMemory(50, custom_buf2);
-    Serial.println(custom_buf2);
-  }
-  if (custom_itemcount3 > 0) {
-    readStringFromMemory(75, custom_buf3);
-    Serial.println(custom_buf3);
   }
 }
 
