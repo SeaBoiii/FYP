@@ -1,4 +1,5 @@
 /* ******** INTERFACE Functions **********
+ *  
  * Functions here integrates all the 3 modules before this
  * This allows creation of certain patterns or outcomes
  * much easier without a messy code in the main file
@@ -86,6 +87,7 @@ int chooseDist(int type, int count, const char *const string_table[], bool goBac
  * 
  * @param type          Motor currently selected. (Can be null)
  * @param title         Title of the hotbar/screen.
+ * @param pos_desired   Number of steps for the motor to move.
  * @param color         uint16_t colors can be used for display.
  * @param goBack        Set to `true`  if motor has to return to previous position.
  * @param shutter_spd   Time allowed for the motor to move to the desired position.

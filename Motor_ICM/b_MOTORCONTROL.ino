@@ -1,11 +1,34 @@
-// ******** MOTOR CONTROL Functions **********
+/* ******** MOTOR CONTROL Functions **********
+ *  
+ * Functions involving the stepper driver and movement of motors.
+ * Libraries used:
+ * - AccelStepper.h
+ * 
+ * Functions available:
+ * calcRPM() - Calculates the RPM required for the motor to move 
+ *             to position in a fixed time.
+ * calcAccel() - Calculates the acceleration required for the motor to move 
+ *               to position in a fixed time.
+ * toMS() - Easy seconds to milliseconds converter.
+ * splitStr() - Splits a string by ` ` or `,` and works hand in hand with 
+ *              `setMotor()` to move a motor based on the string fed.
+ * setMotor() - Moves the motor according to the instructions set on the string.
+ * moveMotor() - Moves the motor based on the desired position in `x` time.
+ * setAccel() - Sets the acceleration of a motor.
+ * setCurrentPos() - Sets the current position of a motor.
+ * moveMultiMotor() - Moves 2 motors in unison based on the desired position in `x` time.
+ * 
+ */
 
-/* 
- *  -- Calc RPM --
- *   
+/** 
  * Calculate RPM by ratio
  * May not be needed since the speed
  * in AccelMotor is in steps/s
+ * 
+ * @param steps     Total steps for the motor to take.
+ * @param seconds   Time required for the motor to finish.
+ * @return float    RPM required for motor to reach in time.
+ *                  (Either slowing down or speeding up)
  */
 float calcRPM(int steps, float seconds) {
   return (float)(steps * MS_STEP)/seconds;
@@ -13,7 +36,12 @@ float calcRPM(int steps, float seconds) {
 
 /*
  * Calculating the acceleration
- * - Requires some finetuning
+ * @warning Requires some finetuning
+ * 
+ * @param steps     Total steps for the motor to take.
+ * @param seconds   Time required for the motor to finish.
+ * @return float    Acceleration required for motor to reach in time.
+ *                  (Either accelerating or decelerating)
  */
 float calcAccel(int steps, float seconds) {
   float max_speed = calcRPM(steps, seconds);
@@ -22,6 +50,9 @@ float calcAccel(int steps, float seconds) {
 
 /*
  * to MilliSeconds converter
+ * 
+ * @param seconds   Time to be converted to milliseconds. (in seconds)
+ * @return long     Converted seconds to milliseconds.
  */
 long toMS(float seconds) {
   return seconds * 1000;
@@ -29,9 +60,12 @@ long toMS(float seconds) {
 
 /*
  * Using Character Array to Movement
- * - Not implemented fully
- * - Z/F Steps
- * - e.g. Z300 = zoom to pos 300
+ * - Splits the character array by ` ` or `,`
+ * - Gives the required parameters for `setMotor()`
+ * 
+ * @param data              Character array of the custom pattern.
+ * @param title             Title of the screen.
+ * @param custom_itemcount  The total amount of sequences in the character array.
  */
 void splitStr(char* data, char title[], int custom_itemcount) {
   char int_buf[25];
@@ -44,6 +78,21 @@ void splitStr(char* data, char title[], int custom_itemcount) {
   }
 }
 
+/*
+ * Works hand in hand with `splitStr()` to move the motor
+ * according to the desired sequence.
+ * 
+ * How it is read:
+ * Z/F T/F T/F int  [min 4 char, max 6 char]
+ * data[0] - Either zoom or focus motor.
+ * data[1] - If motor has to go back or not.
+ * data[2] - If it is the last sequence.
+ * data[4++] - The number of steps to move.
+ * 
+ * @param data              Character array of a sequence/
+ * @param title             Title of the screen.
+ * @param custom_itemcount  The total amount of sequences in the character array.
+ */
 void setMotor(char* data, char title[], int custom_itemcount) {
   bool goBack = false;
   if ((data[1] == 'T' || data[1] == 't')) {
@@ -78,6 +127,10 @@ void setMotor(char* data, char title[], int custom_itemcount) {
  * type = 0 [FOCUS], 1 [ZOOM]
  *  orientation 0 [Focus Front, Zoom Rear]
  *  orientation 1 [Zoom Front, Focus Rear]
+ *  
+ * @param type          Motor currently selected.
+ * @param pos_desired   Number of steps for the motor to move.
+ * @param shutter_spd   Time allowed for the motor to move to the desired position.
  */
 
 void moveMotor(int type, int pos_desired, int shutter_spd=0) {
@@ -115,10 +168,14 @@ void moveMotor(int type, int pos_desired, int shutter_spd=0) {
   }
 }
 
-/* @Override AccelStepper methods
- *  type = 0 [FOCUS], 1 [ZOOM]
- *  orientation 0 [Focus Front, Zoom Rear]
- *  orientation 1 [Zoom Front, Focus Rear]
+/* 
+ * @Override AccelStepper methods
+ * type = 0 [FOCUS], 1 [ZOOM]
+ * orientation 0 [Focus Front, Zoom Rear]
+ * orientation 1 [Zoom Front, Focus Rear]
+ *  
+ * @param type   Motor currently selected.
+ * @param accel  Acceleration to be set.
  */
 
 void setAccel(int type, float accel) {
@@ -132,6 +189,15 @@ void setAccel(int type, float accel) {
   stepper->setAcceleration(accel);
 }
 
+/*
+ * @Override AccelStepper methods
+ * type = 0 [FOCUS], 1 [ZOOM]
+ * orientation 0 [Focus Front, Zoom Rear]
+ * orientation 1 [Zoom Front, Focus Rear]
+ * 
+ * @param type    Motor currently selected.
+ * @param value   Current position to be set.
+ */
 void setCurrentPos(int type, float value) {
   AccelStepper *stepper;
   if (type) {
@@ -147,8 +213,10 @@ void setCurrentPos(int type, float value) {
  * MultiStepper methods
  * Functions available: moveTo & runSpeedToPosition
  * To not move a motor, put '-1' in the value
- * !!BEWARE!! Using multistepper motor, the speed cannot be adjusted. Hence, using this method is definitely not possible.
- * However, there is still a possibility in doing this using a single loop and wait till both are done.
+ * 
+ * @param zoom_value    Steps to move the zoom motor.
+ * @param focus_value   Steps to move the focus motor.
+ * @param shutter_spd   Time allowed for the motor to move to the desired position.
  */
 void moveMultiMotor(int zoom_value, int focus_value, float shutter_spd=0) {
   int rear_position;
