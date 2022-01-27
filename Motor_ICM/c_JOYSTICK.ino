@@ -10,7 +10,7 @@
  */
 
 
-/*
+/**
  * returns the option either ++ or --
  * checks for up and down joystick movement
  * 
@@ -36,7 +36,7 @@ int getUpDown(int option, int current_option, int delay_ms=0) {
   return current_option;
 }
 
-/*
+/**
  * returns the option either ++ or --
  * checks for left and right joystick
  * able to set to a lower limit if required
@@ -64,7 +64,7 @@ int getLeftRight(int range, int current, int low_limit=0, int delay_ms=0) {
   return current;
 }
 
-/*
+/**
  * Checks if SET is pressed
  * Clears the screen,
  * resets option
