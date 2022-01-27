@@ -1,10 +1,29 @@
-// ******** INTERFACE Functions **********
-/*
+/* ******** INTERFACE Functions **********
  * Functions here integrates all the 3 modules before this
  * This allows creation of certain patterns or outcomes
  * much easier without a messy code in the main file
+ * 
+ * Functions available:
+ * calibrate() - Calibration of the motors, to set the upper and lower limit of the motor.
+ * choostDist() - Getting a specific distance of the motor to be used for other manipulation.
+ * goDist() - Move the motor to a distance, includes the display.
+ * goMultiDist() - Move both motors to their specific distances, includes the display.
+ * createCustom() - Get a custom string of sequences by the motor, set by the user.
+ * 
  */
 
+
+/**
+ * Calibration of motors,
+ * involves the display, joystick and motorcontrol module.
+ * 
+ * @param type          Motor currently selected. (Can be null)
+ * @param string_table  Character array of strings to be displayed.
+ * @param upper_limit   Upper limit of the calibration range.
+ * @param lower_limit   Lower limit of the calibration range.
+ * @param color         uint16_t colors can be used for display.
+ * @return int          Current position of the motor.
+ */
 int calibrate(int type, const char *const string_table[], int upper_limit, int lower_limit, uint16_t color=WHITE) {
   int pos_current;
   pos_current = type ? zoom_current : focus_current;
@@ -18,6 +37,18 @@ int calibrate(int type, const char *const string_table[], int upper_limit, int l
   return pos_current;
 }
 
+/**
+ * Similar to the calibration interface,
+ * function allows user to move the motors to ...
+ * ... a specific distance and returns the value.
+ * 
+ * @param type          Motor currently selected. (Can be null)
+ * @param count         Max size of the `string_table`.
+ * @param string_table  Character array of strings to be displayed.
+ * @param goBack        Set to `true`  if motor has to return to previous position.
+ * @param color         uint16_t colors can be used for display.
+ * @return int          Current position of the motor.
+ */
 int chooseDist(int type, int count, const char *const string_table[], bool goBack=false, uint16_t color=WHITE) {
   int pos_current, upper_limit;
   pos_current = type ? zoom_current : focus_current;
@@ -48,6 +79,18 @@ int chooseDist(int type, int count, const char *const string_table[], bool goBac
   return pos_current;
 }
 
+/**
+ * Moves the motor to a specific distance,
+ * also displays the relevant information of ... 
+ * ... what the sequence is to the user.
+ * 
+ * @param type          Motor currently selected. (Can be null)
+ * @param title         Title of the hotbar/screen.
+ * @param color         uint16_t colors can be used for display.
+ * @param goBack        Set to `true`  if motor has to return to previous position.
+ * @param shutter_spd   Time allowed for the motor to move to the desired position.
+ * @param lastSequence  If this is the last sequence, it will play the buzzer and click the camera shutter.
+ */
 void goDist(int type, char title[], int pos_desired, uint16_t color=WHITE, bool goBack=true, float shutter_spd=motor_time, bool lastSequence=true) {
   int pos_current;
   pos_current = type ? zoom_current : focus_current;
@@ -70,6 +113,19 @@ void goDist(int type, char title[], int pos_desired, uint16_t color=WHITE, bool 
   updateScreen();
 }
 
+/**
+ * Similar to `goDist` function, this does the same.
+ * But, it involves moving both motors (rear & front) ...
+ * ... at the same time.
+ * 
+ * @param title           Title of the hotbar/screen.
+ * @param zoom_desired    Specified position for zoom motor to move.
+ * @param focus_desired   Specified position for focus motor to move.
+ * @param color           uint16_t colors can be used for display.
+ * @param goBack          Set to `true`  if motor has to return to previous position.
+ * @param shutter_spd     Time allowed for the motor to move to the desired position.
+ * @param lastSequence    If this is the last sequence, it will play the buzzer and click the camera shutter.
+ */
 void goMultiDist(char title[], int zoom_desired, int focus_desired, uint16_t color=WHITE, bool goBack=true, float shutter_spd=motor_time, bool lastSequence=true) {
   int prev_zoom, prev_focus;
   prev_zoom = zoom_current;
@@ -92,6 +148,14 @@ void goMultiDist(char title[], int zoom_desired, int focus_desired, uint16_t col
   updateScreen();
 }
 
+/**
+ * Stores a string to the ...
+ * ... arduino EEPROM memory.
+ * 
+ * @param addrOffset  Starting address of the memory address to write to.
+ * @param strToWrite  The string to be written to memory.
+ * @return int        Ending address of the stored string.
+ */
 int writeStringToMemory(int addrOffset, const char strToWrite[]) {
   int len = strlen(strToWrite);
   EEPROM.write(addrOffset, len);
@@ -103,6 +167,14 @@ int writeStringToMemory(int addrOffset, const char strToWrite[]) {
   return addrOffset+1+len;
 }
 
+/**
+ * Returns a string from the ...
+ * ... arduino EEPROM memory
+ * 
+ * @param addrOffset
+ * @param strToRead
+ * @return int
+ */
 int readStringFromMemory(int addrOffset, char* strToRead) {
   int newStrLen = EEPROM.read(addrOffset);
 
@@ -113,6 +185,17 @@ int readStringFromMemory(int addrOffset, char* strToRead) {
   return addrOffset+1+newStrLen;
 }
 
+/**
+ * Create a custom sequence formed to a character array.
+ * All the necessary information is stored in the array.
+ * @notice Currently, multi motor is not available or to be made
+ *         available unless the overall efficiency of the program
+ *         can be improved.
+ *         
+ * @param buf   Character array to store the sequence.
+ * @return int  Total number of sequences. 
+ *              Maximum of 8 sequences per 1 pattern.
+ */
 int createCustom(char* buf) {
   int itemcount=0;
   buf[0] = '\0';
