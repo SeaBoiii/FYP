@@ -2,10 +2,9 @@
  * ICM BUDDY for DSLR Cameras
  * 
  * Hardwares used in this project:
- * - 2 Nema 17 Motor (Single Shafts)
+ * - 2 Servo Motors
  * - 1 TFT 1.8 Screen (Requires 5 220 ohm resistors)
  * - 1 Joystick
- * - 2 Stepper Drivers (I am using a DRV8825)
  * 
  * Additional Hardwares:
  * - Buzzer
@@ -14,19 +13,16 @@
  */
 
 // Library Used
-#include <AccelStepper.h>
+#include <Servo.h>
 #include <TFT.h>
 #include <SPI.h>
 #include <avr/pgmspace.h>
 #include <EEPROM.h>
 
 // Motor Parameters
-#define MOTOR_STEPS 200
-#define RPM 1000
+#define MOTOR_STEPS 180
 #define FOCUS 0
 #define ZOOM 1
-#define MS_STEP 8 // default 1/8 microstep
-#define CALI_ACCEL 400
 
 // Arduino Pins
 /* TFT Display Pins */
@@ -35,10 +31,8 @@
 #define RST 12
 
 /* Motor Pins */
-#define rear_DIR    5
-#define rear_STEP   6
-#define front_DIR   3
-#define front_STEP  4
+#define front_STEP  8
+#define rear_STEP   7
 
 /* Joystick Pins */
 #define UP    2
@@ -192,8 +186,8 @@ const char *const new_selection_falsemenu[] PROGMEM = {new_sequence_0, new_seque
 
 // Object Declaration
 /* Motor Objects */
-AccelStepper rear_motor(AccelStepper::DRIVER, rear_STEP, rear_DIR);
-AccelStepper front_motor(AccelStepper::DRIVER, front_STEP, front_DIR);
+Servo rear_motor;
+Servo front_motor;
 
 /* Display Object */
 TFT tft(CS, DC, RST);
@@ -285,9 +279,9 @@ void setup() {
   pinMode(UP, INPUT_PULLUP);
 
   // ***** Motor *****
-  // motor using accelstepper lib
-  rear_motor.setMaxSpeed(RPM);
-  front_motor.setMaxSpeed(RPM);
+  // attaches servo pin to servo object
+  rear_motor.attach(rear_STEP);
+  front_motor.attach(front_STEP);
   
   // ***** Display *****
   // able to call out similar functions
