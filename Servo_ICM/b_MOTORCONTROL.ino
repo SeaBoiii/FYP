@@ -20,34 +20,6 @@
  * 
  */
 
-/** 
- * Calculate RPM by ratio
- * May not be needed since the speed
- * in AccelMotor is in steps/s
- * 
- * @param steps     Total steps for the motor to take.
- * @param seconds   Time required for the motor to finish.
- * @return float    RPM required for motor to reach in time.
- *                  (Either slowing down or speeding up)
- */
-float calcRPM(int steps, float seconds) {
-  return (float)(steps * MS_STEP)/seconds;
-}
-
-/*
- * Calculating the acceleration
- * @warning Requires some finetuning
- * 
- * @param steps     Total steps for the motor to take.
- * @param seconds   Time required for the motor to finish.
- * @return float    Acceleration required for motor to reach in time.
- *                  (Either accelerating or decelerating)
- */
-float calcAccel(int steps, float seconds) {
-  float max_speed = calcRPM(steps, seconds);
-  return (float)max_speed / seconds;
-}
-
 /*
  * to MilliSeconds converter
  * 
@@ -136,77 +108,39 @@ void setMotor(char* data, char title[], int custom_itemcount) {
 void moveMotor(int type, int pos_desired, int shutter_spd=0) {
   // zoom_range, focus_range, zoom_current, focus_current, 
   // zoom_min, focus_min, shutter_speed
-  AccelStepper *stepper;
+  Servo *motor;
   int pos_current;
   
   if (type) { // ZOOM
-    stepper = orientation ? &front_motor : &rear_motor;
+    motor = orientation ? &front_motor : &rear_motor;
     pos_current = zoom_current;
   } else { // FOCUS
-    stepper = orientation ? &rear_motor : &front_motor;
+    motor = orientation ? &rear_motor : &front_motor;
     pos_current = focus_current;
   }
-  
-  int steps_to_move = (pos_desired - pos_current) * MS_STEP;
 
-  if (shutter_spd != 0) {
-    stepper->setAcceleration(calcAccel(abs(steps_to_move), (float)shutter_spd));
-  } 
-  if (shutter_spd == 0) {
-    stepper->setAcceleration(CALI_ACCEL);
-  }
+  int steps_to_move = (pos_desired - pos_current);
+  
   // if +ve, move clockwise
   // else -ve, move anti-clockwise
-  stepper->moveTo(pos_desired * MS_STEP);
-  
-  //blocking statement
-  while (stepper->distanceToGo() != 0) {
-    stepper->run();
-    if(shutter_spd != 0) {
-      delay(toMS((float)shutter_spd/abs(steps_to_move)));
+  if (shutter_spd != 0) {
+    if (steps_to_move > 0) {  // +ve
+      for (int pos=pos_current; pos<=pos_desired; pos+=1) {
+        motor.write(pos);
+        delay(toMS((float)shutter_spd/abs(steps_to_move)));
+      }
     }
-  }
-}
 
-/* 
- * @Override AccelStepper methods
- * type = 0 [FOCUS], 1 [ZOOM]
- * orientation 0 [Focus Front, Zoom Rear]
- * orientation 1 [Zoom Front, Focus Rear]
- *  
- * @param type   Motor currently selected.
- * @param accel  Acceleration to be set.
- */
-
-void setAccel(int type, float accel) {
-  AccelStepper *stepper;
-  if (type) {
-    stepper = orientation ? &front_motor : &rear_motor;
+    if (steps_to_move < 0) {  // -ve
+      for (int pos=pos_current; pos>=pos_desired; pos-=1) {
+        motor.write(pos);
+        delay(toMS((float)shutter_spd/abs(steps_to_move)));
+      }
+    }
+    
   } else {
-    stepper = orientation ? &rear_motor : &front_motor;
+    motor.write(pos_desired);
   }
-
-  stepper->setAcceleration(accel);
-}
-
-/*
- * @Override AccelStepper methods
- * type = 0 [FOCUS], 1 [ZOOM]
- * orientation 0 [Focus Front, Zoom Rear]
- * orientation 1 [Zoom Front, Focus Rear]
- * 
- * @param type    Motor currently selected.
- * @param value   Current position to be set.
- */
-void setCurrentPos(int type, float value) {
-  AccelStepper *stepper;
-  if (type) {
-    stepper = orientation ? &front_motor : &rear_motor;
-  } else {
-    stepper = orientation ? &rear_motor : &front_motor;
-  }
-
-  stepper->setCurrentPosition(value);
 }
 
 /*
@@ -221,6 +155,8 @@ void setCurrentPos(int type, float value) {
 void moveMultiMotor(int zoom_value, int focus_value, float shutter_spd=0) {
   int rear_position;
   int front_position;
+  int rear_current = orientation ? zoom_current : focus_current;
+  int front_current = orientation ? zoom_current : focus_current;
   
   if (zoom_value == -1) {
     rear_position = orientation ? focus_value : zoom_current;
@@ -236,29 +172,15 @@ void moveMultiMotor(int zoom_value, int focus_value, float shutter_spd=0) {
     front_position = orientation ? zoom_value : focus_value;
   }
 
-  int focus_steps = abs(focus_value-focus_current) * MS_STEP;
-  int zoom_steps = abs(zoom_value-zoom_current) * MS_STEP;
+  int focus_steps = abs(focus_value-focus_current);
+  int zoom_steps = abs(zoom_value-zoom_current);
   int average_steps = (focus_steps+zoom_steps)/2;
 
-  //adjust speed accordingly
-  if (shutter_spd != 0) {
-    float zoom_RPM = 0;
-    float focus_RPM = 0;
-    if(zoom_value != -1) {
-      zoom_RPM = calcAccel(zoom_steps, (float)shutter_spd);
-    }
-    if (focus_value != -1) {
-      focus_RPM = calcAccel(focus_steps, (float)shutter_spd);
-    }
-    rear_motor.setAcceleration(orientation ? focus_RPM : zoom_RPM);
-    front_motor.setAcceleration(orientation ? zoom_RPM : focus_RPM);
-  } else if (shutter_spd == 0) {
-    rear_motor.setAcceleration(CALI_ACCEL);
-    front_motor.setAcceleration(CALI_ACCEL);
+  while(rear_current != rear_position || front_current != front_position) {
+    if (rear_current !
+    rear_motor.write(rear_current);
+    front_motor.write(front_current);
   }
-
-  rear_motor.moveTo(rear_position * MS_STEP);
-  front_motor.moveTo(front_position * MS_STEP);
 
   while (rear_motor.distanceToGo() != 0 || front_motor.distanceToGo() != 0) {
     rear_motor.run();
