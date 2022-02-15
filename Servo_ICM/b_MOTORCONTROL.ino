@@ -126,20 +126,20 @@ void moveMotor(int type, int pos_desired, int shutter_spd=0) {
   if (shutter_spd != 0) {
     if (steps_to_move > 0) {  // +ve
       for (int pos=pos_current; pos<=pos_desired; pos+=1) {
-        motor.write(pos);
+        motor->write(pos);
         delay(toMS((float)shutter_spd/abs(steps_to_move)));
       }
     }
 
     if (steps_to_move < 0) {  // -ve
       for (int pos=pos_current; pos>=pos_desired; pos-=1) {
-        motor.write(pos);
+        motor->write(pos);
         delay(toMS((float)shutter_spd/abs(steps_to_move)));
       }
     }
     
   } else {
-    motor.write(pos_desired);
+    motor->write(pos_desired);
   }
 }
 
@@ -172,23 +172,28 @@ void moveMultiMotor(int zoom_value, int focus_value, float shutter_spd=0) {
     front_position = orientation ? zoom_value : focus_value;
   }
 
-  int focus_steps = abs(focus_value-focus_current);
-  int zoom_steps = abs(zoom_value-zoom_current);
-  int average_steps = (focus_steps+zoom_steps)/2;
+  int rear_steps = rear_position-rear_current;
+  int front_steps = front_position-front_current;
+  int average_steps = (rear_steps+front_steps)/2;
 
   while(rear_current != rear_position || front_current != front_position) {
-    if (rear_current !
+    if (rear_steps > 0) {
+      rear_current += 1;
+    } else if (rear_steps < 0) {
+      rear_current -= 1;
+    }
+
+    if (front_steps > 0) {
+      front_current += 1;
+    } else if (front_steps < 0) {
+      front_current -= 1;
+    }
     rear_motor.write(rear_current);
     front_motor.write(front_current);
-  }
-
-  while (rear_motor.distanceToGo() != 0 || front_motor.distanceToGo() != 0) {
-    rear_motor.run();
-    front_motor.run();
     if (shutter_speed != 0) {
       delay(toMS((float)shutter_spd/average_steps));
     }
-  } 
+  }
 
   if (zoom_value == -1) {
     focus_current = focus_value;

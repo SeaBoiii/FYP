@@ -319,12 +319,12 @@ void setup() {
   if (focus_current == 255) {
     focus_current = 0;
   } else if (focus_current != 255) {
-    setCurrentPos(FOCUS, focus_current * MS_STEP);
+    moveMotor(FOCUS, focus_current);
   }
   if (zoom_current == 255) {
     zoom_current = 0;
   } else if (zoom_current != 255) {
-    setCurrentPos(ZOOM, zoom_current * MS_STEP);
+    moveMotor(ZOOM, zoom_current);
   }
   if (focus_range == 255) {
     focus_range = 0;
@@ -411,11 +411,9 @@ void loop() {
         case 0: {
           zoom_current = 0;
           moveMotor(ZOOM, zoom_current);
-          setCurrentPos(ZOOM, 0);
       
           // set to minimum left
           int minZoom = calibrate(ZOOM, calizoom_left, 50, -50, AQUA);
-          setCurrentPos(ZOOM, 0); // set to 0
           updateScreen(500);
           
           // set to maximum right
@@ -435,11 +433,9 @@ void loop() {
         case 1: {
           focus_current = 0;
           moveMotor(FOCUS, focus_current);
-          setCurrentPos(FOCUS, 0);
       
           // set to minimum left
           int minFocus = calibrate(FOCUS, califocus_left, 50, -50, DEEPPINK);
-          setCurrentPos(FOCUS, 0); // set to 0
           updateScreen(500);
       
           // set to maximum right
