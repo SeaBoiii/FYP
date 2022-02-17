@@ -3,7 +3,7 @@
 /* [Basic_Parameters] */
 
 // Stepper Motor Size
-motor_index = 0;	// [0:NEMA 8, 1:NEMA 11, 2:NEMA 14, 3:NEMA 16, 4:NEMA 17, 5:NEMA 23, 6:NEMA 34, 7:NEMA 42]
+motor_index = 4;	// [0:NEMA 8, 1:NEMA 11, 2:NEMA 14, 3:NEMA 16, 4:NEMA 17, 5:NEMA 23, 6:NEMA 34, 7:NEMA 42]
 
 // Parallel or Perpendicular (will need supports)
 orientation = 0;	// [0:Parallel, 1:Perpendicular]
@@ -80,7 +80,7 @@ if( openbeam_size <= 2*beam_bolt_diameter ||
     echo("<B>Error: Parameters result in bad beam attachment</B>");
 }
 
-use <T_Slot.scad>
+//use <T_Slot.scad>
 //use <T-slot_nut.scad>
 
 
@@ -109,8 +109,8 @@ rotate([90,0,0])
 motor_mount();
 */
 
-//motor_mount();
 
+//motor_mount();
 // tslot beam
 //tslot_beam();
 
@@ -118,6 +118,7 @@ motor_mount();
 
 mirror([0,1,0])
 base(15, 35+9.5);
+
 //translate([10,-3,34])
 //rotate([90,0,0])
     //TSlotNut(5);
@@ -208,11 +209,11 @@ module base(t_thickness, slot_height=35) {
       // extended beam
       slot_thickness = 2;
       t_padded_width = motor_width + slot_thickness*2;
-      extra_length = 22+10;
+      extra_length = 22+10-20;
       t_slot_thickness = 10;
       
       translate([padded_width,0,0])
-      cube([extra_length-1, t_thickness, padded_height]);
+      cube([extra_length-0.5, t_thickness, padded_height]);
       
       translate([padded_width+extra_length-1,t_thickness-t_slot_thickness,0])
       cube([1, t_slot_thickness, padded_height]);
@@ -246,8 +247,8 @@ module t_slot_beam(t_length, t_thickness) {
         
         //things to cut out
         t_slot_length = 3;
-         t_slot_width = 15;
-         t_slot_thickness = 6;
+         t_slot_width = 15+20;
+         t_slot_thickness = 6+20;
         
         translate([padded_width/2-(t_slot_thickness/2),0, 0])
         cube([t_slot_thickness, t_slot_length, slot_length]);
@@ -255,7 +256,7 @@ module t_slot_beam(t_length, t_thickness) {
         translate([padded_width/2-(t_slot_width/2),t_slot_length, 0])
         cube([t_slot_width, thickness+3, slot_length]);
         
-        translate([padded_width/2-(4/2),t_slot_length+thickness+3, slot_length/2-padded_width/2-5])
+        translate([padded_width/2-(4/2),t_slot_length+thickness+3, slot_length/2-padded_width/2])
         cube([4,2,slot_length-10.5]);
     }
     
@@ -288,12 +289,12 @@ module motor_mount(){
          
         //t slot
          t_slot_length = 3+0.3;
-         t_slot_width = 15-0.4;
-         t_slot_thickness = 6-0.4;
-         translate([padded_width-(t_slot_thickness/2)-10,-thickness,padded_length-17+thickness])
+         t_slot_width = 15-0.4+20;
+         t_slot_thickness = 6-0.4+20;
+         translate([motor_width/2-(t_slot_thickness/2),-thickness,padded_length-17+thickness])
          cube([t_slot_thickness, padded_width-thickness+2, t_slot_length]);
          
-         translate([padded_width-(t_slot_width/2)-10,-thickness,padded_length-17+thickness+t_slot_length])
+         translate([motor_width/2-(t_slot_width/2),-thickness,padded_length-17+thickness+t_slot_length])
          cube([t_slot_width, padded_width-thickness+2, thickness+2+0.7]);
          
         // motor side pieces for strength
@@ -324,7 +325,7 @@ module motor_mount(){
        cylinder(thickness+2,center_radius,center_radius);
        
      // screw
-     translate([motor_width-6,motor_width/2,31])
+     translate([motor_width/2,motor_width/2,31])
         cylinder(4, d=3.8);
         
      translate([motor_width/2-6/2,motor_width/2+12,0])
