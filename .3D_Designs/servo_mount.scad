@@ -3,7 +3,7 @@
 /* [Basic_Parameters] */
 
 // Stepper Motor Size
-motor_index = 0;	// [0:NEMA 8, 1:NEMA 11, 2:NEMA 14, 3:NEMA 16, 4:NEMA 17, 5:NEMA 23, 6:NEMA 34, 7:NEMA 42]
+motor_index = 4;	// [0:NEMA 8, 1:NEMA 11, 2:NEMA 14, 3:NEMA 16, 4:NEMA 17, 5:NEMA 23, 6:NEMA 34, 7:NEMA 42]
 
 // Parallel or Perpendicular (will need supports)
 orientation = 0;	// [0:Parallel, 1:Perpendicular]
@@ -80,7 +80,7 @@ if( openbeam_size <= 2*beam_bolt_diameter ||
     echo("<B>Error: Parameters result in bad beam attachment</B>");
 }
 
-use <T_Slot.scad>
+//use <T_Slot.scad>
 //use <T-slot_nut.scad>
 
 
@@ -111,7 +111,7 @@ motor_mount();
 
 //motor_mount();
 
-rotate([90,0,0])
+//rotate([90,0,0])
 servo_mount();
 
 // tslot beam
@@ -272,20 +272,23 @@ module servo_mount() {
     protuding_length = 7.25+0.5;
     
     t_slot_length = 3+0.3;
-    t_slot_width = 15-0.4;
-    t_slot_thickness = 6-0.4;
+    t_slot_width = 15-0.4+20;
+    t_slot_thickness = 6-0.4+20;
     
     padded_length = servo_length + thickness*2;
     padded_width = servo_width + thickness*2;
     
+    padded_motor_width = mount_width+thickness*2;
+    
     difference() {
         union() {
-            cube([padded_length,padded_width,servo_height]);
+            translate([0,-(padded_motor_width/4),0])
+            cube([padded_length,padded_motor_width,servo_height]);
             
-            translate([servo_length+thickness,0,servo_height-5])
-            cube([protuding_length,padded_width,5]);
-            translate([-protuding_length+thickness,0,servo_height-5])
-            cube([protuding_length,padded_width,5]);
+            translate([servo_length+thickness,-(padded_motor_width/4),servo_height-5])
+            cube([protuding_length,padded_motor_width,5]);
+            translate([-protuding_length+thickness,-(padded_motor_width/4),servo_height-5])
+            cube([protuding_length,padded_motor_width,5]);
             
             //t slot
             
