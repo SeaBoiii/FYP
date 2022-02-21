@@ -209,6 +209,8 @@ int orientation;        // address 4
 int shutter_speed;      // address 5
 int motor_time;         // address 6
 int custom_itemcount1;  // address 8
+int focus_min;          // address 9
+int zoom_min;           // address 10
 
 // Custom Pattern Variables
 char custom_buf1[24];
@@ -312,6 +314,8 @@ void setup() {
   shutter_speed = EEPROM.read(5);
   motor_time = EEPROM.read(6);
   custom_itemcount1 = EEPROM.read(8);
+  focus_min = EEPROM.read(9);
+  zoom_min = EEPROM.read(10);
 
   // ***** Default Values *****
   // if empty (==255), setting default values to 0
@@ -340,6 +344,12 @@ void setup() {
   }
   if (motor_time == 255) {
     motor_time = 1;
+  }
+  if (focus_min == 255) {
+    focus_min = 0;
+  }
+  if (zoom_min == 255) {
+    zoom_min = 0;
   }
 
   // For Custom Profiles
@@ -409,11 +419,14 @@ void loop() {
       switch(sscreen) {
         // ** zoom calibration **
         case 0: {
-          zoom_current = 0;
+          zoom_min = 0;
+          zoom_current = 5;
           moveMotor(ZOOM, zoom_current);
       
           // set to minimum left
-          int minZoom = calibrate(ZOOM, calizoom_left, 50, -50, AQUA);
+          int minZoom = calibrate(ZOOM, calizoom_left, 15, 0, AQUA);
+          zoom_min = minZoom;
+          EEPROM.write(10, zoom_min);
           updateScreen(500);
           
           // set to maximum right
@@ -431,11 +444,14 @@ void loop() {
         
         // ** focus calibration **
         case 1: {
-          focus_current = 0;
+          focus_min = 0;
+          focus_current = 5;
           moveMotor(FOCUS, focus_current);
       
           // set to minimum left
-          int minFocus = calibrate(FOCUS, califocus_left, 50, -50, DEEPPINK);
+          int minFocus = calibrate(FOCUS, califocus_left, 15, 0, DEEPPINK);
+          focus_min = minFocus;
+          EEPROM.write(9, focus_min);
           updateScreen(500);
       
           // set to maximum right
@@ -458,6 +474,8 @@ void loop() {
           EEPROM.write(1,255);
           EEPROM.write(2,255);
           EEPROM.write(3,255);
+          EEPROM.write(9,255);
+          EEPROM.write(10,255);
           resetFunc();
           break; 
         }

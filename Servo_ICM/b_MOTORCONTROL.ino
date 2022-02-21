@@ -110,13 +110,16 @@ void moveMotor(int type, int pos_desired, int shutter_spd=0) {
   // zoom_min, focus_min, shutter_speed
   Servo *motor;
   int pos_current;
+  int min_pos;
   
   if (type) { // ZOOM
     motor = orientation ? &front_motor : &rear_motor;
     pos_current = zoom_current;
+    min_pos = zoom_min;
   } else { // FOCUS
     motor = orientation ? &rear_motor : &front_motor;
     pos_current = focus_current;
+    min_pos = focus_min;
   }
 
   int steps_to_move = (pos_desired - pos_current);
@@ -126,14 +129,14 @@ void moveMotor(int type, int pos_desired, int shutter_spd=0) {
   if (shutter_spd != 0) {
     if (steps_to_move > 0) {  // +ve
       for (int pos=pos_current; pos<=pos_desired; pos+=1) {
-        motor->write(pos);
+        motor->write(pos + min_pos);
         delay(toMS((float)shutter_spd/abs(steps_to_move)));
       }
     }
 
     if (steps_to_move < 0) {  // -ve
       for (int pos=pos_current; pos>=pos_desired; pos-=1) {
-        motor->write(pos);
+        motor->write(pos + min_pos);
         delay(toMS((float)shutter_spd/abs(steps_to_move)));
       }
     }
@@ -141,6 +144,8 @@ void moveMotor(int type, int pos_desired, int shutter_spd=0) {
   } else {
     motor->write(pos_desired);
   }
+
+  type ? zoom_current = pos_desired : focus_current = pos_desired;
 }
 
 /*
@@ -157,10 +162,12 @@ void moveMultiMotor(int zoom_value, int focus_value, float shutter_spd=0) {
   int front_position;
   int rear_current = orientation ? zoom_current : focus_current;
   int front_current = orientation ? zoom_current : focus_current;
+  int rear_min;
+  int front_min;
   
   if (zoom_value == -1) {
     rear_position = orientation ? focus_value : zoom_current;
-    front_position = orientation ? zoom_current : focus_value;
+    front_position = orientation ? zoom_current : focus_value; 
   } else if (focus_value == -1) {
     rear_position = orientation ? focus_current : zoom_value;
     front_position = orientation ? zoom_value : focus_current;
@@ -171,6 +178,9 @@ void moveMultiMotor(int zoom_value, int focus_value, float shutter_spd=0) {
     rear_position = orientation ? focus_value : zoom_value;
     front_position = orientation ? zoom_value : focus_value;
   }
+
+  rear_min = orientation ? focus_min : zoom_min;
+  front_min = orientation ? zoom_min : focus_min;
 
   int rear_steps = rear_position-rear_current;
   int front_steps = front_position-front_current;
@@ -188,8 +198,8 @@ void moveMultiMotor(int zoom_value, int focus_value, float shutter_spd=0) {
     } else if (front_steps < 0) {
       front_current -= 1;
     }
-    rear_motor.write(rear_current);
-    front_motor.write(front_current);
+    rear_motor.write(rear_current + rear_min);
+    front_motor.write(front_current + front_min);
     if (shutter_speed != 0) {
       delay(toMS((float)shutter_spd/average_steps));
     }
