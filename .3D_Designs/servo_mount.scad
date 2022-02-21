@@ -285,19 +285,19 @@ module servo_mount() {
             translate([0,-(padded_motor_width/4),0])
             cube([padded_length,padded_motor_width,servo_height]);
             
-            translate([servo_length+thickness,-(padded_motor_width/4),servo_height-5])
-            cube([protuding_length,padded_motor_width,5]);
-            translate([-protuding_length+thickness,-(padded_motor_width/4),servo_height-5])
-            cube([protuding_length,padded_motor_width,5]);
+            translate([servo_length+thickness,-(padded_motor_width/4),0])
+            cube([protuding_length,padded_motor_width,servo_height]);
+            translate([-protuding_length+thickness,-(padded_motor_width/4),0])
+            cube([protuding_length,padded_motor_width,servo_height]);
             
             //t slot
-            
+            xtra = 11.5;
 
-            translate([0,(padded_width-t_slot_thickness)/2,-(t_slot_length)])
-            cube([padded_length,t_slot_thickness,t_slot_length]);
+            translate([-xtra/2,(padded_width-t_slot_thickness)/2,-(t_slot_length)])
+            cube([padded_length+xtra,t_slot_thickness,t_slot_length]);
 
-            translate([0, (padded_width-t_slot_width)/2, -(t_slot_length+thickness+2+0.7)])
-            cube([padded_length,t_slot_width,thickness+2+0.7]);
+            translate([-xtra/2, (padded_width-t_slot_width)/2, -(t_slot_length+thickness+2+0.7)])
+            cube([padded_length+xtra,t_slot_width,thickness+2+0.7]);
             
         }
         
@@ -307,7 +307,7 @@ module servo_mount() {
         
         // for cables
         translate([servo_length+thickness,(padded_width-10)/2, thickness+2])
-        cube([thickness, 10, 7]);
+        cube([thickness+10, 10, 7]);
         
         // holes
         translate([-protuding_length+2.5+thickness,5+(3.7/2),servo_height-5])
