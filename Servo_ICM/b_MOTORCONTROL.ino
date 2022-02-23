@@ -129,14 +129,22 @@ void moveMotor(int type, int pos_desired, int shutter_spd=0) {
   if (shutter_spd != 0) {
     if (steps_to_move > 0) {  // +ve
       for (int pos=pos_current; pos<=pos_desired; pos+=1) {
-        motor->write(pos + min_pos);
+        if ((type == 1 && orientation == 0) || (type == 0 && orientation == 1)) { // if rear motor
+          motor->write(MOTOR_STEPS - (pos + min_pos));
+        } else {
+          motor->write(pos + min_pos);
+        }
         delay(toMS((float)shutter_spd/abs(steps_to_move)));
       }
     }
 
     if (steps_to_move < 0) {  // -ve
       for (int pos=pos_current; pos>=pos_desired; pos-=1) {
-        motor->write(pos + min_pos);
+        if ((type == 1 && orientation == 0) || (type == 0 && orientation == 1)) { // if rear motor
+          motor->write(MOTOR_STEPS - (pos + min_pos));
+        } else {
+          motor->write(pos + min_pos);
+        }
         delay(toMS((float)shutter_spd/abs(steps_to_move)));
       }
     }
@@ -198,7 +206,7 @@ void moveMultiMotor(int zoom_value, int focus_value, float shutter_spd=0) {
     } else if (front_steps < 0) {
       front_current -= 1;
     }
-    rear_motor.write(rear_current + rear_min);
+    rear_motor.write(MOTOR_STEPS - (rear_current + rear_min));
     front_motor.write(front_current + front_min);
     if (shutter_speed != 0) {
       delay(toMS((float)shutter_spd/average_steps));
