@@ -279,11 +279,6 @@ void setup() {
   pinMode(LEFT, INPUT_PULLUP);
   pinMode(DOWN, INPUT_PULLUP);
   pinMode(UP, INPUT_PULLUP);
-
-  // ***** Motor *****
-  // attaches servo pin to servo object
-  rear_motor.attach(rear_STEP);
-  front_motor.attach(front_STEP);
   
   // ***** Display *****
   // able to call out similar functions
@@ -320,16 +315,6 @@ void setup() {
   // ***** Default Values *****
   // if empty (==255), setting default values to 0
   // for current positions -> Move the motor to stored current 
-  if (focus_current == 255) {
-    focus_current = 0;
-  } else if (focus_current != 255) {
-    moveMotor(FOCUS, focus_current);
-  }
-  if (zoom_current == 255) {
-    zoom_current = 0;
-  } else if (zoom_current != 255) {
-    moveMotor(ZOOM, zoom_current);
-  }
   if (focus_range == 255) {
     focus_range = 0;
   }
@@ -351,6 +336,16 @@ void setup() {
   if (zoom_min == 255) {
     zoom_min = 0;
   }
+  if (focus_current == 255) {
+    focus_current = 0;
+  } else if (focus_current != 255) {
+    //moveMotor(FOCUS, focus_current);
+  }
+  if (zoom_current == 255) {
+    zoom_current = 0;
+  } else if (zoom_current != 255) {
+    //moveMotor(ZOOM, zoom_current);
+  }
 
   // For Custom Profiles
   if (custom_itemcount1 == 255) {
@@ -360,6 +355,13 @@ void setup() {
     readStringFromMemory(25, custom_buf1);
     Serial.println(custom_buf1);
   }
+
+  // ***** Motor *****
+  // attaches servo pin to servo object
+  rear_motor.write((orientation ? (focus_current + focus_min) : (zoom_current + zoom_min)) + MOTOR_STEPS);
+  front_motor.write(orientation ? (zoom_current + zoom_min) : (focus_current + focus_min));
+  rear_motor.attach(rear_STEP);
+  front_motor.attach(front_STEP);
 }
 
 /*
