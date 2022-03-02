@@ -153,7 +153,7 @@ void moveMotor(int type, int pos_desired, int shutter_spd=0) {
     motor->write(pos_desired);
   }
 
-  type ? zoom_current = pos_desired : focus_current = pos_desired;
+  //type ? zoom_current = pos_desired : focus_current = pos_desired;
 }
 
 /*

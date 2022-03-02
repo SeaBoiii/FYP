@@ -75,6 +75,8 @@ int chooseDist(int type, int count, const char *const string_table[], bool goBac
       tft.println("                  ");
     }
     moveMotor(type, type ? zoom_current : focus_current);
+  } else {
+    type ? zoom_current = pos_current : focus_current = pos_current;
   }
   
   return pos_current;
