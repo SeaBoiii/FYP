@@ -302,28 +302,30 @@ module servo_mount() {
         }
         
         // stuff to remove
-        translate([thickness,thickness,thickness])
-        cube([servo_length,servo_width,servo_height]);
+        translate([thickness,thickness,thickness-5])
+        cube([servo_length,servo_width,servo_height+5]);
         
         // for cables
-        translate([servo_length+thickness,(padded_width-10)/2, thickness+2])
-        cube([thickness+10, 10, 7]);
+        translate([servo_length+thickness,(padded_width-10)/2, thickness])
+        cube([thickness+10, 10, 20]);
+        translate([servo_length+thickness,(padded_width-10)/2+5/2, thickness+20])
+        cube([thickness+10, 5, 6]);
         
         // holes
         translate([-protuding_length+2.5+thickness,5+(3.7/2),servo_height-5])
         cylinder(5,d=3.7,center=false);
         
-        translate([-protuding_length+2.5+thickness,5+(3.7/2)+10,servo_height-5])
+        translate([-protuding_length+2.5+thickness,5+(3.7/2)+11,servo_height-5])
         cylinder(5,d=3.7,center=false);
         
         translate([servo_length+protuding_length-2.5+thickness,5+(3.7/2),servo_height-5])
         cylinder(5,d=3.7,center=false);
         
-        translate([servo_length+protuding_length-2.5+thickness,5+(3.7/2)+10,servo_height-5])
+        translate([servo_length+protuding_length-2.5+thickness,5+(3.7/2)+11,servo_height-5])
         cylinder(5,d=3.7,center=false);
         
         translate([padded_length/2,padded_width/2,-(t_slot_length+thickness+2+0.7)])
-        cylinder(5,d=3.7,center=false);
+        cylinder(4,d=3.7,center=false);
     }
 }
 
