@@ -428,13 +428,14 @@ void loop() {
           // set to minimum left
           int minZoom = calibrate(ZOOM, calizoom_left, 15, 0, AQUA);
           zoom_min = minZoom;
+          zoom_current = 0;
           EEPROM.write(10, zoom_min);
           updateScreen(500);
           
           // set to maximum right
-          int maxZoom = calibrate(ZOOM, calizoom_right, MOTOR_STEPS, 0, AQUA);
-          moveMotor(ZOOM, 0); // returns back to 0
-          zoom_range = maxZoom - minZoom;
+          int maxZoom = calibrate(ZOOM, calizoom_right, MOTOR_STEPS, minZoom, AQUA);
+          moveMotor(ZOOM, zoom_min); // returns back to zoom minimum
+          zoom_range = maxZoom;
           updateScreen(500);
           EEPROM.write(1, zoom_range);
       
@@ -453,13 +454,14 @@ void loop() {
           // set to minimum left
           int minFocus = calibrate(FOCUS, califocus_left, 15, 0, DEEPPINK);
           focus_min = minFocus;
+          focus_current = 0;
           EEPROM.write(9, focus_min);
           updateScreen(500);
       
           // set to maximum right
-          int maxFocus = calibrate(FOCUS, califocus_right, MOTOR_STEPS, 0, DEEPPINK);
-          moveMotor(FOCUS, 0); // returns back to 0
-          focus_range = maxFocus - minFocus; 
+          int maxFocus = calibrate(FOCUS, califocus_right, MOTOR_STEPS, minFocus, DEEPPINK);
+          moveMotor(FOCUS, focus_min); // returns back to focus minimum
+          focus_range = maxFocus; 
           updateScreen(500);
           EEPROM.write(0, focus_range);
       
