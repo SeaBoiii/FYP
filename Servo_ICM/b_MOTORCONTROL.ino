@@ -150,7 +150,11 @@ void moveMotor(int type, int pos_desired, int shutter_spd=0) {
     }
     
   } else {
-    motor->write(pos_desired);
+    if ((type == 1 && orientation == 0) || (type == 0 && orientation == 1)) { // if rear motor
+      motor->write(MOTOR_STEPS - (pos_desired + min_pos));
+    } else {
+      motor->write(pos_desired + min_pos);
+    }
   }
 
   //type ? zoom_current = pos_desired : focus_current = pos_desired;
