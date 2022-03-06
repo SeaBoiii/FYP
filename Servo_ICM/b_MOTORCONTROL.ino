@@ -198,21 +198,25 @@ void moveMultiMotor(int zoom_value, int focus_value, float shutter_spd=0) {
   int front_steps = front_position-front_current;
   int average_steps = (rear_steps+front_steps)/2;
 
-  while(rear_current != rear_position || front_current != front_position) {
+  while(rear_steps != 0 || front_steps != 0) {
     if (rear_steps > 0) {
       rear_current += 1;
+      rear_steps--;
     } else if (rear_steps < 0) {
       rear_current -= 1;
+      rear_steps++;
     }
 
     if (front_steps > 0) {
       front_current += 1;
+      front_steps--;
     } else if (front_steps < 0) {
       front_current -= 1;
+      front_steps++;
     }
     rear_motor.write(MOTOR_STEPS - (rear_current + rear_min));
     front_motor.write(front_current + front_min);
-    if (shutter_speed != 0) {
+    if (shutter_spd != 0) {
       delay(toMS((float)shutter_spd/average_steps));
     }
   }
