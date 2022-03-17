@@ -284,7 +284,7 @@ void setup() {
   // able to call out similar functions
   // in Adafruit GFX lib
   tft.begin();
-  tft.setRotation(2);
+  tft.setRotation(0);
   tft.background(0,0,0);
   tft.setTextSize(2);
 
