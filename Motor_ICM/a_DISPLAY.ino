@@ -7,7 +7,7 @@
  * 
  * Functions available:
  * menu() - Creates a menu template
- * hotbar() - Creates a hotbar template
+ * hotbar() - Creates a slider template
  * resetScreen() - Resets the current screen to the previous
  * updateScreen() - Updates the current screen
  * caliMenu() - Creates a menu used during calibration

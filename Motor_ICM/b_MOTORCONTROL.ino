@@ -87,7 +87,7 @@ void splitStr(char* data, char title[], int custom_itemcount) {
  * data[0] - Either zoom or focus motor.
  * data[1] - If motor has to go back or not.
  * data[2] - If it is the last sequence.
- * data[4++] - The number of steps to move.
+ * data[3++] - The number of steps to move.
  * 
  * @param data              Character array of a sequence/
  * @param title             Title of the screen.
