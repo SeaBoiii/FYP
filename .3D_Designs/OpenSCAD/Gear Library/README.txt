@@ -1,0 +1,1 @@
+OpenSCAD Gear Library with Customizer by eleotlecram on Thingiverse: https://www.thingiverse.com/thing:4194148
