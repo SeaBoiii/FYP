@@ -436,6 +436,7 @@ void countdownMenu() {
 
   delay(100);
   nikonTime();
+  buzz();
   tft.setTextColor(WHITE);
   tft.println("\n\n\nExposing camera to\nenvironment for...");
   tft.setTextSize(3);
@@ -468,6 +469,7 @@ void countdownMenu() {
  * @warning Currently a work in progress.
  */
 void printMoveSteps(int type, char title[], uint16_t color, int goBack) {
+  updateScreen();
   tft.setCursor(0,0);
   tft.setTextColor(AQUA);
   tft.print(F("Shutter Speed: "));
