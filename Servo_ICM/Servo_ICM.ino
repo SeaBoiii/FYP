@@ -335,10 +335,10 @@ void setup() {
     motor_time = 1;
   }
   if (focus_min == 255) {
-    focus_min = 0;
+    focus_min = 5;
   }
   if (zoom_min == 255) {
-    zoom_min = 0;
+    zoom_min = 5;
   }
   if (focus_current == 255) {
     focus_current = 0;
@@ -629,6 +629,7 @@ void loop() {
           goDist(ZOOM, string_44, 0, CORAL, false, motor_time/2, false);
           goDist(ZOOM, string_44, previous_pos, CORAL, false, motor_time/2);
           sscreen = resetScreen(sscreen);
+          break;
         }
         case 4: { // back
           screen = -1;

@@ -172,7 +172,7 @@ void moveMotor(int type, int pos_desired, int shutter_spd=0) {
 void moveMultiMotor(int zoom_value, int focus_value, float shutter_spd=0) {
   int rear_position;
   int front_position;
-  int rear_current = orientation ? zoom_current : focus_current;
+  int rear_current = orientation ? focus_current : rear_current;
   int front_current = orientation ? zoom_current : focus_current;
   int rear_min;
   int front_min;
@@ -196,7 +196,7 @@ void moveMultiMotor(int zoom_value, int focus_value, float shutter_spd=0) {
 
   int rear_steps = rear_position-rear_current;
   int front_steps = front_position-front_current;
-  int average_steps = (rear_steps+front_steps)/2;
+  int average_steps = abs((rear_steps+front_steps)/2);
 
   while(rear_steps != 0 || front_steps != 0) {
     if (rear_steps > 0) {
