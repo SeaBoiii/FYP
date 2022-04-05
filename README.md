@@ -37,7 +37,7 @@
     <a href="https://github.com/SeaBoiii/FYP/blob/main/.documents/ICM_Buddy_Final_Report.pdf"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/github_username/repo_name">View Demo</a>
+    <a href="https://www.youtube.com/watch?v=y02GOHybE4I">View Demo</a>
     ·
     <a href="https://github.com/SeaBoiii/FYP/issues">Report Bug</a>
     ·
