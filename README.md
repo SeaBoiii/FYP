@@ -221,9 +221,12 @@ Don't forget to give the project a star! Thanks again!
 
 Project Link: [https://github.com/SeaBoiii/FYP](https://github.com/SeaBoiii/FYP)
 
+<a href="mailto:seaboiiigamer@gmail.com"><img src="https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white"/></a>	
+<a href="https://github.com/SeaBoiii/"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"/></a>
+<a href="https://www.linkedin.com/in/a1e3m/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"/></a>
+<a href="https://instagram.com/a1e3m/"><img src="https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white"/></a>
+<a href="https://t.me/a1e3m"><img src="https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white"/></a>
 <p align="right">(<a href="#top">back to top</a>)</p>
-
-
 
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
